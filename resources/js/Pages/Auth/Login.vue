@@ -1,0 +1,124 @@
+<script setup>
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
+import {
+    FormField,
+    FormItem,
+    FormLabel,
+    FormControl,
+    FormDescription,
+    FormMessage,
+} from "@/Components/ui/form";
+import { useForm } from "@inertiajs/vue3";
+import { useForm as useVeeForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
+
+const formSchema = toTypedSchema(
+    z.object({
+        email: z.string().email("Invalid email address"),
+        password: z.string().min(8, "Password must be at least 8 characters."),
+    })
+);
+
+const validateForm = useVeeForm({
+    validationSchema: formSchema,
+});
+
+const form = useForm({
+    password: "",
+    email: "",
+    remember: false,
+});
+
+const onSubmit = () => {
+    validateForm.validate().then(() => {
+        if (Object.keys(validateForm.errors.value).length > 0) {
+            console.log("Client-side validation failed");
+            return;
+        }
+        console.log("Client-side validation passed");
+        form.clearErrors();
+        form.post(route("login"), {
+            onError: () => {
+                console.log(form.errors);
+            },
+        });
+    });
+};
+</script>
+
+<template>
+    <div
+        class="flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8"
+    >
+        <div class="flex flex-col gap-y-4 w-full max-w-lg">
+            <div class="flex flex-col gap-y-2">
+                <h2
+                    class="scroll-m-20 border-b text-3xl font-semibold tracking-tight transition-colors first:mt-0"
+                >
+                    GoCo , Inc • SL
+                </h2>
+                <h1
+                    class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl"
+                >
+                    Login to your account
+                </h1>
+                <p class="text-sm text-muted-foreground">
+                    Please enter your credentials to access your profile and
+                    stay connected with sports activities.
+                </p>
+            </div>
+
+            <form @submit.prevent="onSubmit">
+                <div class="flex flex-col gap-4">
+                    <FormField v-slot="{ componentField }" name="email">
+                        <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type="email"
+                                    v-model:modelValue="form.email"
+                                    placeholder="Your work email"
+                                    v-bind="componentField"
+                                />
+                            </FormControl>
+                            <FormMessage>
+                                {{ form.errors.email }}
+                            </FormMessage>
+                        </FormItem>
+                    </FormField>
+                    <FormField v-slot="{ componentField }" name="password">
+                        <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                                <Input
+                                    type="password"
+                                    v-model:modelValue="form.password"
+                                    placeholder="Your password"
+                                    v-bind="componentField"
+                                />
+                            </FormControl>
+                            <FormMessage>
+                                {{ form.errors.password }}
+                            </FormMessage>
+                        </FormItem>
+                    </FormField>
+                    <Button class="mt-2" type="submit"> Login </Button>
+                </div>
+            </form>
+
+            <div class="text-center">
+                <p class="text-sm text-muted-foreground">
+                    Forgot your password?
+                    <Button asChild variant="link" class="px-1">
+                        <Link :href="route('password.request')"> Reset </Link>
+                    </Button>
+                </p>
+                <p class="text-sm text-muted-foreground">
+                    For assistance, please contact your HR department.
+                </p>
+            </div>
+        </div>
+    </div>
+</template>
