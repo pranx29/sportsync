@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 use App\Http\Requests\Auth\LoginRequest;
+use Redirect;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -33,7 +34,7 @@ class AuthenticatedSessionController extends Controller
         try {
             $request->authenticate();
         } catch (\Exception $e) {
-            dd('Authentication failed: ' . $e->getMessage());
+            return Redirect::back()->withErrors('error', 'Incorrect email or password');
         }
         $request->session()->regenerate();
 

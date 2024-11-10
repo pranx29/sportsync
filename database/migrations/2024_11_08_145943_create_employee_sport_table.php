@@ -13,6 +13,8 @@ return new class extends Migration {
         Schema::create('employee_sport', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('sport_id')->constrained()->onDelete('cascade');
+            $table->enum('interest_level', ['low', 'medium', 'high'])->default('low');
+            $table->enum('skill_level', ['beginner', 'intermediate', 'advanced'])->default('beginner');
             $table->timestamps();
         });
     }

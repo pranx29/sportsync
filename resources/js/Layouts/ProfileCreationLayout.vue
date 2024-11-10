@@ -1,12 +1,3 @@
-<script setup>
-import { Head } from "@inertiajs/vue3";
-
-import { ref } from 'vue';
-
-const pageTitle = ref('Create Profile');
-
-</script>
-
 <template>
     <div class="flex min-h-screen">
         <!-- Left Section with Title -->

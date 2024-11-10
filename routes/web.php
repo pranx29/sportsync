@@ -24,18 +24,25 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
 
+    // Settings
+    Route::get('/settings', function () {
+        return Inertia::render('Setting');
+    })->name('settings');
     // Profile
     Route::get('create/about', [ProfileController::class, 'create'])
         ->name('create.about');
     Route::post('create/about', [ProfileController::class, 'store']);
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile', [ProfileController::class, 'show'])
+        ->name('profile.show');
+    Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Interests
     Route::get('create/interest', [InterestController::class, 'create'])
         ->name('create.interest');
     Route::post('create/interest', [InterestController::class, 'store']);
+    Route::patch('interest', [InterestController::class, 'update'])->name('interest.update');
 
     // Availability
     Route::get('create/availability', [AvailabilityController::class, 'create'])

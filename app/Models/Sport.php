@@ -20,4 +20,6 @@ class Sport extends Model
     {
         return $this->belongsToMany(User::class, 'employee_sport');
     }
+    
+
 }

@@ -22,24 +22,8 @@ import {
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { Calendar } from "@/Components/ui/calendar";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/Components/ui/popover";
-import { cn } from "@/lib/utils";
-import {
-    CalendarDate,
-    DateFormatter,
-    getLocalTimeZone,
-    parseDate,
-    today,
-} from "@internationalized/date";
-import { Calendar as CalendarIcon } from "lucide-vue-next";
-import { toDate } from "radix-vue/date";
 import { computed, h, ref } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 
 const schema = z.object({
     firstName: z.string().min(1, { message: "First name is required" }),
@@ -49,18 +33,6 @@ const schema = z.object({
     department: z.string().min(1, { message: "Department is required" }),
     gender: z.string().min(1, { message: "Gender is required" }),
 });
-
-const df = new DateFormatter("en-US", {
-    dateStyle: "long",
-});
-
-const placeholder = ref();
-const value = computed({
-    get: () => (values.dob ? parseDate(values.dob) : undefined),
-    set: (val) => val,
-});
-
-import { usePage } from "@inertiajs/vue3";
 
 const { props } = usePage();
 const { handleSubmit, setFieldValue, values } = useForm({
@@ -123,65 +95,25 @@ const onSubmit = handleSubmit((values) => {
                         </FormField>
                     </div>
 
-                    <FormField name="dob">
-                        <FormItem class="flex flex-col">
-                            <FormLabel>Date of birth</FormLabel>
-                            <Popover>
-                                <PopoverTrigger as-child>
-                                    <FormControl>
-                                        <Button
-                                            variant="outline"
-                                            :class="
-                                                cn(
-                                                    'w-[240px] ps-3 text-start font-normal',
-                                                    !value &&
-                                                        'text-muted-foreground'
-                                                )
-                                            "
-                                        >
-                                            <span>{{
-                                                value
-                                                    ? df.format(toDate(value))
-                                                    : "Pick a date"
-                                            }}</span>
-                                            <CalendarIcon
-                                                class="ms-auto h-4 w-4 opacity-50"
-                                            />
-                                        </Button>
-                                        <input hidden />
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent class="w-auto p-0">
-                                    <Calendar
-                                        v-model:placeholder="placeholder"
-                                        v-model="value"
-                                        calendar-label="Date of birth"
-                                        initial-focus
-                                        :min-value="
-                                            new CalendarDate(1900, 1, 1)
-                                        "
-                                        :max-value="today(getLocalTimeZone())"
-                                        @update:model-value="
-                                            (v) => {
-                                                if (v) {
-                                                    setFieldValue(
-                                                        'dob',
-                                                        v.toString()
-                                                    );
-                                                } else {
-                                                    setFieldValue(
-                                                        'dob',
-                                                        undefined
-                                                    );
-                                                }
-                                            }
-                                        "
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                    </FormField>
+                    <FormField v-slot="{ componentField }" name="dob">
+                    <FormItem>
+                        <FormLabel>Date of Birth</FormLabel>
+                        <FormControl>
+                            <Input
+                                class="w-1/3"
+                                type="date"
+                                v-bind="componentField"
+                                :min="
+                                    new Date(1900, 0, 1)
+                                        .toISOString()
+                                        .split('T')[0]
+                                "
+                                :max="new Date().toISOString().split('T')[0]"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                </FormField>
 
                     <FormField v-slot="{ componentField }" name="gender">
                         <FormItem>

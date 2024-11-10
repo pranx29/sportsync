@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use Inertia\Inertia;
+use App\Models\Sport;
 use Inertia\Response;
 use App\Models\Profile;
 use App\Models\Department;
@@ -68,15 +69,40 @@ class ProfileController extends Controller
             dd($e->getMessage());
         }
     }
+
+    /**
+     * Display the user's profile.
+     */
+
+    public function show(Request $request): Response
+    {
+        $profile = Profile::where('user_id', Auth::id())->first();
+
+        $interests = Auth::user()->sports()->get(['id', 'name', 'interest_level', 'skill_level']);
+        $sports = Sport::select('id', 'name')->get();
+        $sports = $sports->diff($interests);
+
+        return Inertia::render('Profile/ViewProfile', [
+            'profile' => $profile->load('department', 'role'),
+            'interests' => $interests,
+            'sports' => $sports,
+        ]);
+    }
+
     /**
      * Display the user's profile form.
      */
     public function edit(Request $request): Response
     {
+        $profile = Profile::where('user_id', Auth::id())->first()->load('department', 'role');
+        $jobs = Role::select('id', 'title')->get();
+        $departments = Department::select('id', 'name')->get();
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
+            'profile' => $profile,
+            'jobs' => $jobs,
+            'departments' => $departments,
         ]);
+
     }
 
     /**
@@ -84,15 +110,36 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        try {
+            // Update the user's names
+            $request->user()->update([
+            'first_name' => $request->firstName,
+            'last_name' => $request->lastName,
+            ]);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+            // Update the user's profile
+            $profile = Profile::where('user_id', Auth::id())->first();
+            $profile->update([
+            'department_id' => $request->department,
+            'role_id' => $request->jobTitle,
+            'date_of_birth' => $request->dateOfBirth,
+            ]);
+        } catch (\Exception $e) {
+            return Redirect::route('profile.edit')->with('error', 'Failed to update profile.');
         }
 
-        $request->user()->save();
 
-        return Redirect::route('profile.edit');
+
+        
+
+
+        // if ($request->user()->isDirty('email')) {
+        //     $request->user()->email_verified_at = null;
+        // }
+
+        // $request->user()->save();
+
+        return Redirect::route('profile.edit')->with('success', 'Profile updated.');
     }
 
     /**
