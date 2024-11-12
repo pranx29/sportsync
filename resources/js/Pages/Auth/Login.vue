@@ -18,7 +18,7 @@ import { h } from "vue";
 
 const formSchema = toTypedSchema(
     z.object({
-        email: z.string().email('Invalid email address'),
+        email: z.string().email("Invalid email address"),
         password: z.string(),
     })
 );
@@ -34,7 +34,6 @@ const form = useForm({
 });
 
 const onSubmit = () => {
-
     validateForm.validate().then(() => {
         if (Object.keys(validateForm.errors.value).length > 0) {
             console.log("Client-side validation failed");
@@ -43,18 +42,22 @@ const onSubmit = () => {
         console.log("Client-side validation passed");
         form.clearErrors();
         form.post(route("login"), {
-    onError: () => {
-        toast({
-            title: 'Login Failed',
-            description: 'The provided credentials are incorrect.',
-            variant: 'destructive',
-            action: h(ToastAction, {
-                altText: 'Try again',
-            }, {
-                default: () => 'Try again',
-            }),
-        });
-    },
+            onError: () => {
+                toast({
+                    title: "Login Failed",
+                    description: "Invalid credentials. Please try again.",
+                    variant: "destructive",
+                    action: h(
+                        ToastAction,
+                        {
+                            altText: "Try again",
+                        },
+                        {
+                            default: () => "Try again",
+                        }
+                    ),
+                });
+            },
         });
     });
 };
@@ -70,7 +73,7 @@ const onSubmit = () => {
                     <h2
                         class="scroll-m-20 border-b text-3xl font-semibold tracking-tight transition-colors first:mt-0"
                     >
-                        GoCo , Inc • SL
+                        {{ $page.props.companyName }}
                     </h2>
                     <h1
                         class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl"

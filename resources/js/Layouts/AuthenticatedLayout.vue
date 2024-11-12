@@ -39,7 +39,7 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                         class="flex items-center gap-2 text-lg font-semibold md:text-base"
                     >
                         <ApplicationLogo class="h-6 w-6" />
-                        <span class="sr-only"> GoCo , Inc • SL </span>
+                        <span class="sr-only"> {{ $page.props.companyName }} </span>
                     </Link>
                     <NavLink :href="route('dashboard')">Groups</NavLink>
                     <NavLink :href="route('dashboard')">Events</NavLink>

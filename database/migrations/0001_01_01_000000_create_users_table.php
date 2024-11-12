@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('last_name')->nullable();
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('registration_code', 5)->default(mt_rand(10000, 99999));
             $table->enum('role', ['employee', 'admin'])->default('employee');
             $table->boolean('is_active')->default(true);
+            $table->boolean('is_profile_created')->default(false);
             $table->timestamps();
         });
 

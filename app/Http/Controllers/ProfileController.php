@@ -127,12 +127,6 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return Redirect::route('profile.edit')->with('error', 'Failed to update profile.');
         }
-
-
-
-        
-
-
         // if ($request->user()->isDirty('email')) {
         //     $request->user()->email_verified_at = null;
         // }

@@ -12,6 +12,11 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    const ADMIN = 'admin';
+    const EMPLOYEE = 'employee';
+    const ROLES = [self::ADMIN, self::EMPLOYEE];
+    const DEFAULT_PASSWORD = 'password';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -20,7 +25,9 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'email',
         'password',
+        'is_active',
     ];
 
     /**
@@ -29,7 +36,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 

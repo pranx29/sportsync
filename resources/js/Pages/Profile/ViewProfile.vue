@@ -113,32 +113,35 @@ function loadFormData(sport) {
 
 const onUpdateSubmit = handleUpdateSubmit(async (values) => {
     values.skill_level = getSkillLevel(values.skill_level[0]);
-    router.patch(route("interest.update"), {
-        sport_id: currentSport.value,
-        ...values
-    }, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            toast({
-                title: "Interest updated",
-                description: "Your interest has been updated successfully.",
-                variant: "success",
-            });
+    router.patch(
+        route("interest.update"),
+        {
+            sport_id: currentSport.value,
+            ...values,
         },
-        onError: () => {
-            toast({
-                title: "Failed to update interest",
-                description: "An error occurred while updating your interest.",
-                variant: "destructive",
-            });
-        },
-    });
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast({
+                    title: "Interest updated",
+                    description: "Your interest has been updated successfully.",
+                    variant: "success",
+                });
+            },
+            onError: () => {
+                toast({
+                    title: "Failed to update interest",
+                    description:
+                        "An error occurred while updating your interest.",
+                    variant: "destructive",
+                });
+            },
+        }
+    );
     console.log("Update interest form submitted:", values);
     resetUpdateForm();
 });
-
-
 </script>
 
 <template>
@@ -292,7 +295,7 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                     <CardHeader>
                         <div class="flex gap-4 items-center justify-between">
                             <CardTitle>My Interests</CardTitle>
-                            <InterestForm :get-skill-level="getSkillLevel"/>
+                            <InterestForm :get-skill-level="getSkillLevel" />
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -507,6 +510,6 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                 </Card>
             </div>
         </div>
-        <Toaster/>
+        <Toaster />
     </AuthenticatedLayout>
 </template>

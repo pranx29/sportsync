@@ -27,11 +27,23 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
+        // Admin
+        User::factory()->create([
+            'first_name' => 'Franklin',
+            'last_name' => 'Clin',
+            'email' => 'fc@admin.com',
+            'role' => 'admin',
+            'password' => bcrypt('admin'),
+        ]);
+
         $this->call([
             DepartmentSeeder::class,
             RoleSeeder::class,
             SportSeeder::class,
         ]);
+
+        User::factory(10)->withProfile()->create();
+        User::factory(5)->create(); 
 
     }
 }

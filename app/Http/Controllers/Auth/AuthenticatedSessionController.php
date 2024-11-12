@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Redirect;
+use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Profile;
@@ -11,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
 use App\Http\Requests\Auth\LoginRequest;
-use Redirect;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -33,22 +34,75 @@ class AuthenticatedSessionController extends Controller
     {
         try {
             $request->authenticate();
-        } catch (\Exception $e) {
-            return Redirect::back()->withErrors('error', 'Incorrect email or password');
+        } catch (\Illuminate\Auth\AuthenticationException | \Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Login failed for email: ' . $request->email);
+            return Inertia::back()->withErrors(['error' => 'Incorrect email or password']);
         }
+
         $request->session()->regenerate();
+        $user = Auth::user();
 
-        // If user has already created a profile then redirect to dashboard
-        $profile = Profile::where('user_id', Auth::id())->first();
-        if ($profile) {
-            return redirect()->intended('/dashboard')->with('status', 'Authenticated');
+        // Redirect based on user role
+        switch ($user->role) {
+            case User::EMPLOYEE:
+                // Check if the user has a profile and if their profile is created
+                $profile = Profile::where('user_id', $user->id)->first();
+
+                if ($profile && $user->is_profile_created) {
+                    return Redirect::intended('/dashboard')->with('status', 'Authenticated');
+                } else {
+                    return Redirect::route('create.about')->with('status', 'Please complete your profile');
+                }
+
+            case User::ADMIN:
+                return Redirect::route('admin.dashboard')->with('status', 'Welcome, Admin');
+
+            default:
+                // Log the unexpected role
+                \Log::error('User with id ' . $user->id . ' has an unrecognized role: ' . $user->role);
+
+                // Redirect to a fallback route, e.g., home or an error page
+                return Redirect::route('home')->withErrors(['error' => 'Unexpected user role']);
         }
-
-        // If user has not created a profile, redirect to create profile page
-        sleep(1);
-        return redirect()->route('create.about', [
-        ])->with('first', 'Authenticated');
     }
+
+    // public function store(LoginRequest $request): RedirectResponse
+    // {
+    //     try {
+    //         $request->authenticate();
+    //     } catch (\Illuminate\Auth\AuthenticationException $e) {
+    //         \Log::warning('Login failed for email: ' . $request->email);
+    //         return Redirect::back()->withErrors(['error' => 'Incorrect email or password']);
+    //     }
+
+    //     $request->session()->regenerate();
+    //     $user = Auth::user();
+
+    //     // Redirect based on user role
+    //     switch ($user->role) {
+    //         case User::EMPLOYEE:
+    //             // Check if the user has a profile check by is_profile_created
+    //             $profile = Profile::where('user_id', $user->id)->first() && Auth::user()->is_profile_created;
+
+    //             if ($profile) {
+    //                 return Redirect::intended('/dashboard')->with('status', 'Authenticated');
+    //             } else {
+    //                 return Redirect::route('create.about')->with('status', 'Authenticated');
+    //             }
+
+    //         case User::ADMIN:
+    //             return Redirect::route('admin.dashboard');
+
+    //         default:
+    //             // Log the unexpected role
+    //             \Log::error('User with id ' . $user->id . ' has an unrecognized role: ' . $user->role);
+
+    //             // Redirect to a fallback route
+    //             Auth::logout();
+    //             return redirect()->route('login')->withErrors(['error' => 'Invalid login. Please contact support.']);
+    //     }
+    // }
+
 
     /**
      * Destroy an authenticated session.
