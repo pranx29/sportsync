@@ -211,7 +211,7 @@ import Logo from "@/Components/Logo.vue";
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <Link :href="route('admin.settings.department')">
+                        <Link :href="route('admin.settings.account')">
                             <DropdownMenuItem>Settings</DropdownMenuItem>
                         </Link>
                         <DropdownMenuItem>Support</DropdownMenuItem>

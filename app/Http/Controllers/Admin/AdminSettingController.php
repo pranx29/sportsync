@@ -10,10 +10,46 @@ use App\Http\Controllers\Controller;
 
 class AdminSettingController extends Controller
 {
-    // public function account()
-    // {
-    //     return Inertia::render('Admin/Setting/Account');
-    // }
+    public function account()
+    {
+        return Inertia::render('Admin/Settings/Account');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        request()->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'email' => 'required|email|max:255',
+        ]);
+
+        auth()->user()->update([
+            'first_name' => request('first_name'),
+            'last_name' => request('last_name'),
+            'email' => request('email'),
+        ]);
+
+        return redirect()->route('admin.settings.account')->with('success', 'Profile updated successfully.');
+    }
+
+    public function changePassword(Request $request)
+    {
+        //dd($request->all());
+        request()->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8',
+        ]);
+
+        if (!\Hash::check(request('current_password'), auth()->user()->password)) {
+            //dd('here');
+            return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+        auth()->user()->update([
+            'password' => bcrypt(request('new_password'))
+        ]);
+
+        return redirect()->route('admin.settings.account')->with('success', 'Password updated successfully.');
+    }
 
     public function department()
     {

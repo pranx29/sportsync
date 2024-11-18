@@ -93,7 +93,16 @@ import Logo from "@/Components/Logo.vue";
                     class="mx-auto grid w-full max-w-6xl items-start gap-6 md:grid-cols-[180px_1fr] lg:grid-cols-[250px_1fr]"
                 >
                     <nav class="grid gap-4 text-sm text-muted-foreground">
-                        <a href="#"> Account </a>
+                        <Link
+                            :href="route('admin.settings.account')"
+                            :class="{
+                                'font-semibold text-primary': route().current(
+                                    'admin.settings.account'
+                                ),
+                            }"
+                        >
+                            Account
+                        </Link>
                         <Link
                             :href="route('admin.settings.department')"
                             :class="{

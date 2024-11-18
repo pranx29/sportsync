@@ -61,6 +61,9 @@ class ProfileController extends Controller
                 'date_of_birth' => $request->dob,
             ]);
 
+            // Update the user's profile status to created
+            Auth::user()->update(['is_profile_created' => true]);
+
             // Redirect to the next step (Set Interest)
             sleep(1);
             return redirect()->route('create.interest');
@@ -113,16 +116,16 @@ class ProfileController extends Controller
         try {
             // Update the user's names
             $request->user()->update([
-            'first_name' => $request->firstName,
-            'last_name' => $request->lastName,
+                'first_name' => $request->firstName,
+                'last_name' => $request->lastName,
             ]);
 
             // Update the user's profile
             $profile = Profile::where('user_id', Auth::id())->first();
             $profile->update([
-            'department_id' => $request->department,
-            'role_id' => $request->jobTitle,
-            'date_of_birth' => $request->dateOfBirth,
+                'department_id' => $request->department,
+                'role_id' => $request->jobTitle,
+                'date_of_birth' => $request->dateOfBirth,
             ]);
         } catch (\Exception $e) {
             return Redirect::route('profile.edit')->with('error', 'Failed to update profile.');

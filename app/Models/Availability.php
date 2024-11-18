@@ -34,14 +34,13 @@ class Availability extends Model
         '21-24'
     ];
 
-
-
-
     /**
      * Get the profiles for the department.
      */
-    public function profiles()
+ 
+    // Define the relationship between the availability and user
+    public function user()
     {
-        return $this->hasMany(Profile::class);
-    }
+        return $this->belongsTo(User::class);
+    }   
 }

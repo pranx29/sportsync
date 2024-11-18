@@ -28,7 +28,9 @@ import { router, usePage } from "@inertiajs/vue3";
 const schema = z.object({
     firstName: z.string().min(1, { message: "First name is required" }),
     lastName: z.string().optional(),
-    dob: z.string().refine((v) => v, { message: "A date of birth is required." }),
+    dob: z
+        .string()
+        .refine((v) => v, { message: "A date of birth is required." }),
     jobTitle: z.string().min(1, { message: "Job title is required" }),
     department: z.string().min(1, { message: "Department is required" }),
     gender: z.string().min(1, { message: "Gender is required" }),
@@ -96,24 +98,26 @@ const onSubmit = handleSubmit((values) => {
                     </div>
 
                     <FormField v-slot="{ componentField }" name="dob">
-                    <FormItem>
-                        <FormLabel>Date of Birth</FormLabel>
-                        <FormControl>
-                            <Input
-                                class="w-1/3"
-                                type="date"
-                                v-bind="componentField"
-                                :min="
-                                    new Date(1900, 0, 1)
-                                        .toISOString()
-                                        .split('T')[0]
-                                "
-                                :max="new Date().toISOString().split('T')[0]"
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                </FormField>
+                        <FormItem>
+                            <FormLabel>Date of Birth</FormLabel>
+                            <FormControl>
+                                <Input
+                                    class="w-1/3"
+                                    type="date"
+                                    v-bind="componentField"
+                                    :min="
+                                        new Date(1900, 0, 1)
+                                            .toISOString()
+                                            .split('T')[0]
+                                    "
+                                    :max="
+                                        new Date().toISOString().split('T')[0]
+                                    "
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
 
                     <FormField v-slot="{ componentField }" name="gender">
                         <FormItem>

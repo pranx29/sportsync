@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckProfile;
 use App\Http\Middleware\EmployeeMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             [
                 'admin' => AdminMiddleware::class,
                 'employee' => EmployeeMiddleware::class,
+                'checkProfile' => CheckProfile::class,
             ]
         );
 

@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified', 'employee'])->group(function () {
     Route::get('/settings', function () {
         return Inertia::render('Setting');
     })->name('settings');
+
     // Profile
     Route::get('create/about', [ProfileController::class, 'create'])
         ->name('create.about');
@@ -45,65 +46,90 @@ Route::middleware(['auth', 'verified', 'employee'])->group(function () {
     Route::post('create/availability', [AvailabilityController::class, 'store']);
 });
 
+// Before creating a profile
+Route::middleware(['auth', 'verified', 'employee'])->group(function () {
+    // Profile
+    Route::get('create/about', [ProfileController::class, 'create'])
+        ->name('create.about');
+    // Interests
+    Route::get('create/interest', [InterestController::class, 'create'])
+        ->name('create.interest');
+
+    // Availability
+    Route::get('create/availability', [AvailabilityController::class, 'create'])
+        ->name('create.availability');
+});
+
+
 
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin', function () {
         return Inertia::render('Admin/Dashboard');
     })->name('admin.dashboard');
-    
+
     Route::get('/admin/employees', [
         EmployeeController::class,
         'index'
     ])->name('admin.employees.index');
-    
+
     Route::post('/admin/employees/create', [
         EmployeeController::class,
         'store'
     ])->name('admin.employees.create');
-    
+
     Route::patch('/admin/employees/update/{id}', [
         EmployeeController::class,
         'update'
     ])->name('admin.employees.update');
-    
-    
-    // Admin Settings
-    // Route::get('/admin/settings/account', [
-    //     AdminSettingController::class,
-    //     'account'
-    // ])->name('admin.settings.account');
-    
+
+
+    Route::get('/admin/settings/account', [
+        AdminSettingController::class,
+        'account'
+    ])->name('admin.settings.account');
+
+    // route to update profile in account settings and another to change password
+    Route::patch('/admin/settings/account/update', [
+        AdminSettingController::class,
+        'updateProfile'
+    ])->name('admin.account.update');
+
+    Route::patch('/admin/settings/account/password', [
+        AdminSettingController::class,
+        'changePassword'
+    ])->name('admin.password.update');
+
     Route::get('/admin/settings/department', [
         AdminSettingController::class,
         'department'
     ])->name('admin.settings.department');
-    
+
     Route::post('/admin/settings/department/create', [
         AdminSettingController::class,
         'storeDepartment'
     ])->name('admin.department.create');
-    
+
     Route::patch('/admin/settings/department/update/{id}', [
         AdminSettingController::class,
         'updateDepartment'
     ])->name('admin.department.update');
-    
+
     Route::get('/admin/settings/role', [
         AdminSettingController::class,
         'role'
     ])->name('admin.settings.role');
-    
+
     Route::post('/admin/settings/role/create', [
         AdminSettingController::class,
         'storeRole'
     ])->name('admin.role.create');
-    
+
     Route::patch('/admin/settings/role/update/{id}', [
         AdminSettingController::class,
         'updateRole'
     ])->name('admin.role.update');
-    });    
+});
 
 
 

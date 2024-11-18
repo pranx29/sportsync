@@ -88,4 +88,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Sport::class, 'employee_sport');
     }
 
+    /**
+     * Get the availability associated with the user.
+     */
+
+    public function availabilities(){
+        return $this->hasMany(Availability::class);
+    }
+
 }
