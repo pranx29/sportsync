@@ -64,25 +64,19 @@ const onSubmit = () => {
 </script>
 
 <template>
-    <div
-        class="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]"
-    >
-        <div class="flex items-center justify-center py-12">
-            <div class="mx-auto grid w-[350px] gap-6">
+    <Head title="Login"/>
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        <div class="flex items-center justify-center py-12 lg:w-1/2">
+            <div class="mx-auto grid w-full max-w-md gap-6 px-4 sm:px-6 lg:px-8">
                 <div class="grid gap-2 text-center">
-                    <h2
-                        class="scroll-m-20 border-b text-3xl font-semibold tracking-tight transition-colors first:mt-0"
-                    >
+                    <h2 class="scroll-m-20 border-b text-3xl font-semibold tracking-tight transition-colors first:mt-0">
                         {{ $page.props.companyName }}
                     </h2>
-                    <h1
-                        class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl"
-                    >
+                    <h1 class="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
                         Login to your account
                     </h1>
                     <p class="text-sm text-muted-foreground">
-                        Please enter your credentials to access your profile and
-                        stay connected with sports activities.
+                        Please enter your credentials to access your profile and stay connected with sports activities.
                     </p>
                 </div>
                 <form @submit.prevent="onSubmit">
@@ -137,7 +131,7 @@ const onSubmit = () => {
                 </div>
             </div>
         </div>
-        <div class="hidden bg-muted lg:block">
+        <div class="hidden lg:flex lg:w-1/2 bg-muted">
             <!-- <img
                 src="https://images.pexels.com/photos/1939485/pexels-photo-1939485.jpeg?auto=compress&cs=tinysrgb"
                 alt="Image"

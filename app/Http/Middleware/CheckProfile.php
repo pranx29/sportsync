@@ -21,17 +21,17 @@ class CheckProfile
 
         // Check if user has a profile
         if (!$user->profile) {
-            return redirect()->route('profile.create');
+            return redirect()->route('create.about');
         }
 
         // Check if user associated with a sport
         if ($user->sports->isEmpty()) {
-            return redirect()->route('sport.create');
+            return redirect()->route('create.interest');
         }
 
         // Check if user associated with a availability
         if ($user->availabilities->isEmpty()) {
-            return redirect()->route('availability.create');
+            return redirect()->route('create.availability');
         }
 
         // If all checks pass, continue with the request

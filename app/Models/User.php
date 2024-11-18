@@ -28,6 +28,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_active',
+        'is_profile_created',
     ];
 
     /**
@@ -94,6 +95,14 @@ class User extends Authenticatable
 
     public function availabilities(){
         return $this->hasMany(Availability::class);
+    }
+
+    /**
+     * Get the groups associated with the user.
+     */
+
+    public function groups(){
+        return $this->belongsToMany(Group::class, 'group_user');
     }
 
 }

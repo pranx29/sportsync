@@ -1,5 +1,5 @@
 <script setup>
-import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import Logo from "@/Components/Logo.vue";
 import NavLink from "@/Components/NavLink.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import { Button } from "@/Components/ui/button";
@@ -38,10 +38,12 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                         :href="route('dashboard')"
                         class="flex items-center gap-2 text-lg font-semibold md:text-base"
                     >
-                        <ApplicationLogo class="h-6 w-6" />
-                        <span class="sr-only"> {{ $page.props.companyName }} </span>
+                        <Logo class="h-6 w-6" />
+                        <span class="sr-only">
+                            {{ $page.props.companyName }}
+                        </span>
                     </Link>
-                    <NavLink :href="route('dashboard')">Groups</NavLink>
+                    <NavLink :href="route('employee.groups')" :active="route().current('employee.groups')">Groups</NavLink>
                     <NavLink :href="route('dashboard')">Events</NavLink>
                     <NavLink :href="route('dashboard')">Sessions</NavLink>
                 </nav>
@@ -63,10 +65,12 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                                 class="flex items-center gap-2 text-lg font-semibold"
                             >
                                 <ApplicationLogo class="h-6 w-6" />
-                                <span class="sr-only">Acme Inc</span>
+                                <span class="sr-only">{{
+                                    $page.props.companyName
+                                }}</span>
                             </a>
                             <ResponsiveNavLink
-                                :href="route('dashboard')"
+                                :href="route('employee.groups')"
                                 active
                             >
                                 Groups</ResponsiveNavLink

@@ -21,17 +21,27 @@ import {
 } from "@/Components/ui/pagination";
 import { Toaster } from "@/Components/ui/toast";
 import { File, ListFilter, PlusCircle } from "lucide-vue-next";
-import AddEmployeeForm from "./AddEmployeeForm.vue";
-import EmployeeTable from "./EmployeeTable.vue";
+import AddGroupForm from "./AddGroupForm.vue";
+import GroupTable from "./GroupTable.vue";
+import GroupDetails from "./GroupDetails.vue";
+import { ref } from "vue";
+import { usePage } from "@inertiajs/vue3";
+
+const { props } = usePage();
+const selectedGroup = ref(props.groups[0]);
+
+const handleGroupSelected = (group) => {
+    selectedGroup.value = group;
+};
 </script>
 
 <template>
     <AdminLayout>
-        <template #title> Employees </template>
+        <template #title> Groups </template>
         <main
             class="grid items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 flex-1 min-h-screen"
         >
-            <div class="ml-auto flex items-center gap-2">
+            <div class="ml-auto flex items-center gap-2 flex-wrap">
                 <DropdownMenu>
                     <DropdownMenuTrigger as-child>
                         <Button variant="outline" size="sm" class="h-7 gap-1">
@@ -46,10 +56,9 @@ import EmployeeTable from "./EmployeeTable.vue";
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-
                         <Link
                             :href="
-                                route('admin.employees.index', {
+                                route('admin.groups.index', {
                                     active: true,
                                 })
                             "
@@ -61,7 +70,7 @@ import EmployeeTable from "./EmployeeTable.vue";
 
                         <Link
                             :href="
-                                route('admin.employees.index', {
+                                route('admin.groups.index', {
                                     active: false,
                                 })
                             "
@@ -79,59 +88,18 @@ import EmployeeTable from "./EmployeeTable.vue";
                         Export
                     </span>
                 </Button>
-                <AddEmployeeForm />
+                <AddGroupForm />
             </div>
-            <div class="min-h-screen">
-                <EmployeeTable :employees="$page.props.employees.data" />
-            </div>
-            <Pagination
-                v-slot="{ page }"
-                :total="$page.props.employees.total"
-                :sibling-count="1"
-                show-edges
-                :default-page="$page.props.employees.current_page"
+            <div
+                class="min-h-screen flex flex-col md:flex-row gap-4 overflow-x-auto"
             >
-                <PaginationList
-                    v-slot="{ items }"
-                    class="flex items-center gap-1"
-                >
-                    <PaginationPrev />
-
-                    <template v-for="(item, index) in items">
-                        <PaginationListItem
-                            v-if="item.type === 'page'"
-                            :key="index"
-                            :value="item.value"
-                            as-child
-                        >
-                            <Link
-                                :href="
-                                    route('admin.employees.index', {
-                                        page: item.value,
-                                    })
-                                "
-                            >
-                                <Button
-                                    class="w-10 h-10 p-0"
-                                    :variant="
-                                        item.value === page
-                                            ? 'default'
-                                            : 'outline'
-                                    "
-                                >
-                                    {{ item.value }}
-                                </Button>
-                            </Link>
-                        </PaginationListItem>
-                        <PaginationEllipsis
-                            v-else
-                            :key="item.type"
-                            :index="index"
-                        />
-                    </template>
-                    <PaginationNext />
-                </PaginationList>
-            </Pagination>
+                <GroupTable
+                    :groups="$page.props.groups"
+                    class="w-2/3"
+                    @group-selected="handleGroupSelected"
+                />
+                <GroupDetails :group="selectedGroup" class="w-1/3" />
+            </div>
         </main>
         <Toaster />
     </AdminLayout>

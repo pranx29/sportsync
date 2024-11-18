@@ -20,6 +20,13 @@ class Sport extends Model
     {
         return $this->belongsToMany(User::class, 'employee_sport');
     }
+
+    public function group()
+    {
+        return $this->hasOne(Group::class);
+    }
+
+    
     
 
 }

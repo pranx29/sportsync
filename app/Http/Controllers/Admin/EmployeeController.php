@@ -19,7 +19,7 @@ class EmployeeController extends Controller
                 ->where('is_active', $request->active)
                 ->paginate(10);
         } else {
-            $employees = User::where('role', 'employee')->latest()->paginate(10);
+            $employees = User::where('role', 'employee')->orderBy('created_at', 'desc')->paginate(10);
         }
 
         $employees->load(['profile.department', 'profile.role']);
@@ -29,7 +29,7 @@ class EmployeeController extends Controller
         // }
 
         return Inertia::render(
-            'Admin/Employees/Index',
+            'Admin/Employee/Index',
             ['employees' => $employees]
         );
     }

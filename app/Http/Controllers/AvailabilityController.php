@@ -59,5 +59,48 @@ class AvailabilityController extends Controller
         }
     }
 
+    /**
+     * Display the edit view for availability.
+     */
+
+    public function edit(Request $request): Response
+    {
+        $availability = Availability::where('user_id', Auth::id())->get();
+        return Inertia::render(
+            'Employee/Settings/Availability',
+            [
+                'timeslots' => Availability::TIME_SLOTS,
+                'days' => Availability::DAYS,
+                'availability' => $availability,
+            ]
+        );
+    }
+
+    /**
+     * Update the availability details.
+     */
+
+    public function update(Request $request): RedirectResponse
+    {
+        try {
+            // Delete all availability records for the user
+            Availability::where('user_id', Auth::id())->delete();
+
+            // Foreach day, create an availability record which time slot is not null
+            foreach ($request->all() as $day) {
+                if (!empty($day['time_slot'])) {
+                    Availability::create([
+                        'user_id' => Auth::id(),
+                        'day' => $day['day'],
+                        'time_slot' => $day['time_slot'],
+                    ]);
+                }
+            }
+            return redirect()->back()->with('success', 'Availability updated successfully');
+        } catch (Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
 
 }

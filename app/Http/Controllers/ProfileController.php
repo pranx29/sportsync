@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Storage;
 
 class ProfileController extends Controller
 {
@@ -49,7 +50,13 @@ class ProfileController extends Controller
                 'dob' => 'required|date',
                 'jobTitle' => 'required|exists:' . Role::class . ',title',
                 'department' => 'required|exists:' . Department::class . ',name',
+                'picture' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
             ]);
+
+            // if picture is uploaded
+            if ($request->hasFile('picture')) {
+                $profile_image = $request->file('picture')->store('profile_pictures', 'public');
+            }
 
             // Create the profile for the employee
             Profile::create([
@@ -57,7 +64,7 @@ class ProfileController extends Controller
                 'department_id' => Department::where('name', $request->department)->first()->id,
                 'role_id' => Role::where('title', $request->jobTitle)->first()->id,
                 'gender' => $request->gender,
-                'profile_image' => $request->profile_image,
+                'profile_image' => $profile_image,
                 'date_of_birth' => $request->dob,
             ]);
 
@@ -85,7 +92,7 @@ class ProfileController extends Controller
         $sports = Sport::select('id', 'name')->get();
         $sports = $sports->diff($interests);
 
-        return Inertia::render('Profile/ViewProfile', [
+        return Inertia::render('Employee/Profile/View', [
             'profile' => $profile->load('department', 'role'),
             'interests' => $interests,
             'sports' => $sports,
@@ -100,7 +107,7 @@ class ProfileController extends Controller
         $profile = Profile::where('user_id', Auth::id())->first()->load('department', 'role');
         $jobs = Role::select('id', 'title')->get();
         $departments = Department::select('id', 'name')->get();
-        return Inertia::render('Profile/Edit', [
+        return Inertia::render('Employee/Settings/Profile', [
             'profile' => $profile,
             'jobs' => $jobs,
             'departments' => $departments,
@@ -130,12 +137,6 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return Redirect::route('profile.edit')->with('error', 'Failed to update profile.');
         }
-        // if ($request->user()->isDirty('email')) {
-        //     $request->user()->email_verified_at = null;
-        // }
-
-        // $request->user()->save();
-
         return Redirect::route('profile.edit')->with('success', 'Profile updated.');
     }
 

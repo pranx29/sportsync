@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Storage;
 
 class Profile extends Model
 {
@@ -40,5 +42,16 @@ class Profile extends Model
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Get the profile image attribute.
+     */
+
+    public function getProfileImageAttribute($value)
+    {
+
+        // return the image or a default image if the image is not found
+        return $value ? Storage::url($value) : Storage::url('profile_pictures/default.jpg');
     }
 }

@@ -22,7 +22,7 @@ import {
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { computed, h, ref } from "vue";
+import { ref } from "vue";
 import { router, usePage } from "@inertiajs/vue3";
 
 const schema = z.object({
@@ -34,10 +34,11 @@ const schema = z.object({
     jobTitle: z.string().min(1, { message: "Job title is required" }),
     department: z.string().min(1, { message: "Department is required" }),
     gender: z.string().min(1, { message: "Gender is required" }),
+    picture: z.any(),
 });
 
 const { props } = usePage();
-const { handleSubmit, setFieldValue, values } = useForm({
+const { handleSubmit, setFieldValue, setErrors } = useForm({
     validationSchema: toTypedSchema(schema),
     initialValues: {
         firstName: props.auth.user.first_name,
@@ -53,6 +54,17 @@ const onSubmit = handleSubmit((values) => {
     router.post(route("create.about"), values);
     console.log(values);
 });
+
+// Load the user's profile picture to the avatar
+const avatarUrl = ref("");
+
+const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        avatarUrl.value = URL.createObjectURL(file);
+    }
+    setFieldValue("picture", file);
+};
 </script>
 
 <template>
@@ -215,7 +227,7 @@ const onSubmit = handleSubmit((values) => {
                     </FormField>
 
                     <div class="grid w-full max-w-sm items-center gap-4">
-                        <FormField v-slot="{ componentField }" name="picture">
+                        <FormField name="picture">
                             <FormItem>
                                 <FormLabel>Profile Picture</FormLabel>
                                 <div
@@ -224,7 +236,7 @@ const onSubmit = handleSubmit((values) => {
                                     <FormControl>
                                         <Avatar class="w-24 h-24 rounded-md">
                                             <AvatarImage
-                                                src=""
+                                                :src="avatarUrl"
                                                 alt="Profile Picture"
                                             />
                                             <AvatarFallback>CN</AvatarFallback>
@@ -232,7 +244,8 @@ const onSubmit = handleSubmit((values) => {
                                         <Input
                                             id="picture"
                                             type="file"
-                                            v-bind="componentField"
+                                            @change="handleFileChange"
+                                            accept=".jpeg, .png, .jpg, .svg"
                                         />
                                     </FormControl>
                                 </div>

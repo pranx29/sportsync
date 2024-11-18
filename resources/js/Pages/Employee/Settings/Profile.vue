@@ -120,7 +120,7 @@ const onSubmit = handleSubmit((values) => {
                         <FormLabel>Date of Birth</FormLabel>
                         <FormControl>
                             <Input
-                                class="w-1/4"
+                                class="w-[150px]"
                                 type="date"
                                 v-bind="componentField"
                                 :min="

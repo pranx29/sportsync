@@ -14,8 +14,8 @@ const props = defineProps({
 
 const classes = computed(() =>
     props.active
-        ? "flex items-center gap-2 text-lg font-semibold md:text-base"
-        : "text-muted-foreground transition-colors hover:text-foreground"
+        ? "flex items-center gap-2 text-lg font-semibold md:text-base text-primary"
+        : "text-muted-foreground transition-colors hover:text-primary"
 );
 </script>
 

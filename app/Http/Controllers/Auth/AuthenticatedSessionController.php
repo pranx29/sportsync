@@ -30,48 +30,12 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    // public function store(LoginRequest $request): RedirectResponse
-    // {
-
-    //     try {
-    //         $request->authenticate();
-    //     } catch (\Illuminate\Auth\AuthenticationException | \Illuminate\Validation\ValidationException $e) {
-    //         \Log::warning('Login failed for email: ' . $request->email);
-    //         return Redirect::back()->withErrors(['error' => 'Incorrect email or password']);
-    //     }
-
-    //     $request->session()->regenerate();
-    //     $user = Auth::user();
-
-    //     // Redirect based on user role
-    //     switch ($user->role) {
-    //         case User::EMPLOYEE:
-    //             // Check if the user has a profile and if their profile is created
-    //             $profile = Profile::where('user_id', $user->id)->first();
-
-    //             if ($profile && $user->is_profile_created) {
-    //                 return Redirect::intended('/dashboard')->with('status', 'Authenticated');
-    //             } else {
-    //                 return Redirect::route('create.about')->with('status', 'Please complete your profile');
-    //             }
-
-    //         case User::ADMIN:
-    //             return Redirect::route('admin.dashboard')->with('status', 'Welcome, Admin');
-
-    //         default:
-    //             // Log the unexpected role
-    //             \Log::error('User with id ' . $user->id . ' has an unrecognized role: ' . $user->role);
-
-    //             // Redirect to a fallback route, e.g., home or an error page
-    //             return Redirect::route('home')->withErrors(['error' => 'Unexpected user role']);
-    //     }
-    // }
-
     public function store(LoginRequest $request): RedirectResponse
     {
+
         try {
             $request->authenticate();
-        } catch (\Illuminate\Auth\AuthenticationException $e) {
+        } catch (\Illuminate\Auth\AuthenticationException | \Illuminate\Validation\ValidationException $e) {
             \Log::warning('Login failed for email: ' . $request->email);
             return Redirect::back()->withErrors(['error' => 'Incorrect email or password']);
         }
@@ -82,24 +46,23 @@ class AuthenticatedSessionController extends Controller
         // Redirect based on user role
         switch ($user->role) {
             case User::EMPLOYEE:
-                // Check if the user has a profile check by is_profile_created
-                $profile = Profile::where('user_id', $user->id)->first() && Auth::user()->is_profile_created;
-
-                if ($profile) {
-                    return Redirect::intended('/dashboard')->with('status', 'Authenticated');
+                // Check if the user has a profile and if their profile is created
+                $profile = Profile::where('user_id', $user->id)->first();
+                if ($profile && $user->is_profile_created) {
+                    return Redirect::route('dashboard')->with('status', 'Authenticated');
                 } else {
-                    return Redirect::route('create.about')->with('status', 'Authenticated');
+                    return Redirect::route('create.about')->with('status', 'Please complete your profile');
                 }
+
             case User::ADMIN:
-                return Redirect::route('admin.dashboard');
+                return Redirect::route('admin.dashboard')->with('status', 'Welcome, Admin');
 
             default:
                 // Log the unexpected role
                 \Log::error('User with id ' . $user->id . ' has an unrecognized role: ' . $user->role);
 
-                // Redirect to a fallback route
-                Auth::logout();
-                return redirect()->route('login')->withErrors(['error' => 'Invalid login. Please contact support.']);
+                // Redirect to a fallback route, e.g., home or an error page
+                return Redirect::route('home')->withErrors(['error' => 'Unexpected user role']);
         }
     }
 

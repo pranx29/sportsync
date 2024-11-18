@@ -14,7 +14,7 @@ class SportSeeder extends Seeder
     public function run(): void
     {
         $sports = [
-            ['name' => 'Soccer', 'category' => 'team', 'focus' => 'physical'],
+            ['name' => 'Futsal', 'category' => 'team', 'focus' => 'physical'],
             ['name' => 'Basketball', 'category' => 'team', 'focus' => 'physical'],
             ['name' => 'Tennis', 'category' => 'individual', 'focus' => 'physical'],
             ['name' => 'Cricket', 'category' => 'team', 'focus' => 'intellectual'],

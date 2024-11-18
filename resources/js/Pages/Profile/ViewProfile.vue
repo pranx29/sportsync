@@ -146,8 +146,8 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
 
 <template>
     <AuthenticatedLayout>
-        <div class="flex flex-row items-start min-h-screen p-16 gap-4">
-            <div class="flex flex-row items-center justify-start w-1/3 h-full">
+        <div class="flex flex-col lg:flex-row items-start min-h-screen p-4 lg:p-16 gap-4">
+            <div class="flex flex-col lg:flex-row items-center justify-start w-full lg:w-1/3 h-full">
                 <Card class="w-full">
                     <CardHeader>
                         <CardTitle>My Profile</CardTitle>
@@ -158,7 +158,7 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                             <img
                                 :src="$page.props.profile.profile_image"
                                 alt="Profile Picture"
-                                class="min-h-[150px] max-w-sm rounded-sm"
+                                class="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl rounded-sm object-cover"
                             />
                         </div>
                         <!-- Profile details -->
@@ -286,11 +286,11 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                             </div>
                         </div>
                     </CardContent>
-                    <CardFooter> </CardFooter>
+
                 </Card>
             </div>
             <!-- Interests and Groups -->
-            <div class="flex flex-col gap-4 items-center justify-start w-2/3">
+            <div class="flex flex-col gap-4 items-center justify-start w-full lg:w-2/3">
                 <Card class="w-full">
                     <CardHeader>
                         <div class="flex gap-4 items-center justify-between">
@@ -299,7 +299,7 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div class="flex gap-4 items-start justify-start">
+                        <div class="flex flex-wrap gap-4 items-start justify-start">
                             <Card
                                 class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-6"
                                 v-for="sport in $page.props.interests"
@@ -336,7 +336,7 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                                             </SheetHeader>
                                             <div class="grid gap-4 py-4">
                                                 <form
-                                                    class="w-2/3 space-y-6"
+                                                    class="w-full space-y-6"
                                                     @submit.prevent="
                                                         onUpdateSubmit
                                                     "

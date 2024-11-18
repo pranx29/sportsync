@@ -13,12 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
 
         User::factory()->create([
             'first_name' => 'John',
@@ -36,14 +30,16 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('admin'),
         ]);
 
+
+        User::factory(5)->create();
+
+
         $this->call([
             DepartmentSeeder::class,
             RoleSeeder::class,
             SportSeeder::class,
+            GroupSeeder::class
         ]);
-
-        User::factory(10)->withProfile()->create();
-        User::factory(5)->create(); 
 
     }
 }

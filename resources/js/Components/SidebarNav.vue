@@ -9,7 +9,7 @@ const sidebarNavItems = [
     },
     {
         title: "Availability",
-        name: "dashboard",
+        name: "availability.edit",
     },
 ];
 </script>

@@ -1,13 +1,15 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminGroupController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InterestController;
-use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\AdminSettingController;
 
 
 Route::get('/', function () {
@@ -15,25 +17,47 @@ Route::get('/', function () {
 })->name('welcome');
 
 // Employee Routes
-Route::middleware(['auth', 'verified', 'employee'])->group(function () {
+Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(function () {
     Route::get('/employee', function () {
-        return Inertia::render('Dashboard');
+        return Inertia::render('Employee/Dashboard');
     })->name('dashboard');
+
+    Route::get(
+        '/employee/groups',
+        [GroupController::class, 'index'],
+    )->name('employee.groups');
+    Route::post(
+        '/employee/groups/join',
+        [GroupController::class, 'joinGroup'],
+    )->name('employee.groups.join');
+    Route::get(
+        '/employee/groups/{group}',
+        [GroupController::class, 'show'],
+    )->name('employee.groups.show');
+
+
+    Route::get('/profile', [ProfileController::class, 'show'])
+        ->name('profile.show');
+
 
     Route::get('/settings', function () {
         return Inertia::render('Setting');
     })->name('settings');
-
-    // Profile
-    Route::get('create/about', [ProfileController::class, 'create'])
-        ->name('create.about');
-    Route::post('create/about', [ProfileController::class, 'store']);
-    Route::get('/profile', [ProfileController::class, 'show'])
-        ->name('profile.show');
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/settings/availability', [AvailabilityController::class, 'edit'])->name('availability.edit');
+    Route::patch('/settings/availability', [AvailabilityController::class, 'update'])->name('availability.update');
+
+});
+
+// Before creating a profile
+Route::middleware(['auth', 'verified', 'employee'])->group(function () {
+    // Profile
+    Route::get('create/about', [ProfileController::class, 'create'])
+        ->name('create.about');
+    Route::post('create/about', [ProfileController::class, 'store']);
     // Interests
     Route::get('create/interest', [InterestController::class, 'create'])
         ->name('create.interest');
@@ -44,20 +68,6 @@ Route::middleware(['auth', 'verified', 'employee'])->group(function () {
     Route::get('create/availability', [AvailabilityController::class, 'create'])
         ->name('create.availability');
     Route::post('create/availability', [AvailabilityController::class, 'store']);
-});
-
-// Before creating a profile
-Route::middleware(['auth', 'verified', 'employee'])->group(function () {
-    // Profile
-    Route::get('create/about', [ProfileController::class, 'create'])
-        ->name('create.about');
-    // Interests
-    Route::get('create/interest', [InterestController::class, 'create'])
-        ->name('create.interest');
-
-    // Availability
-    Route::get('create/availability', [AvailabilityController::class, 'create'])
-        ->name('create.availability');
 });
 
 
@@ -83,13 +93,17 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         'update'
     ])->name('admin.employees.update');
 
+    // Groups
+    Route::get('/admin/groups', [AdminGroupController::class, 'index'])
+        ->name('admin.groups.index');
+    Route::post('/admin/groups/create', [AdminGroupController::class, 'store'])
+        ->name('admin.groups.create');
+
 
     Route::get('/admin/settings/account', [
         AdminSettingController::class,
         'account'
     ])->name('admin.settings.account');
-
-    // route to update profile in account settings and another to change password
     Route::patch('/admin/settings/account/update', [
         AdminSettingController::class,
         'updateProfile'
@@ -132,14 +146,9 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 });
 
 
-
-
-
-
-
 // Test Route
 Route::get('/test', function () {
-    return Inertia::render('Admin/Test');
+    return Inertia::render('Test');
 })->name('test');
 
 

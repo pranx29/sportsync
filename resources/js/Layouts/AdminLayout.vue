@@ -39,7 +39,6 @@ import Logo from "@/Components/Logo.vue";
                         :href="route('admin.dashboard')"
                         class="flex items-center gap-2 font-semibold"
                     >
-                        <!-- <Package2 class="h-6 w-6" /> -->
                         <Logo class="h-6 w-6 text-primary" />
                         <span class="">{{ $page.props.companyName }}</span>
                     </Link>
@@ -68,13 +67,19 @@ import Logo from "@/Components/Logo.vue";
                             <Ticket class="h-4 w-4" />
                             Events
                         </a>
-                        <a
-                            href="#"
-                            class="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                        <Link
+                            :href="route('admin.groups.index')"
+                            :class="{
+                                'flex items-center gap-3 rounded-lg px-3 py-2 transition-all': true,
+                                'bg-muted text-primary hover:text-primary':
+                                    route().current('admin.groups.index'),
+                                'text-muted-foreground hover:text-primary':
+                                    !route().current('admin.groups.index'),
+                            }"
                         >
-                            <Users class="h-4 w-4" />
+                            <User class="h-4 w-4" />
                             Groups
-                        </a>
+                        </Link>
                         <Link
                             :href="route('admin.employees.index')"
                             :class="{
