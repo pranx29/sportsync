@@ -67,12 +67,22 @@ defineProps({
                         >
                         </Button>
                     </CardTitle>
-                    <CardDescription
-                        >Created on
-                        {{
-                            new Date(group.created_at).toLocaleString()
-                        }}</CardDescription
-                    >
+                    <CardDescription>
+                        <time
+                            :dateTime="new Date(group.created_at).toISOString()"
+                        >
+                            {{
+                                new Date(group.created_at).toLocaleDateString(
+                                    "en-US",
+                                    {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                    }
+                                )
+                            }}
+                        </time>
+                    </CardDescription>
                 </div>
                 <div class="ml-auto flex items-center gap-1">
                     <DropdownMenu>
@@ -87,12 +97,12 @@ defineProps({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <EditGroupForm>
+                            <EditGroupForm :group="group">
                                 <DropdownMenuItem> Edit </DropdownMenuItem>
                             </EditGroupForm>
-                            <DropdownMenuItem>Export</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>Trash</DropdownMenuItem>
+                            <!-- <DropdownMenuItem>Export</DropdownMenuItem>
+                            <DropdownMenuSeparator /> -->
+                            <!-- <DropdownMenuItem>Trash</DropdownMenuItem> -->
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -111,6 +121,33 @@ defineProps({
                         <!-- Members List -->
                         <ScrollArea class="flex-1 overflow-y-auto p-4">
                             <ul class="space-y-4">
+                                <li class="flex items-center space-x-3">
+                                    <Avatar>
+                                        <AvatarImage
+                                            :src="`https://api.dicebear.com/6.x/initials/svg?seed=${group.leader.first_name}+${group.leader.last_name}&fontSize=32`"
+                                        />
+                                        <AvatarFallback>
+                                            <User class="w-4 h-4" />
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div class="w-full">
+                                        <div class="flex justify-between">
+                                            <h3 class="font-medium text-sm">
+                                                {{ group.leader.first_name }}
+
+                                                {{ group.leader.last_name }}
+                                            </h3>
+                                            <Badge variant="outline"
+                                                >Leader</Badge
+                                            >
+                                        </div>
+                                        <p
+                                            class="text-xs text-muted-foreground"
+                                        >
+                                            {{ group.leader.email }}
+                                        </p>
+                                    </div>
+                                </li>
                                 <li
                                     v-for="member in group.users"
                                     :key="member.id"
@@ -130,14 +167,6 @@ defineProps({
                                                 {{ member.first_name }}
                                                 {{ member.last_name }}
                                             </h3>
-                                            <Badge
-                                                v-if="
-                                                    member.id ===
-                                                    group.leader.id
-                                                "
-                                                variant="outline"
-                                                >Leader</Badge
-                                            >
                                         </div>
                                         <p
                                             class="text-xs text-muted-foreground"
@@ -156,14 +185,19 @@ defineProps({
             >
                 <div class="text-xs text-muted-foreground">
                     Updated
-                    <time dateTime="2023-11-23">November 23, 2023</time>
+                    <time :dateTime="new Date(group.updated_at).toISOString()">
+                        {{
+                            new Date(group.updated_at).toLocaleDateString(
+                                "en-US",
+                                {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                }
+                            )
+                        }}
+                    </time>
                 </div>
-                <Pagination class="ml-auto mr-0 w-auto">
-                    <PaginationList class="gap-1">
-                        <PaginationPrev variant="outline" class="h-6 w-6" />
-                        <PaginationNext variant="outline" class="h-6 w-6" />
-                    </PaginationList>
-                </Pagination>
             </CardFooter>
         </Card>
     </div>

@@ -11,10 +11,19 @@ use App\Http\Controllers\Controller;
 
 class AdminGroupController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $groups = Group::withCount('users')->get();
+
         $sportWithoutGroups = Sport::whereDoesntHave('group')->get();
+
+
+        // Get all groups that are is_active is false
+        if ($request->has('active')) {
+            $groups = Group::where('is_active', $request->active)->withCount('users')->get();
+        } else {
+            // Get all groups
+            $groups = Group::withCount('users')->get();
+        }
 
         // For each group, add the leader object
         $groups->each(function ($group) {
@@ -60,6 +69,41 @@ class AdminGroupController extends Controller
         );
 
         return redirect()->route('admin.groups.index')->with('success', 'Group created successfully');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $group = Group::find($id);
+        $request->validate([
+            'group_name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'leader' => 'required|exists:users,email',
+            'is_active' => 'required|in:0,1',
+            'image' => 'image',
+        ]);
+
+        $request->leader = User::where('email', $request->leader)->first()->id;
+
+        // if picture is uploaded
+        if ($request->hasFile('image')) {
+            $group_image = $request->file('image')->store('group_images', 'public');
+            $group->update(
+                [
+                    'image' => $group_image,
+                ]
+            );
+        }
+        $group->update(
+            [
+                'name' => $request->group_name,
+                'description' => $request->description,
+                'user_id' => $request->leader,
+                'is_active' => $request->is_active,
+                'updated_at' => now(),
+            ]
+        );
+
+        return redirect()->route('admin.groups.index')->with('success', 'Group updated successfully');
     }
 
 

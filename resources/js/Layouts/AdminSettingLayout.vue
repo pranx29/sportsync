@@ -29,7 +29,7 @@ import Logo from "@/Components/Logo.vue";
         <div
             class="grid grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr] h-14 lg:h-[60px] border-b bg-muted/40"
         >
-            <div class="border-r flex items-center px-4 lg:px-6">
+            <div class="flex items-center px-4 lg:px-6">
                 <Link
                     :href="route('admin.dashboard')"
                     class="flex items-center gap-2 font-semibold"
@@ -70,7 +70,6 @@ import Logo from "@/Components/Logo.vue";
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>Settings</DropdownMenuItem>
-                        <DropdownMenuItem>Support</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <Link :href="route('logout')" method="post">
                             <DropdownMenuItem> Logout </DropdownMenuItem>
@@ -122,6 +121,16 @@ import Logo from "@/Components/Logo.vue";
                             }"
                         >
                             Role
+                        </Link>
+                        <Link
+                            :href="route('admin.settings.sport')"
+                            :class="{
+                                'font-semibold text-primary': route().current(
+                                    'admin.settings.sport'
+                                ),
+                            }"
+                        >
+                            Sport
                         </Link>
                     </nav>
                     <slot />

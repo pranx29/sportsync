@@ -32,53 +32,11 @@ const props = defineProps({
             <CardTitle>Groups</CardTitle>
         </CardHeader>
         <CardContent>
-            <div class="flex justify-end mb-4 w-full">
-                <DropdownMenu>
-                    <DropdownMenuTrigger as-child>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            class="h-8 gap-2 px-3"
-                        >
-                            <ListFilter class="h-4 w-4" />
-                            <span
-                                class="sr-only sm:not-sr-only sm:whitespace-nowrap"
-                            >
-                                Filter
-                            </span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <Link
-                            :href="
-                                route('admin.employees.index', {
-                                    active: true,
-                                })
-                            "
-                        >
-                            <DropdownMenuItem>Active</DropdownMenuItem>
-                        </Link>
-                        <Link
-                            :href="
-                                route('admin.employees.index', {
-                                    active: false,
-                                })
-                            "
-                        >
-                            <DropdownMenuItem>Inactive</DropdownMenuItem>
-                        </Link>
-                        <DropdownMenuItem>Archived</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-
             <template v-if="groups.length">
                 <Card
                     v-for="group in groups"
                     :key="group.id"
-                    class="flex flex-col sm:flex-row items-center w-full"
+                    class="flex flex-col sm:flex-row items-center w-full mb-4"
                 >
                     <div
                         class="flex flex-col sm:flex-row sm:items-center w-full"

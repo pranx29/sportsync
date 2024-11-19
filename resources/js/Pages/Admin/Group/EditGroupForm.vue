@@ -47,19 +47,25 @@ import * as z from "zod";
 import { Pencil, CirclePlus } from "lucide-vue-next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { useForm as useVeeForm } from "vee-validate";
-import { ref } from "vue";
+import { ref, defineProps } from "vue";
 import { router } from "@inertiajs/vue3";
 import { toast } from "@/Components/ui/toast";
 
+const props = defineProps({
+    group: {
+        type: Object,
+        required: true,
+    },
+});
 const isAddFormOpen = ref(false);
 
 const addGroupSchema = toTypedSchema(
     z.object({
-        group_name: z.string().nonempty("Group name is required."),
+        group_name: z.string().min(1, "Group name is required."),
         description: z.string().optional(),
-        sport_id: z.string().nonempty("Sport is required."),
         leader: z.string().email("Invalid email address."),
         image: z.any(),
+        is_active: z.union([z.literal("1"), z.literal("0")]).default("1"),
     })
 );
 
@@ -70,24 +76,41 @@ const {
     setFieldError,
 } = useVeeForm({
     validationSchema: addGroupSchema,
+    initialValues: {
+        group_name: props.group.name,
+        description: props.group.description,
+        leader: props.group.leader.email,
+        image: props.group.image,
+        is_active: props.group.is_active.toString(),
+    },
 });
 
 const onGroupSubmit = handleGroupSubmit(async (values) => {
-    router.post(route("admin.groups.create"), values, {
+    if (values.image === props.group.image) {
+        delete values.image;
+    }
+    router.post(route("admin.groups.update", {
+        id: props.group.id,
+    }), values, {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
             toast({
                 title: "Group added",
-                description: "Group details have been added successfully.",
+                description: "Group details have been updated successfully.",
                 variant: "success",
             });
             isAddFormOpen.value = false;
         },
         onError: (errors) => {
             setFieldError("leader", errors.leader);
+            setFieldError("group_name", errors.group_name);
+            setFieldError("description", errors.description);
+            setFieldError("is_active", errors.is_active);
+            setFieldError("image", errors.image);
+            console.log(errors);
             toast({
-                title: "Failed to add group",
+                title: "Failed to update group",
                 description: "Please check the form for errors.",
                 variant: "destructive",
             });
@@ -96,7 +119,7 @@ const onGroupSubmit = handleGroupSubmit(async (values) => {
     resetGroupForm();
 });
 
-const groupImageUrl = ref("");
+const groupImageUrl = ref(props.group.image);
 
 const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -122,7 +145,7 @@ const handleFileChange = (event) => {
         <ScrollArea></ScrollArea>
         <SheetContent>
             <SheetHeader>
-                <SheetTitle>Add Group</SheetTitle>
+                <SheetTitle>Edit Group</SheetTitle>
                 <SheetDescription>
                     Enter the details of the new group.
                 </SheetDescription>
@@ -157,35 +180,6 @@ const handleFileChange = (event) => {
                         </FormItem>
                     </FormField>
 
-                    <!-- Sport type -->
-                    <FormField v-slot="{ componentField }" name="sport_id">
-                        <FormItem>
-                            <FormLabel>Sport</FormLabel>
-                            <Select v-bind="componentField">
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue
-                                            placeholder="Select a sport"
-                                        />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem
-                                            v-for="sport in $page.props
-                                                .sportWithoutGroups"
-                                            :key="sport.id"
-                                            :value="sport.id.toString()"
-                                        >
-                                            {{ sport.name }}
-                                        </SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    </FormField>
-
                     <!-- Leader (Employee email) -->
                     <FormField v-slot="{ componentField }" name="leader">
                         <FormItem>
@@ -196,6 +190,33 @@ const handleFileChange = (event) => {
                                     placeholder="Leader's email"
                                     type="email"
                                 />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
+
+                    <!-- Active Status -->
+                    <FormField v-slot="{ componentField }" name="is_active">
+                        <FormItem>
+                            <FormLabel>Active Status</FormLabel>
+                            <FormControl>
+                                <Select v-bind="componentField">
+                                    <SelectTrigger>
+                                        <SelectValue
+                                            placeholder="Select status"
+                                        />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectItem value="1"
+                                                >Active</SelectItem
+                                            >
+                                            <SelectItem value="0"
+                                                >Inactive</SelectItem
+                                            >
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

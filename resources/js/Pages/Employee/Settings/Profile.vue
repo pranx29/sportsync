@@ -24,7 +24,8 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { useForm } from "vee-validate";
 import { h, ref } from "vue";
 import * as z from "zod";
-import SettingLayout from "@/Layouts/SettingLayout.vue";
+import SettingLayout from "@/Layouts/EmployeeSettingLayout.vue";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { usePage, router } from "@inertiajs/vue3";
 
 const profileFormSchema = toTypedSchema(
@@ -48,11 +49,12 @@ const profileFormSchema = toTypedSchema(
             }),
         jobTitle: z.string().min(1, { message: "Job title is required" }),
         department: z.string().min(1, { message: "Department is required" }),
+        picture: z.any(),
     })
 );
 
 const { props } = usePage();
-const { handleSubmit } = useForm({
+const { handleSubmit, setFieldValue } = useForm({
     validationSchema: profileFormSchema,
     initialValues: {
         firstName: props.auth.user.first_name,
@@ -60,10 +62,14 @@ const { handleSubmit } = useForm({
         dateOfBirth: props.profile.date_of_birth,
         jobTitle: props.profile.role.title,
         department: props.profile.department.name,
+        picture: props.profile.profile_image,
     },
 });
 
 const onSubmit = handleSubmit((values) => {
+    if (values.picture === props.profile.profile_image) {
+        delete values.picture;
+    }
     values.department = props.departments.find(
         (department) => department.name === values.department
     ).id;
@@ -71,7 +77,7 @@ const onSubmit = handleSubmit((values) => {
         (job) => job.title === values.jobTitle
     ).id;
 
-    router.patch(route("profile.update"), values, {
+    router.post(route("profile.update"), values, {
         onSuccess: () => {
             toast({
                 title: "Profile updated successfully.",
@@ -82,9 +88,21 @@ const onSubmit = handleSubmit((values) => {
         },
     });
 });
+
+// Load the user's profile picture to the avatar
+const avatarUrl = ref(props.profile.profile_image);
+
+const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        avatarUrl.value = URL.createObjectURL(file);
+    }
+    setFieldValue("picture", file);
+};
 </script>
 
 <template>
+    <Head title="Settings | Profile" />
     <SettingLayout>
         <template #content>
             <div>
@@ -94,7 +112,32 @@ const onSubmit = handleSubmit((values) => {
                 </p>
             </div>
             <Separator />
+
             <form class="space-y-8" @submit.prevent="onSubmit">
+                <FormField name="picture">
+                    <FormItem>
+                        <FormLabel>Profile Picture</FormLabel>
+                        <div class="flex w-full max-w-sm items-center gap-4">
+                            <FormControl>
+                                <Avatar class="w-24 h-24 rounded-md">
+                                    <AvatarImage
+                                        :src="avatarUrl"
+                                        alt="Profile Picture"
+                                    />
+                                    <AvatarFallback>CN</AvatarFallback>
+                                </Avatar>
+                                <Input
+                                    id="picture"
+                                    type="file"
+                                    @change="handleFileChange"
+                                    accept=".jpeg, .png, .jpg, .svg"
+                                />
+                            </FormControl>
+                        </div>
+                        <FormMessage />
+                    </FormItem>
+                </FormField>
+
                 <FormField v-slot="{ componentField }" name="firstName">
                     <FormItem>
                         <FormLabel>First Name</FormLabel>
@@ -204,5 +247,3 @@ const onSubmit = handleSubmit((values) => {
         </template>
     </SettingLayout>
 </template>
-
-

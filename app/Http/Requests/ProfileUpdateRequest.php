@@ -23,6 +23,7 @@ class ProfileUpdateRequest extends FormRequest
             'department' => ['required', 'exists:' . Department::class . ',id'],
             'jobTitle' => ['required', 'exists:' . Role::class . ',id'],
             'dateOfBirth' => ['required', 'date'],
+            'picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg', 'max:2048'],
         ];
     }
 }

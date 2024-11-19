@@ -72,6 +72,7 @@ const addRole = handleRoleSubmit(async (values) => {
 </script>
 
 <template>
+    <Head title="Settings | Role" />
     <AdminSettingLayout>
         <div class="grid gap-6">
             <Card>

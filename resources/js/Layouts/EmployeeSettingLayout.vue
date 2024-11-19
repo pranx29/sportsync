@@ -1,11 +1,12 @@
 <script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AuthenticatedLayout from "@/Layouts/EmployeeLayout.vue";
 import { Separator } from "@/Components/ui/separator";
 import SidebarNav from "@/Components/SidebarNav.vue";
 import Toaster from "@/Components/ui/toast/Toaster.vue";
 </script>
 
 <template>
+    
     <AuthenticatedLayout>
         <div class="space-y-6 p-4 md:p-16">
             <div class="space-y-0.5">

@@ -17,7 +17,7 @@ class InterestController extends Controller
     public function create(Request $request): Response
     {
         $sports = Sport::select('id', 'name')->get();
-        return Inertia::render('Profile/Partials/SetInterestForm', ['sports' => $sports]);
+        return Inertia::render('Employee/Profile/Partials/SetInterestForm', ['sports' => $sports]);
     }
 
     /**

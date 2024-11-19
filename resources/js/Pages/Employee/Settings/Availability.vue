@@ -17,7 +17,7 @@ import {
 } from "@/Components/ui/select";
 import { Separator } from "@/Components/ui/separator";
 import { toast } from "@/Components/ui/toast";
-import SettingLayout from "@/Layouts/SettingLayout.vue";
+import SettingLayout from "@/Layouts/EmployeeSettingLayout.vue";
 import { ref } from "vue";
 import * as z from "zod";
 import { toTypedSchema } from "@vee-validate/zod";
@@ -39,18 +39,21 @@ const availabilitySchema = toTypedSchema(
 const { props } = usePage();
 const availability = props.availability;
 
-const initialValues = availability.reduce((acc, { day, time_slot }) => {
-    acc[day] = time_slot;
-    return acc;
-}, {
-    Monday: "",
-    Tuesday: "",
-    Wednesday: "",
-    Thursday: "",
-    Friday: "",
-    Saturday: "",
-    Sunday: "",
-});
+const initialValues = availability.reduce(
+    (acc, { day, time_slot }) => {
+        acc[day] = time_slot;
+        return acc;
+    },
+    {
+        Monday: "",
+        Tuesday: "",
+        Wednesday: "",
+        Thursday: "",
+        Friday: "",
+        Saturday: "",
+        Sunday: "",
+    }
+);
 
 const { handleSubmit } = useForm({
     validationSchema: availabilitySchema,
@@ -58,12 +61,12 @@ const { handleSubmit } = useForm({
 });
 
 const onSubmit = handleSubmit((values) => {
-    console.log(values)
+    console.log(values);
     const availability = Object.entries(values).map(([day, time_slot]) => ({
         day,
         time_slot,
     }));
-    router.patch(route("availability.update"), availability,{
+    router.patch(route("availability.update"), availability, {
         preserveState: true,
         onSuccess: () => {
             toast({
@@ -77,11 +80,11 @@ const onSubmit = handleSubmit((values) => {
             });
         },
     });
-
 });
 </script>
 
 <template>
+    <Head title="Settings | Availabiltiy" />
     <SettingLayout>
         <template #content>
             <div>
@@ -126,7 +129,7 @@ const onSubmit = handleSubmit((values) => {
                     </FormField>
                 </div>
                 <div class="flex gap-2 justify-start">
-                    <Button type="submit">Save Availability</Button>
+                    <Button type="submit">Save changes </Button>
                 </div>
             </form>
         </template>

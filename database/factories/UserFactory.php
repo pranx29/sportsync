@@ -43,12 +43,4 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
-
-    public function withProfile()
-    {
-        return $this->afterCreating(function (User $user) {
-            $profile = Profile::factory()->create(['user_id' => $user->id]);
-            $user->update(['is_profile_created' => true]);
-        });
-    }
 }

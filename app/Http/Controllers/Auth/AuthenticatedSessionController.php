@@ -49,7 +49,8 @@ class AuthenticatedSessionController extends Controller
                 // Check if the user has a profile and if their profile is created
                 $profile = Profile::where('user_id', $user->id)->first();
                 if ($profile && $user->is_profile_created) {
-                    return Redirect::route('dashboard')->with('status', 'Authenticated');
+                    // return Redirect::route('dashboard')->with('status', 'Authenticated');
+                    return Redirect::route('employee.groups')->with('status', 'Authenticated');
                 } else {
                     return Redirect::route('create.about')->with('status', 'Please complete your profile');
                 }

@@ -33,6 +33,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user()?->only('id', 'first_name', 'last_name', 'email'),
+                'profile_image' => $request->user()?->profile?->profile_image,
             ],
         ];
     }

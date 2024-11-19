@@ -36,6 +36,7 @@ const handleGroupSelected = (group) => {
 </script>
 
 <template>
+    <Head title="Groups" />
     <AdminLayout>
         <template #title> Groups </template>
         <main
@@ -79,26 +80,32 @@ const handleGroupSelected = (group) => {
                                 Inactive
                             </DropdownMenuItem>
                         </Link>
-                        <DropdownMenuItem> Archived </DropdownMenuItem>
+
+                        <Link :href="route('admin.groups.index')">
+                            <DropdownMenuItem checked>All</DropdownMenuItem>
+                        </Link>
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Button size="sm" variant="outline" class="h-7 gap-1">
+                <!-- <Button size="sm" variant="outline" class="h-7 gap-1">
                     <File class="h-3.5 w-3.5" />
                     <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">
                         Export
                     </span>
-                </Button>
+                </Button> -->
                 <AddGroupForm />
             </div>
             <div
                 class="min-h-screen flex flex-col md:flex-row gap-4 overflow-x-auto"
             >
-                <GroupTable
-                    :groups="$page.props.groups"
-                    class="w-2/3"
-                    @group-selected="handleGroupSelected"
-                />
-                <GroupDetails :group="selectedGroup" class="w-1/3" />
+                <div class="flex-1 md:w-1/3">
+                    <GroupTable
+                        :groups="$page.props.groups"
+                        @group-selected="handleGroupSelected"
+                    />
+                </div>
+                <div class="flex-1 md:w-1/2">
+                    <GroupDetails :group="selectedGroup" />
+                </div>
             </div>
         </main>
         <Toaster />

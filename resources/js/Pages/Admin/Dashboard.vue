@@ -3,6 +3,7 @@ import AdminLayout from "@/Layouts/AdminLayout.vue";
 </script>
 
 <template>
+    <Head title="Dashboard" />
     <AdminLayout>
         <template #title> Dashboard </template>
         <template #content>

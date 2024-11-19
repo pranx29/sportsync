@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Group extends Model
 {
@@ -31,5 +32,17 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class);
     }
-    
+
+    public function getImageAttribute($value)
+    {
+
+        // return the image or a default image if the image is not found
+
+        // if $value is a https link, return the link
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+        return $value ? Storage::url($value) : url('https://www.ibcs.com/wp-content/uploads/2024/01/Projekt-bez-nazwy-15.png');
+    }
+
 }

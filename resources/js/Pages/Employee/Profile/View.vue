@@ -1,5 +1,5 @@
 <script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AuthenticatedLayout from "@/Layouts/EmployeeLayout.vue";
 import {
     Card,
     CardContent,
@@ -50,6 +50,7 @@ import { ref } from "vue";
 import { router } from "@inertiajs/vue3";
 import { toast, Toaster } from "@/Components/ui/toast";
 import InterestForm from "./InterestForm.vue";
+import { Navigation } from "lucide-vue-next";
 
 // Convert slider value to skill level
 function getSkillLevel(value) {
@@ -145,9 +146,14 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
 </script>
 
 <template>
+    <Head title="My Profile" />
     <AuthenticatedLayout>
-        <div class="flex flex-col lg:flex-row items-start min-h-screen p-4 lg:p-16 gap-4">
-            <div class="flex flex-col lg:flex-row items-center justify-start w-full lg:w-1/3 h-full">
+        <div
+            class="flex flex-col lg:flex-row items-start min-h-screen p-4 lg:p-16 gap-4"
+        >
+            <div
+                class="flex flex-col lg:flex-row items-center justify-start w-full lg:w-1/3 h-full"
+            >
                 <Card class="w-full">
                     <CardHeader>
                         <CardTitle>My Profile</CardTitle>
@@ -286,11 +292,12 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                             </div>
                         </div>
                     </CardContent>
-
                 </Card>
             </div>
             <!-- Interests and Groups -->
-            <div class="flex flex-col gap-4 items-center justify-start w-full lg:w-2/3">
+            <div
+                class="flex flex-col gap-4 items-center justify-start w-full lg:w-2/3"
+            >
                 <Card class="w-full">
                     <CardHeader>
                         <div class="flex gap-4 items-center justify-between">
@@ -299,7 +306,9 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div class="flex flex-wrap gap-4 items-start justify-start">
+                        <div
+                            class="flex flex-wrap gap-4 items-start justify-start"
+                        >
                             <Card
                                 class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-6"
                                 v-for="sport in $page.props.interests"
@@ -500,9 +509,46 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                         <CardTitle>Groups</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div
-                            class="flex flex-col items-start justify-start"
-                        ></div>
+                        <div class="flex flex-wrap items-start justify-start gap-4">
+                            <template v-if="$page.props.joinedGroups.length">
+                                <Card
+                                    v-for="group in $page.props.joinedGroups"
+                                    :key="group.id"
+                                    class="w-full sm:w-1/2 md:w-1/3 lg:w-1/3"
+                                >
+                                    <div
+                                        class="flex p-2 items-center justify-between"
+                                    >
+                                        <img
+                                            :src="group.image"
+                                            :alt="group.name"
+                                            class="w-16 h-16 rounded-md object-cover mr-4"
+                                        />
+
+                                        <CardTitle class="text-sm">{{
+                                            group.name
+                                        }}</CardTitle>
+
+                                        <Link
+                                            :href="
+                                                route('employee.groups.show', {
+                                                    group: group.id,
+                                                })
+                                            "
+                                        >
+                                            <Button variant="ghost" size="icon">
+                                                <Navigation class="w-4 h-4" />
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </Card>
+                            </template>
+                            <template v-else>
+                                <p class="text-sm text-muted-foreground">
+                                    No joined groups yet.
+                                </p>
+                            </template>
+                        </div>
                     </CardContent>
                     <CardFooter>
                         <div></div>

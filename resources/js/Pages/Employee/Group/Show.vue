@@ -1,9 +1,133 @@
+<script setup>
+import { ref } from "vue";
+import { User, Send } from "lucide-vue-next";
+import AuthenticatedLayout from "@/Layouts/EmployeeLayout.vue";
+import { Card, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
+import { ScrollArea } from "@/Components/ui/scroll-area";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
+import Badge from "@/Components/ui/badge/Badge.vue";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/Components/ui/alert-dialog";
+import { toast, Toaster } from "@/Components/ui/toast";
+import { MoreVertical, LogOut } from "lucide-vue-next";
+import { router, usePage } from "@inertiajs/vue3";
+
+const { props } = usePage();
+
+const leaveGroup = () => {
+    if (props.group.leader.id === props.auth.user.id) {
+        toast({
+            title: "Action Denied",
+            description:
+                "As the group leader, you cannot leave the group. Please contact the admin to transfer leadership.",
+            variant: "destructive",
+        });
+        return;
+    }
+
+    router.post(
+        route("employee.groups.leave"),
+        {
+            id: props.group.id,
+        },
+        {
+            onError: (errors) => {
+                toast({
+                    title: "Failed to Leave Group",
+                    description: errors[0].message,
+                    variant: "destructive",
+                });
+            },
+        }
+    );
+};
+const messages = ref([
+    {
+        id: 1,
+        sender: "Alice Johnson",
+        text: "Hey team, how's everyone doing today?",
+    },
+    { id: 2, sender: "Bob Smith", text: "I'm good! Just finished the report." },
+    {
+        id: 3,
+        sender: "You",
+        text: "Great job, Bob! Can you share it with the team?",
+    },
+    {
+        id: 4,
+        sender: "Charlie Brown",
+        text: "Looking forward to reviewing it!",
+    },
+]);
+
+const newMessage = ref("");
+
+const sendMessage = () => {
+    if (newMessage.value.trim()) {
+        messages.value.push({
+            id: messages.value.length + 1,
+            sender: "You",
+            text: newMessage.value.trim(),
+        });
+        newMessage.value = "";
+    }
+};
+</script>
+
 <template>
     <AuthenticatedLayout>
         <div class="container mx-auto p-4 space-y-4">
-            <h1 class="text-2xl font-bold text-foreground">
-                {{ $page.props.group.name }}
-            </h1>
+            <div class="ml-auto flex items-center justify-between gap-1">
+                <h1 class="text-2xl font-bold text-foreground">
+                    {{ $page.props.group.name }}
+                </h1>
+                <AlertDialog>
+                    <AlertDialogTrigger as-child>
+                        <Button variant="outline">
+                            <LogOut class="w-4 h-4 mr-2" />
+                            Leave Group
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle
+                                >Are you sure you want to leave the
+                                group?</AlertDialogTitle
+                            >
+                            <AlertDialogDescription>
+                                This action cannot be undone. You will be
+                                removed from the group and lose access to its
+                                resources.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction @click="leaveGroup"
+                                >Continue</AlertDialogAction
+                            >
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </div>
             <div class="grid lg:grid-cols-[300px_1fr] gap-4">
                 <!-- Members List -->
                 <Card class="h-[calc(100vh-12rem)] flex flex-col">
@@ -109,56 +233,5 @@
             </div>
         </div>
     </AuthenticatedLayout>
+    <Toaster />
 </template>
-
-<script setup>
-import { ref } from "vue";
-import { User, Send } from "lucide-vue-next";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Card, CardHeader, CardTitle } from "@/Components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
-import { Input } from "@/Components/ui/input";
-import { Button } from "@/Components/ui/button";
-import { ScrollArea } from "@/Components/ui/scroll-area";
-import Badge from "@/Components/ui/badge/Badge.vue";
-
-const members = ref([
-    { id: 1, name: "Alice Johnson", email: "alice@example.com" },
-    { id: 2, name: "Bob Smith", email: "bob@example.com" },
-    { id: 3, name: "Charlie Brown", email: "charlie@example.com" },
-    { id: 4, name: "Diana Prince", email: "diana@example.com" },
-    { id: 5, name: "Ethan Hunt", email: "ethan@example.com" },
-]);
-
-const messages = ref([
-    {
-        id: 1,
-        sender: "Alice Johnson",
-        text: "Hey team, how's everyone doing today?",
-    },
-    { id: 2, sender: "Bob Smith", text: "I'm good! Just finished the report." },
-    {
-        id: 3,
-        sender: "You",
-        text: "Great job, Bob! Can you share it with the team?",
-    },
-    {
-        id: 4,
-        sender: "Charlie Brown",
-        text: "Looking forward to reviewing it!",
-    },
-]);
-
-const newMessage = ref("");
-
-const sendMessage = () => {
-    if (newMessage.value.trim()) {
-        messages.value.push({
-            id: messages.value.length + 1,
-            sender: "You",
-            text: newMessage.value.trim(),
-        });
-        newMessage.value = "";
-    }
-};
-</script>

@@ -22,6 +22,7 @@ import {
     User,
     Sparkles,
     Users,
+    Menu,
 } from "lucide-vue-next";
 import Logo from "@/Components/Logo.vue";
 </script>
@@ -37,9 +38,9 @@ import Logo from "@/Components/Logo.vue";
                 >
                     <Link
                         :href="route('admin.dashboard')"
-                        class="flex items-center gap-2 font-semibold"
+                        class="flex items-center gap-4 font-semibold"
                     >
-                        <Logo class="h-6 w-6 text-primary" />
+                        <Logo class="h-8 w-8 text-primary" />
                         <span class="">{{ $page.props.companyName }}</span>
                     </Link>
                 </div>
@@ -77,7 +78,7 @@ import Logo from "@/Components/Logo.vue";
                                     !route().current('admin.groups.index'),
                             }"
                         >
-                            <User class="h-4 w-4" />
+                            <Users class="h-4 w-4" />
                             Groups
                         </Link>
                         <Link
@@ -126,7 +127,7 @@ import Logo from "@/Components/Logo.vue";
                                 href="#"
                                 class="flex items-center gap-2 text-lg font-semibold"
                             >
-                                <Package2 class="h-6 w-6" />
+                                <Logo class="h-6 w-6" />
                                 <span class="sr-only">Acme Inc</span>
                             </a>
                             <a
@@ -138,54 +139,50 @@ import Logo from "@/Components/Logo.vue";
                             </a>
                             <a
                                 href="#"
-                                class="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground"
-                            >
-                                <ShoppingCart class="h-5 w-5" />
-                                Orders
-                                <Badge
-                                    class="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
-                                >
-                                    6
-                                </Badge>
-                            </a>
-                            <a
-                                href="#"
                                 class="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                             >
-                                <Package class="h-5 w-5" />
-                                Products
+                                <Home class="h-5 w-5" />
+                                Events
                             </a>
-                            <a
-                                href="#"
-                                class="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+
+                            <Link
+                                :href="route('admin.groups.index')"
+                                :class="{
+                                    'mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all': true,
+                                    'bg-muted text-primary hover:text-primary':
+                                        route().current('admin.groups.index'),
+                                    'text-muted-foreground hover:text-foreground':
+                                        !route().current('admin.groups.index'),
+                                }"
                             >
                                 <Users class="h-5 w-5" />
-                                Customers
-                            </a>
+                                Groups
+                            </Link>
+                            <Link
+                                :href="route('admin.employees.index')"
+                                :class="{
+                                    'mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all': true,
+                                    'bg-muted text-primary hover:text-primary':
+                                        route().current(
+                                            'admin.employees.index'
+                                        ),
+                                    'text-muted-foreground hover:text-foreground':
+                                        !route().current(
+                                            'admin.employees.index'
+                                        ),
+                                }"
+                            >
+                                <User class="h-5 w-5" />
+                                Employees
+                            </Link>
                             <a
                                 href="#"
                                 class="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                             >
                                 <LineChart class="h-5 w-5" />
-                                Analytics
+                                Reports
                             </a>
                         </nav>
-                        <div class="mt-auto">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Upgrade to Pro</CardTitle>
-                                    <CardDescription>
-                                        Unlock all features and get unlimited
-                                        access to our support team.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <Button size="sm" class="w-full">
-                                        Upgrade
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        </div>
                     </SheetContent>
                 </Sheet>
                 <div class="w-full flex-1">
@@ -202,6 +199,10 @@ import Logo from "@/Components/Logo.vue";
                         </div>
                     </form>
                 </div>
+                <div>
+                        {{ $page.props.auth.user.first_name }}
+                        {{ $page.props.auth.user.last_name }}
+                    </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger as-child>
                         <Button
@@ -219,7 +220,6 @@ import Logo from "@/Components/Logo.vue";
                         <Link :href="route('admin.settings.account')">
                             <DropdownMenuItem>Settings</DropdownMenuItem>
                         </Link>
-                        <DropdownMenuItem>Support</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <Link :href="route('logout')" method="post">
                             <DropdownMenuItem> Logout </DropdownMenuItem>

@@ -10,6 +10,16 @@ class Sport extends Model
 {
     use HasFactory;
 
+    const CATEGORIES = [
+        'team',
+        'individual'
+    ];
+
+    const FOCUS = [
+        'physical',
+        'intellectual',
+    ];
+
     protected $fillable = [
         'name',
         'category',
@@ -26,7 +36,7 @@ class Sport extends Model
         return $this->hasOne(Group::class);
     }
 
-    
-    
+
+
 
 }

@@ -26,6 +26,7 @@ import EmployeeTable from "./EmployeeTable.vue";
 </script>
 
 <template>
+    <Head title="Employees" />
     <AdminLayout>
         <template #title> Employees </template>
         <main
@@ -70,15 +71,17 @@ import EmployeeTable from "./EmployeeTable.vue";
                                 Inactive
                             </DropdownMenuItem>
                         </Link>
-                        <DropdownMenuItem> Archived </DropdownMenuItem>
+                        <Link :href="route('admin.employees.index')">
+                            <DropdownMenuItem checked> All </DropdownMenuItem>
+                        </Link>
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Button size="sm" variant="outline" class="h-7 gap-1">
+                <!-- <Button size="sm" variant="outline" class="h-7 gap-1">
                     <File class="h-3.5 w-3.5" />
                     <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">
                         Export
                     </span>
-                </Button>
+                </Button> -->
                 <AddEmployeeForm />
             </div>
             <div class="min-h-screen overflow-x-auto">

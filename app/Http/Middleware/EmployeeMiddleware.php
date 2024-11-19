@@ -17,7 +17,7 @@ class EmployeeMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->user()->role !== User::EMPLOYEE) {
-            abort(403);
+            return redirect()->route('admin.dashboard');
         }
 
         return $next($request);

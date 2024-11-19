@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminGroupController;
+use App\Http\Controllers\Auth\PasswordController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
@@ -22,33 +23,33 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
         return Inertia::render('Employee/Dashboard');
     })->name('dashboard');
 
-    Route::get(
-        '/employee/groups',
-        [GroupController::class, 'index'],
-    )->name('employee.groups');
+    Route::get('/employee/groups', [GroupController::class, 'index'])->name('employee.groups');
+
     Route::post(
         '/employee/groups/join',
-        [GroupController::class, 'joinGroup'],
+        [GroupController::class, 'joinGroup']
     )->name('employee.groups.join');
+    Route::post(
+        '/employee/groups/leave',
+        [GroupController::class, 'leaveGroup']
+    )->name('employee.groups.leave');
     Route::get(
         '/employee/groups/{group}',
-        [GroupController::class, 'show'],
-    )->name('employee.groups.show');
+        [GroupController::class, 'show']
+    )->middleware('groupAccess')->name('employee.groups.show');
 
 
     Route::get('/profile', [ProfileController::class, 'show'])
         ->name('profile.show');
 
-
-    Route::get('/settings', function () {
-        return Inertia::render('Setting');
-    })->name('settings');
     Route::get('/settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/settings/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::get('/settings/availability', [AvailabilityController::class, 'edit'])->name('availability.edit');
     Route::patch('/settings/availability', [AvailabilityController::class, 'update'])->name('availability.update');
+
+    Route::get('/settings/change-password', [PasswordController::class, 'edit'])->name('password.edit');
+    Route::patch('/settings/change-password', [PasswordController::class, 'update'])->name('password.update');
 
 });
 
@@ -98,6 +99,7 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.groups.index');
     Route::post('/admin/groups/create', [AdminGroupController::class, 'store'])
         ->name('admin.groups.create');
+    Route::post('/admin/groups/update/{id}', [AdminGroupController::class, 'update'])->name('admin.groups.update');
 
 
     Route::get('/admin/settings/account', [
@@ -134,6 +136,22 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         'role'
     ])->name('admin.settings.role');
 
+    Route::get('/admin/settings/sport', [
+        AdminSettingController::class,
+        'sport'
+    ])->name('admin.settings.sport');
+
+    Route::post('/admin/settings/sport/create', [
+        AdminSettingController::class,
+        'storeSport'
+    ])->name('admin.sport.create');
+
+    Route::patch('/admin/settings/sport/update/{id}', [
+        AdminSettingController::class,
+        'updateSport'
+    ])->name('admin.sport.update');
+
+
     Route::post('/admin/settings/role/create', [
         AdminSettingController::class,
         'storeRole'
@@ -144,12 +162,6 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         'updateRole'
     ])->name('admin.role.update');
 });
-
-
-// Test Route
-Route::get('/test', function () {
-    return Inertia::render('Test');
-})->name('test');
 
 
 require __DIR__ . '/auth.php';

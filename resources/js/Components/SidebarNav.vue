@@ -11,7 +11,10 @@ const sidebarNavItems = [
         title: "Availability",
         name: "availability.edit",
     },
-];
+    {
+        title: "Change Password",
+        name: "password.edit",
+    },];
 </script>
 
 <template>

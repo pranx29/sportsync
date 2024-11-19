@@ -29,10 +29,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'password' => bcrypt('admin'),
         ]);
-
-
         User::factory(5)->create();
-
 
         $this->call([
             DepartmentSeeder::class,

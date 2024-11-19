@@ -72,8 +72,9 @@ defineProps({
                                 class="aspect-square rounded-md object-cover"
                                 height="64"
                                 :src="
-                                    employee.image ||
-                                    'https://via.placeholder.com/64'
+                                    employee.profile && employee.profile.profile_image
+                                    ? employee.profile.profile_image
+                                    : `https://api.dicebear.com/6.x/initials/svg?seed=${employee.first_name}+${employee.last_name}&fontSize=32`
                                 "
                                 width="64"
                             />

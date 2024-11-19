@@ -17,8 +17,12 @@ class GroupController extends Controller
             })
             ->get();
 
-        // Get all joined groups
-        $joinedGroups = auth()->user()->groups;
+        // Get all joined groups by the user and leader of the group
+        $joinedGroups = Group::where('is_active', true)
+            ->whereHas('users', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->orWhere('user_id', auth()->id())->get();
 
         return Inertia::render(
             'Employee/Group/Index',
@@ -47,5 +51,19 @@ class GroupController extends Controller
         return Inertia::render('Employee/Group/Show', ['group' => $group,
             'leader' => $leader,
             'members' => $members]);
+    }
+
+    public function leaveGroup(Request $request)
+    {
+        $group = Group::find($request->id);
+
+        // Check if the user is the leader of the group
+        if ($group->user_id == auth()->id()) {
+            return redirect()->route('employee.groups')->with('error', 'You are the leader of the group');
+        }
+
+        $group->users()->detach(auth()->id());
+        sleep(1);
+        return redirect()->route('employee.groups')->with('success', 'Group left successfully');
     }
 }

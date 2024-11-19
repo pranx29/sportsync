@@ -6,6 +6,7 @@ import ChangePassword from "./ChangePassword.vue";
 </script>
 
 <template>
+      <Head title="Settings | Account" />
     <AdminSettingLayout>
         <div class="grid gap-6">
             <Profile :user="$page.props.auth.user" />

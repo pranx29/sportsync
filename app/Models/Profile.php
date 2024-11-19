@@ -52,6 +52,6 @@ class Profile extends Model
     {
 
         // return the image or a default image if the image is not found
-        return $value ? Storage::url($value) : Storage::url('profile_pictures/default.jpg');
+        return $value ? Storage::url($value) : url('https://www.pngitem.com/pimgs/m/579-5798505_user-placeholder-svg-hd-png-download.png');
     }
 }

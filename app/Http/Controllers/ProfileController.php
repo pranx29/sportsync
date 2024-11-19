@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Storage;
 use App\Models\Role;
 use Inertia\Inertia;
+use App\Models\Group;
 use App\Models\Sport;
 use Inertia\Response;
 use App\Models\Profile;
@@ -14,7 +16,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Storage;
 
 class ProfileController extends Controller
 {
@@ -28,7 +29,7 @@ class ProfileController extends Controller
         $departments = Department::select('id', 'name')->get();
         sleep(1);
         return Inertia::render(
-            'Profile/Partials/CreateAboutForm',
+            'Employee/Profile/Partials/CreateAboutForm',
             [
                 'jobs' => $jobs,
                 'departments' => $departments,
@@ -64,7 +65,7 @@ class ProfileController extends Controller
                 'department_id' => Department::where('name', $request->department)->first()->id,
                 'role_id' => Role::where('title', $request->jobTitle)->first()->id,
                 'gender' => $request->gender,
-                'profile_image' => $profile_image,
+                'profile_image' => isset($profile_image) ? $profile_image : null,
                 'date_of_birth' => $request->dob,
             ]);
 
@@ -91,11 +92,18 @@ class ProfileController extends Controller
         $interests = Auth::user()->sports()->get(['id', 'name', 'interest_level', 'skill_level']);
         $sports = Sport::select('id', 'name')->get();
         $sports = $sports->diff($interests);
+        $joinedGroups = Group::where('is_active', true)
+            ->whereHas('users', function ($query) {
+                $query->where('user_id', auth()->id());
+            })
+            ->orWhere('user_id', auth()->id())->get();
+
 
         return Inertia::render('Employee/Profile/View', [
             'profile' => $profile->load('department', 'role'),
             'interests' => $interests,
             'sports' => $sports,
+            'joinedGroups' => $joinedGroups,
         ]);
     }
 
@@ -107,10 +115,12 @@ class ProfileController extends Controller
         $profile = Profile::where('user_id', Auth::id())->first()->load('department', 'role');
         $jobs = Role::select('id', 'title')->get();
         $departments = Department::select('id', 'name')->get();
+
         return Inertia::render('Employee/Settings/Profile', [
             'profile' => $profile,
             'jobs' => $jobs,
             'departments' => $departments,
+
         ]);
 
     }
@@ -129,6 +139,12 @@ class ProfileController extends Controller
 
             // Update the user's profile
             $profile = Profile::where('user_id', Auth::id())->first();
+
+            // if picture is uploaded
+            if ($request->hasFile('picture')) {
+                $profile_image = $request->file('picture')->store('profile_pictures', 'public');
+                $profile->update(['profile_image' => $profile_image]);
+            }
             $profile->update([
                 'department_id' => $request->department,
                 'role_id' => $request->jobTitle,

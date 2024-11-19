@@ -23,6 +23,7 @@ import {
 import { Input } from "@/Components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/Components/ui/sheet";
 import { CircleUser, Menu, Search } from "lucide-vue-next";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 </script>
 
 <template>
@@ -32,20 +33,22 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                 class="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6"
             >
                 <nav
-                    class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6"
+                    class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 w-full justify-between"
                 >
                     <Link
                         :href="route('dashboard')"
-                        class="flex items-center gap-2 text-lg font-semibold md:text-base"
+                        class="flex items-center gap-4 font-semibold"
                     >
-                        <Logo class="h-6 w-6" />
-                        <span class="sr-only">
-                            {{ $page.props.companyName }}
-                        </span>
+                        <Logo class="h-8 w-8 text-primary" />
+                        <span class="">{{ $page.props.companyName }}</span>
                     </Link>
-                    <NavLink :href="route('employee.groups')" :active="route().current('employee.groups')">Groups</NavLink>
-                    <NavLink :href="route('dashboard')">Events</NavLink>
-                    <NavLink :href="route('dashboard')">Sessions</NavLink>
+
+                    <NavLink
+                        :href="route('employee.groups')"
+                        :active="route().current('employee.groups')"
+                        >Groups</NavLink
+                    >
+                    
                 </nav>
                 <Sheet>
                     <SheetTrigger as-child>
@@ -64,7 +67,7 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                                 href="#"
                                 class="flex items-center gap-2 text-lg font-semibold"
                             >
-                                <ApplicationLogo class="h-6 w-6" />
+                                <Logo class="h-6 w-6" />
                                 <span class="sr-only">{{
                                     $page.props.companyName
                                 }}</span>
@@ -75,12 +78,6 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                             >
                                 Groups</ResponsiveNavLink
                             >
-                            <ResponsiveNavLink :href="route('dashboard')">
-                                Events
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('dashboard')">
-                                Sessions
-                            </ResponsiveNavLink>
                         </nav>
                     </SheetContent>
                 </Sheet>
@@ -88,7 +85,7 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                     class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4"
                 >
                     <form class="ml-auto flex-1 sm:flex-initial">
-                        <div class="relative">
+                        <!-- <div class="relative">
                             <Search
                                 class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"
                             />
@@ -97,8 +94,12 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                                 placeholder="Search events and groups"
                                 class="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
                             />
-                        </div>
+                        </div> -->
                     </form>
+                    <div>
+                        {{ $page.props.auth.user.first_name }}
+                        {{ $page.props.auth.user.last_name }}
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
                             <Button
@@ -106,7 +107,24 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                                 size="icon"
                                 class="rounded-full"
                             >
-                                <CircleUser class="h-5 w-5" />
+                                <Avatar>
+                                    <AvatarImage
+                                        :src="$page.props.auth.profile_image"
+                                        alt="@radix-vue"
+                                    />
+                                    <AvatarFallback
+                                        >{{
+                                            $page.props.auth.user.first_name.charAt(
+                                                0
+                                            )
+                                        }}{{
+                                            $page.props.auth.user.last_name.charAt(
+                                                0
+                                            )
+                                        }}</AvatarFallback
+                                    >
+                                </Avatar>
+
                                 <span class="sr-only">Toggle user menu</span>
                             </Button>
                         </DropdownMenuTrigger>
@@ -123,7 +141,6 @@ import { CircleUser, Menu, Search } from "lucide-vue-next";
                                     View Profile
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>Support</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>
                                 <Link

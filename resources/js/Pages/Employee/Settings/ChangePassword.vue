@@ -22,16 +22,27 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { useForm as useVeeForm } from "vee-validate";
 import { z } from "zod";
 import { router } from "@inertiajs/vue3";
+import EmployeeSettingLayout from "@/Layouts/EmployeeSettingLayout.vue";
+import { Separator } from "@/Components/ui/separator";
+
 
 const updatePasswordSchema = toTypedSchema(
-    z.object({
-        current_password: z.string().min(1, "Current password is required."),
-        new_password: z.string().min(8, "Password must be at least 8 characters."),
-        confirm_password: z.string().min(1, "Confirm password is required."),
-    }).refine((data) => data.new_password === data.confirm_password, {
-        message: "Passwords do not match.",
-        path: ["confirm_password"],
-    })
+    z
+        .object({
+            current_password: z
+                .string()
+                .min(1, "Current password is required."),
+            new_password: z
+                .string()
+                .min(8, "Password must be at least 8 characters."),
+            confirm_password: z
+                .string()
+                .min(1, "Confirm password is required."),
+        })
+        .refine((data) => data.new_password === data.confirm_password, {
+            message: "Passwords do not match.",
+            path: ["confirm_password"],
+        })
 );
 
 const { handleSubmit: handlePasswordSubmit, resetForm: resetPasswordForm } =
@@ -41,7 +52,7 @@ const { handleSubmit: handlePasswordSubmit, resetForm: resetPasswordForm } =
 
 const updatePassword = handlePasswordSubmit(async (values) => {
     console.log(values);
-    router.patch(route("admin.password.update"), values, {
+    router.patch(route("password.update"), values, {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
@@ -53,9 +64,13 @@ const updatePassword = handlePasswordSubmit(async (values) => {
         },
         onError: (errors) => {
             toast({
-            title: "Failed to update password",
-            description: errors.current_password || errors.new_password || errors.confirm_password || "An error occurred while updating the password.",
-            variant: "destructive",
+                title: "Failed to update password",
+                description:
+                    errors.current_password ||
+                    errors.new_password ||
+                    errors.confirm_password ||
+                    "An error occurred while updating the password.",
+                variant: "destructive",
             });
         },
     });
@@ -64,13 +79,15 @@ const updatePassword = handlePasswordSubmit(async (values) => {
 </script>
 
 <template>
-    <Head title="Settings | Change Password" />
-    <Card>
-        <CardHeader>
-            <CardTitle>Change Password</CardTitle>
-            <CardDescription> Update your account password. </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <EmployeeSettingLayout>
+        <template #content>
+            <div>
+                <h3 class="text-lg font-medium">Change Password</h3>
+                <p class="text-sm text-muted-foreground">
+                    Update your account password here.
+                </p>
+            </div>
+            <Separator />
             <form @submit.prevent="updatePassword" class="space-y-2">
                 <FormField v-slot="{ componentField }" name="current_password">
                     <FormItem>
@@ -119,6 +136,6 @@ const updatePassword = handlePasswordSubmit(async (values) => {
                 </FormField>
                 <Button type="submit">Change</Button>
             </form>
-        </CardContent>
-    </Card>
+        </template>
+    </EmployeeSettingLayout>
 </template>

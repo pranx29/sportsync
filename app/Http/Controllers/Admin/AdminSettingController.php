@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Role;
 use Inertia\Inertia;
+use App\Models\Sport;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -117,6 +118,48 @@ class AdminSettingController extends Controller
         ]);
 
         return redirect()->route('admin.settings.role')->with('success', 'Role updated successfully.');
+    }
+
+    public function sport()
+    {
+        
+        $sports = Sport::withCount('user')->get();
+        $categories = Sport::CATEGORIES;
+        $focus = Sport::FOCUS;
+        return Inertia::render('Admin/Settings/Sport',
+            ['sports' => $sports,
+            'categories' => $categories,
+            'focus' => $focus]);
+    }
+
+    public function storeSport()
+    {
+        request()->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|in:' . implode(',', Sport::CATEGORIES),
+            'focus' => 'required|string|in:' . implode(',', Sport::FOCUS)
+        ]);
+
+        Sport::create([
+            'name' => request('name'),
+            'category' => request('category'),
+            'focus' => request('focus')
+        ]);
+
+        return redirect()->route('admin.settings.sport')->with('success', 'Sport created successfully.');
+    }
+
+    public function updateSport($id)
+    {
+        request()->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        Sport::find($id)->update([
+            'name' => request('name'),
+        ]);
+
+        return redirect()->route('admin.settings.sport')->with('success', 'Sport updated successfully.');
     }
 
 

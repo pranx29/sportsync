@@ -20,7 +20,7 @@ class AvailabilityController extends Controller
     public function create(Request $request): Response
     {
         return Inertia::render(
-            'Profile/Partials/SetAvailabilityForm',
+            'Employee/Profile/Partials/SetAvailabilityForm',
             [
                 'timeslots' => Availability::TIME_SLOTS,
                 'days' => Availability::DAYS,

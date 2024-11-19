@@ -71,6 +71,7 @@ const addDepartment = handleDepartmentSubmit(async (values) => {
 </script>
 
 <template>
+    <Head title="Settings | Department" />
     <AdminSettingLayout>
         <div class="grid gap-6">
             <Card>
