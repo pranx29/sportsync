@@ -24,6 +24,8 @@ import { Input } from "@/Components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/Components/ui/sheet";
 import { CircleUser, Menu, Search } from "lucide-vue-next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
+import { Separator } from "@/Components/ui/separator";
+import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
 </script>
 
 <template>
@@ -48,7 +50,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
                         :active="route().current('employee.groups')"
                         >Groups</NavLink
                     >
-                    
                 </nav>
                 <Sheet>
                     <SheetTrigger as-child>
@@ -96,9 +97,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
                             />
                         </div> -->
                     </form>
-                    <div>
-                        {{ $page.props.auth.user.first_name }}
-                        {{ $page.props.auth.user.last_name }}
+                    <div class="flex items-center gap-2">
+                        <ThemeModeToggle />
+                        <Separator orientation="vertical" class="h-8" />
+
+                        <div>
+                            {{ $page.props.auth.user.first_name }}
+                            {{ $page.props.auth.user.last_name }}
+                        </div>
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>

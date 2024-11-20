@@ -34,7 +34,12 @@ const schema = z.object({
     jobTitle: z.string().min(1, { message: "Job title is required" }),
     department: z.string().min(1, { message: "Department is required" }),
     gender: z.string().min(1, { message: "Gender is required" }),
-    picture: z.any(),
+    picture: z
+        .instanceof(File)
+        .refine((file) => file.size < 2 * 1024 * 1024, {
+            message: "Image must be less than 2MB",
+        })
+        .optional(),
 });
 
 const { props } = usePage();
@@ -239,13 +244,21 @@ const handleFileChange = (event) => {
                                                 :src="avatarUrl"
                                                 alt="Profile Picture"
                                             />
-                                            <AvatarFallback>CN</AvatarFallback>
+                                            <AvatarFallback>
+                                                {{
+                                                    props.auth.user
+                                                        .first_name[0]
+                                                }}{{
+                                                    props.auth.user.last_name[0]
+                                                }}
+                                            </AvatarFallback>
                                         </Avatar>
+
                                         <Input
                                             id="picture"
                                             type="file"
                                             @change="handleFileChange"
-                                            accept=".jpeg, .png, .jpg, .svg"
+                                            accept="image/*"
                                         />
                                     </FormControl>
                                 </div>

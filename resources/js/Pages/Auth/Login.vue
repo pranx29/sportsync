@@ -16,6 +16,10 @@ import * as z from "zod";
 import { toast, Toaster, ToastAction } from "@/Components/ui/toast";
 import { h } from "vue";
 import Logo from "@/Components/Logo.vue";
+import { useColorMode } from '@vueuse/core'
+
+const mode = useColorMode()
+mode.value = 'light'
 
 const formSchema = toTypedSchema(
     z.object({
@@ -104,7 +108,7 @@ const onSubmit = () => {
                 class="absolute inset-0 flex flex-col items-start ml-16 justify-center"
             >
                 <div class="absolute top-10 flex items-center">
-                    <Logo class="w-16 h-16 text-white" />
+                    <Logo class="w-16 h-16 text-background" />
                     <p class="ml-4 text-3xl font-extrabold text-background">
                         SportSync
                     </p>
@@ -127,22 +131,23 @@ const onSubmit = () => {
                             viewBox="0 0 130 25"
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg"
+                            class="text-background"
                         >
                             <path
                                 d="M0 12.5C0 5.59644 5.59644 0 12.5 0V0C19.4036 0 25 5.59644 25 12.5V12.5C25 19.4036 19.4036 25 12.5 25V25C5.59644 25 0 19.4036 0 12.5V12.5Z"
-                                fill="white"
+                                class="fill-current"
                             />
                             <path
                                 d="M35 12.5C35 5.59644 40.5964 0 47.5 0V0C54.4036 0 60 5.59644 60 12.5V12.5C60 19.4036 54.4036 25 47.5 25V25C40.5964 25 35 19.4036 35 12.5V12.5Z"
-                                fill="white"
+                                class="fill-current"
                             />
                             <path
                                 d="M70 12.5C70 5.59644 75.5964 0 82.5 0V0C89.4036 0 95 5.59644 95 12.5V12.5C95 19.4036 89.4036 25 82.5 25V25C75.5964 25 70 19.4036 70 12.5V12.5Z"
-                                fill="white"
+                                class="fill-current"
                             />
                             <path
                                 d="M105 12.5C105 5.59644 110.596 0 117.5 0V0C124.404 0 130 5.59644 130 12.5V12.5C130 19.4036 124.404 25 117.5 25V25C110.596 25 105 19.4036 105 12.5V12.5Z"
-                                fill="white"
+                                class="fill-current"
                             />
                         </svg>
                     </span>

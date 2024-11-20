@@ -49,7 +49,21 @@ const profileFormSchema = toTypedSchema(
             }),
         jobTitle: z.string().min(1, { message: "Job title is required" }),
         department: z.string().min(1, { message: "Department is required" }),
-        picture: z.any(),
+        picture: z
+            .union([
+                z.string(),
+                z
+                    .instanceof(File)
+                    .refine(
+                        (file) =>
+                            typeof file === "string" ||
+                            file.size < 2 * 1024 * 1024,
+                        {
+                            message: "Image must less than 2MB",
+                        }
+                    ),
+            ])
+            .optional(),
     })
 );
 
@@ -130,7 +144,7 @@ const handleFileChange = (event) => {
                                     id="picture"
                                     type="file"
                                     @change="handleFileChange"
-                                    accept=".jpeg, .png, .jpg, .svg"
+                                    accept="image/*"
                                 />
                             </FormControl>
                         </div>

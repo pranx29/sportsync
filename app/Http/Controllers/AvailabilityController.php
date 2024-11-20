@@ -53,7 +53,8 @@ class AvailabilityController extends Controller
             }
 
             sleep(1);
-            return redirect()->route('dashboard');
+            // return redirect()->route('dashboard');
+            return Redirect::route('employee.groups');
         } catch (Exception $e) {
             dd($e->getMessage());
         }

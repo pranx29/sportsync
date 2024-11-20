@@ -43,6 +43,9 @@ class ProfileController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if (Auth::user()->is_profile_created) {
+            return Redirect::route('create.interest');
+        }
         try {
             // Validate the request
             $request->validate([
@@ -51,7 +54,7 @@ class ProfileController extends Controller
                 'dob' => 'required|date',
                 'jobTitle' => 'required|exists:' . Role::class . ',title',
                 'department' => 'required|exists:' . Department::class . ',name',
-                'picture' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+                'picture' => 'image|max:2048',
             ]);
 
             // if picture is uploaded
@@ -77,7 +80,7 @@ class ProfileController extends Controller
             return redirect()->route('create.interest');
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            return Redirect::route('create.about')->with('error', 'Failed to create profile.');
         }
     }
 

@@ -64,7 +64,22 @@ const addGroupSchema = toTypedSchema(
         group_name: z.string().min(1, "Group name is required."),
         description: z.string().optional(),
         leader: z.string().email("Invalid email address."),
-        image: z.any(),
+        image: z
+            .union([
+                z.string(),
+                z
+                    .instanceof(File)
+                    .refine(
+                        (file) =>
+                            typeof file === "string" ||
+                            file.size < 2 * 1024 * 1024,
+                        {
+                            message:
+                                "Image must less than 2MB",
+                        }
+                    ),
+            ])
+            .optional(),
         is_active: z.union([z.literal("1"), z.literal("0")]).default("1"),
     })
 );
@@ -89,33 +104,38 @@ const onGroupSubmit = handleGroupSubmit(async (values) => {
     if (values.image === props.group.image) {
         delete values.image;
     }
-    router.post(route("admin.groups.update", {
-        id: props.group.id,
-    }), values, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            toast({
-                title: "Group added",
-                description: "Group details have been updated successfully.",
-                variant: "success",
-            });
-            isAddFormOpen.value = false;
-        },
-        onError: (errors) => {
-            setFieldError("leader", errors.leader);
-            setFieldError("group_name", errors.group_name);
-            setFieldError("description", errors.description);
-            setFieldError("is_active", errors.is_active);
-            setFieldError("image", errors.image);
-            console.log(errors);
-            toast({
-                title: "Failed to update group",
-                description: "Please check the form for errors.",
-                variant: "destructive",
-            });
-        },
-    });
+    router.post(
+        route("admin.groups.update", {
+            id: props.group.id,
+        }),
+        values,
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast({
+                    title: "Group updated",
+                    description:
+                        "Group details have been updated successfully.",
+                    variant: "success",
+                });
+                isAddFormOpen.value = false;
+            },
+            onError: (errors) => {
+                setFieldError("leader", errors.leader);
+                setFieldError("group_name", errors.group_name);
+                setFieldError("description", errors.description);
+                setFieldError("is_active", errors.is_active);
+                setFieldError("image", errors.image);
+                console.log(errors);
+                toast({
+                    title: "Failed to update group",
+                    description: "Please check the form for errors.",
+                    variant: "destructive",
+                });
+            },
+        }
+    );
     resetGroupForm();
 });
 
@@ -241,7 +261,7 @@ const handleFileChange = (event) => {
                                         id="image"
                                         type="file"
                                         @change="handleFileChange"
-                                        accept=".jpeg, .png, .jpg, .svg"
+                                        accept="image/*"
                                     />
                                 </FormControl>
                             </div>

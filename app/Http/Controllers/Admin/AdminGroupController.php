@@ -48,7 +48,7 @@ class AdminGroupController extends Controller
             'description' => 'required|string|max:255',
             'sport_id' => 'required|exists:sports,id',
             'leader' => 'required|exists:users,email',
-            'image' => 'image',
+            'image' => 'image|max:2048',
         ]);
 
         $request->leader = User::where('email', $request->leader)->first()->id;
@@ -64,7 +64,7 @@ class AdminGroupController extends Controller
                 'description' => $request->description,
                 'sport_id' => $request->sport_id,
                 'user_id' => $request->leader,
-                'image' => $group_image,
+                'image' => isset($group_image) ? $group_image : null,
             ]
         );
 
@@ -79,7 +79,7 @@ class AdminGroupController extends Controller
             'description' => 'required|string|max:255',
             'leader' => 'required|exists:users,email',
             'is_active' => 'required|in:0,1',
-            'image' => 'image',
+            'image' => 'image|max:2048',
         ]);
 
         $request->leader = User::where('email', $request->leader)->first()->id;

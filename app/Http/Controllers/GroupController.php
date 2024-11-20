@@ -10,11 +10,12 @@ class GroupController extends Controller
 {
     public function index()
     {
-        // Get all groups which are active and not joined by the user
+        // Get all groups which are active and not joined by the user and leader of the group
         $groups = Group::where('is_active', true)
             ->whereDoesntHave('users', function ($query) {
                 $query->where('user_id', auth()->id());
             })
+            ->where('user_id', '!=', auth()->id())
             ->get();
 
         // Get all joined groups by the user and leader of the group

@@ -509,7 +509,9 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                         <CardTitle>Groups</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div class="flex flex-wrap items-start justify-start gap-4">
+                        <div
+                            class="flex flex-wrap items-start justify-start gap-4"
+                        >
                             <template v-if="$page.props.joinedGroups.length">
                                 <Card
                                     v-for="group in $page.props.joinedGroups"
@@ -556,6 +558,6 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                 </Card>
             </div>
         </div>
-        <Toaster />
     </AuthenticatedLayout>
+    <Toaster />
 </template>

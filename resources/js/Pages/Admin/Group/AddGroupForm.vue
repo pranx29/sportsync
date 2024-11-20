@@ -59,7 +59,11 @@ const addGroupSchema = toTypedSchema(
         description: z.string().optional(),
         sport_id: z.string().nonempty("Sport is required."),
         leader: z.string().email("Invalid email address."),
-        image: z.any(),
+        image: z
+            .instanceof(File)
+            .refine((file) => file.size < 2 * 1024 * 1024, {
+                message: "Image must be less than 2MB",
+            }).optional()
     })
 );
 
@@ -86,9 +90,13 @@ const onGroupSubmit = handleGroupSubmit(async (values) => {
         },
         onError: (errors) => {
             setFieldError("leader", errors.leader);
+            setFieldValue("image", values.image);
+            setFieldValue("sport_id", values.sport_id);
+            setFieldValue("group_name", values.group_name);
+            setFieldValue("description", values.description);
             toast({
                 title: "Failed to add group",
-                description: 'Please check the form for errors.',
+                description: "Please check the form for errors.",
                 variant: "destructive",
             });
         },
@@ -219,7 +227,7 @@ const handleFileChange = (event) => {
                                         id="image"
                                         type="file"
                                         @change="handleFileChange"
-                                        accept=".jpeg, .png, .jpg, .svg"
+                                        accept="image/*"
                                     />
                                 </FormControl>
                             </div>

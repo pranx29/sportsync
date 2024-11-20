@@ -24,7 +24,9 @@ import {
     Users,
     Menu,
 } from "lucide-vue-next";
+import { Separator } from "@/Components/ui/separator";
 import Logo from "@/Components/Logo.vue";
+import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
 </script>
 
 <template>
@@ -186,7 +188,7 @@ import Logo from "@/Components/Logo.vue";
                     </SheetContent>
                 </Sheet>
                 <div class="w-full flex-1">
-                    <form>
+                    <!-- <form>
                         <div class="relative">
                             <Search
                                 class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"
@@ -197,12 +199,19 @@ import Logo from "@/Components/Logo.vue";
                                 class="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
                             />
                         </div>
-                    </form>
+                    </form> -->
                 </div>
-                <div>
+
+                <div class="flex items-center gap-2">
+                    <ThemeModeToggle />
+                    <Separator orientation="vertical" class="h-8" />
+
+                    <div>
                         {{ $page.props.auth.user.first_name }}
                         {{ $page.props.auth.user.last_name }}
                     </div>
+                </div>
+
                 <DropdownMenu>
                     <DropdownMenuTrigger as-child>
                         <Button
