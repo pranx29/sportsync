@@ -93,7 +93,8 @@ class User extends Authenticatable
      * Get the availability associated with the user.
      */
 
-    public function availabilities(){
+    public function availabilities()
+    {
         return $this->hasMany(Availability::class);
     }
 
@@ -101,8 +102,18 @@ class User extends Authenticatable
      * Get the groups associated with the user.
      */
 
-    public function groups(){
+    public function groups()
+    {
         return $this->belongsToMany(Group::class, 'group_user');
+    }
+
+    /**
+     * Get the messages associated with the user.
+     */
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
     }
 
 }

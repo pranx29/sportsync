@@ -30,6 +30,7 @@ import {
 import { toast, Toaster } from "@/Components/ui/toast";
 import { MoreVertical, LogOut } from "lucide-vue-next";
 import { router, usePage } from "@inertiajs/vue3";
+import Chat from "./Chat.vue";
 
 const { props } = usePage();
 
@@ -60,40 +61,10 @@ const leaveGroup = () => {
         }
     );
 };
-const messages = ref([
-    {
-        id: 1,
-        sender: "Alice Johnson",
-        text: "Hey team, how's everyone doing today?",
-    },
-    { id: 2, sender: "Bob Smith", text: "I'm good! Just finished the report." },
-    {
-        id: 3,
-        sender: "You",
-        text: "Great job, Bob! Can you share it with the team?",
-    },
-    {
-        id: 4,
-        sender: "Charlie Brown",
-        text: "Looking forward to reviewing it!",
-    },
-]);
-
-const newMessage = ref("");
-
-const sendMessage = () => {
-    if (newMessage.value.trim()) {
-        messages.value.push({
-            id: messages.value.length + 1,
-            sender: "You",
-            text: newMessage.value.trim(),
-        });
-        newMessage.value = "";
-    }
-};
 </script>
 
 <template>
+    <Head :title="`Group | ${$page.props.group?.name}`" />
     <AuthenticatedLayout>
         <div class="container mx-auto p-4 space-y-4">
             <div class="ml-auto flex items-center justify-between gap-1">
@@ -186,50 +157,10 @@ const sendMessage = () => {
                 </Card>
 
                 <!-- Chat Area -->
-                <Card class="h-[calc(100vh-12rem)] flex flex-col">
-                    <CardHeader>
-                        <CardTitle>Chat</CardTitle>
-                    </CardHeader>
-                    <div class="flex-1 overflow-y-auto p-4 space-y-4">
-                        <div
-                            v-for="message in messages"
-                            :key="message.id"
-                            class="flex"
-                            :class="{ 'justify-end': message.sender === 'You' }"
-                        >
-                            <div
-                                class="max-w-[80%] px-4 py-2 rounded-lg"
-                                :class="
-                                    message.sender === 'You'
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'bg-muted'
-                                "
-                            >
-                                <p class="text-sm">{{ message.text }}</p>
-                                <span class="text-xs mt-1 opacity-75 block">{{
-                                    message.sender
-                                }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-4 border-t border-border">
-                        <form
-                            @submit.prevent="sendMessage"
-                            class="flex space-x-2"
-                        >
-                            <Input
-                                v-model="newMessage"
-                                type="text"
-                                placeholder="Type a message..."
-                                class="flex-1"
-                            />
-                            <Button type="submit">
-                                Send
-                                <Send class="ml-2 h-4 w-4" />
-                            </Button>
-                        </form>
-                    </div>
-                </Card>
+                <Chat
+                    :messages="$page.props.messages"
+                    :group_id="$page.props.group.id"
+                />
             </div>
         </div>
     </AuthenticatedLayout>

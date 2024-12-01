@@ -1,15 +1,16 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminGroupController;
-use App\Http\Controllers\Auth\PasswordController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InterestController;
 use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\AdminGroupController;
 use App\Http\Controllers\Admin\AdminSettingController;
 
 
@@ -37,6 +38,7 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
         '/employee/groups/{group}',
         [GroupController::class, 'show']
     )->middleware('groupAccess')->name('employee.groups.show');
+    Route::post('/groups/{group}/messages', [MessageController::class, 'store'])->middleware('groupAccess')->name('groups.messages.store');
 
 
     Route::get('/profile', [ProfileController::class, 'show'])

@@ -49,9 +49,13 @@ class GroupController extends Controller
     {
         $leader = $group->leader;
         $members = $group->users;
-        return Inertia::render('Employee/Group/Show', ['group' => $group,
+        $messages = $group->messages()->with('user.profile')->get();
+        return Inertia::render('Employee/Group/Show', [
+            'group' => $group,
             'leader' => $leader,
-            'members' => $members]);
+            'members' => $members,
+            'messages' => $messages
+        ]);
     }
 
     public function leaveGroup(Request $request)
