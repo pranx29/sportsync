@@ -120,6 +120,9 @@ const onSubmit = handleSubmit((values) => {
                                             >
                                                 {{ slot }}
                                             </SelectItem>
+                                            <SelectItem value="off">
+                                                Not Available
+                                            </SelectItem>
                                         </SelectGroup>
                                     </SelectContent>
                                 </Select>

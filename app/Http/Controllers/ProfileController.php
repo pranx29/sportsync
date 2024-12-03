@@ -148,6 +148,13 @@ class ProfileController extends Controller
                 $profile_image = $request->file('picture')->store('profile_pictures', 'public');
                 $profile->update(['profile_image' => $profile_image]);
             }
+
+            // If picture is removed
+            if ($request->removePicture) {
+                Storage::disk('public')->delete($profile->profile_image);
+                $profile->update(['profile_image' => null]);
+            }
+
             $profile->update([
                 'department_id' => $request->department,
                 'role_id' => $request->jobTitle,

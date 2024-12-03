@@ -96,4 +96,25 @@ class InterestController extends Controller
         // Return with success message
         return redirect()->route('profile.show')->with('success', 'Interests added successfully');
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+
+    public function destroy(Request $request): RedirectResponse
+    {
+        // Find the interest
+        $interest = Sport::findOrFail($request->sport);
+
+        try {
+            // Detach the specific sport from the user
+            $request->user()->sports()->detach([$interest->id]);
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+
+        // Return with success message
+        return redirect()->route('profile.show')->with('success', 'Interest removed successfully');
+
+    }
 }

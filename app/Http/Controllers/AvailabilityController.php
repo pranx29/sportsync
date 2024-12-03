@@ -89,12 +89,18 @@ class AvailabilityController extends Controller
 
             // Foreach day, create an availability record which time slot is not null
             foreach ($request->all() as $day) {
-                if (!empty($day['time_slot'])) {
+                if (!empty($day['time_slot']) && $day['time_slot'] !== 'off') {
                     Availability::create([
                         'user_id' => Auth::id(),
                         'day' => $day['day'],
                         'time_slot' => $day['time_slot'],
                     ]);
+                }
+
+                if ($day['time_slot'] === 'off') {
+                    Availability::where('user_id', Auth::id())
+                        ->where('day', $day['day'])
+                        ->delete();
                 }
             }
             return redirect()->back()->with('success', 'Availability updated successfully');

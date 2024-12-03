@@ -47,14 +47,11 @@ class GroupController extends Controller
 
     public function show(Group $group)
     {
-        $leader = $group->leader;
-        $members = $group->users;
-        $messages = $group->messages()->with('user.profile')->get();
         return Inertia::render('Employee/Group/Show', [
             'group' => $group,
-            'leader' => $leader,
-            'members' => $members,
-            'messages' => $messages
+            'leader' => $group->leader->load('profile'),
+            'members' => $group->users->load('profile'),
+            'messages' => $group->messages()->with('user.profile')->get()
         ]);
     }
 

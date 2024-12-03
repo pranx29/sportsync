@@ -83,7 +83,11 @@ const { handleSubmit, setFieldValue } = useForm({
 const onSubmit = handleSubmit((values) => {
     if (values.picture === props.profile.profile_image) {
         delete values.picture;
+    } else if (values.picture === "removed") {
+        delete values.picture;
+        values.removePicture = true;
     }
+
     values.department = props.departments.find(
         (department) => department.name === values.department
     ).id;
@@ -113,6 +117,11 @@ const handleFileChange = (event) => {
     }
     setFieldValue("picture", file);
 };
+
+const handleRemovePicture = () => {
+    avatarUrl.value = null;
+    setFieldValue("picture", "removed");
+};
 </script>
 
 <template>
@@ -138,14 +147,33 @@ const handleFileChange = (event) => {
                                         :src="avatarUrl"
                                         alt="Profile Picture"
                                     />
-                                    <AvatarFallback>CN</AvatarFallback>
+                                    <AvatarFallback>
+                                        {{
+                                            props.auth.user.first_name.charAt(
+                                                0
+                                            ) +
+                                            props.auth.user.last_name.charAt(0)
+                                        }}
+                                    </AvatarFallback>
                                 </Avatar>
-                                <Input
-                                    id="picture"
-                                    type="file"
-                                    @change="handleFileChange"
-                                    accept="image/*"
-                                />
+                                <div
+                                    class="flex justify-between flex-col items-start gap-2"
+                                >
+                                    <Input
+                                        id="picture"
+                                        type="file"
+                                        @change="handleFileChange"
+                                        accept="image/*"
+                                    />
+                                    <Button
+                                    v-if="avatarUrl.value"
+                                        type="button"
+                                        variant="ghost"
+                                        @click="handleRemovePicture()"
+                                    >
+                                        Remove Picture
+                                    </Button>
+                                </div>
                             </FormControl>
                         </div>
                         <FormMessage />

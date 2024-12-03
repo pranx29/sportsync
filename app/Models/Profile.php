@@ -51,7 +51,6 @@ class Profile extends Model
     public function getProfileImageAttribute($value)
     {
 
-        // return the image or a default image if the image is not found
-        return $value ? Storage::url($value) : url('https://www.pngitem.com/pimgs/m/579-5798505_user-placeholder-svg-hd-png-download.png');
+        return $value ? Storage::url($value) : '';
     }
 }

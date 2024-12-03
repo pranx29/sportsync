@@ -66,6 +66,7 @@ Route::middleware(['auth', 'verified', 'employee'])->group(function () {
         ->name('create.interest');
     Route::post('create/interest', [InterestController::class, 'store']);
     Route::patch('interest', [InterestController::class, 'update'])->name('interest.update');
+    Route::delete('interest/{sport}', [InterestController::class, 'destroy'])->name('interest.destroy');
 
     // Availability
     Route::get('create/availability', [AvailabilityController::class, 'create'])

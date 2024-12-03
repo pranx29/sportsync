@@ -44,12 +44,12 @@ import { Button } from "@/Components/ui/button";
 import { toTypedSchema } from "@vee-validate/zod";
 import { h } from "vue";
 import * as z from "zod";
-import { Pencil, CirclePlus } from "lucide-vue-next";
+import { Pencil, CirclePlus, Trash } from "lucide-vue-next";
 import { useForm as useVeeForm } from "vee-validate";
 import { ref } from "vue";
 import { router } from "@inertiajs/vue3";
 import { toast, Toaster } from "@/Components/ui/toast";
-import InterestForm from "./InterestForm.vue";
+import InterestForm from "./AddInterestForm.vue";
 import { Navigation } from "lucide-vue-next";
 
 // Convert slider value to skill level
@@ -143,6 +143,34 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
     console.log("Update interest form submitted:", values);
     resetUpdateForm();
 });
+
+const deleteInterest = async (sportId) => {
+    console.log("Delete interest:", sportId);
+    router.delete(
+        route("interest.destroy", {
+            sport: sportId,
+        }),
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast({
+                    title: "Interest deleted",
+                    description: "Your interest has been deleted successfully.",
+                    variant: "success",
+                });
+            },
+            onError: () => {
+                toast({
+                    title: "Failed to delete interest",
+                    description:
+                        "An error occurred while deleting your interest.",
+                    variant: "destructive",
+                });
+            },
+        }
+    );
+};
 </script>
 
 <template>
@@ -161,11 +189,28 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                     <CardContent class="flex flex-col gap-4">
                         <!-- Profile picture -->
                         <div class="flex flex-row items-center justify-center">
-                            <img
-                                :src="$page.props.profile.profile_image"
-                                alt="Profile Picture"
-                                class="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl rounded-sm object-cover"
-                            />
+                            <template v-if="$page.props.profile.profile_image">
+                                <img
+                                    :src="$page.props.profile.profile_image"
+                                    alt="Profile Picture"
+                                    class="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl rounded-sm object-cover"
+                                />
+                            </template>
+                            <template v-else>
+                                <div
+                                    class="inline-flex items-center justify-center font-normal text-foreground select-none shrink-0 bg-secondary overflow-hidden min-h-64 w-full text-3xl"
+                                >
+                                    {{
+                                        $page.props.auth.user.first_name.charAt(
+                                            0
+                                        )
+                                    }}{{
+                                        $page.props.auth.user.last_name.charAt(
+                                            0
+                                        )
+                                    }}
+                                </div>
+                            </template>
                         </div>
                         <!-- Profile details -->
                         <div class="flex flex-col items-start justify-start">
@@ -310,18 +355,11 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                             class="flex flex-wrap gap-4 items-start justify-start"
                         >
                             <Card
-                                class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-6"
+                                class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-4"
                                 v-for="sport in $page.props.interests"
                                 :key="sport.name"
                             >
-                                <div
-                                    class="flex gap-x-4 items-center justify-between"
-                                >
-                                    <h4
-                                        class="scroll-m-20 text-xl font-semibold tracking-tight"
-                                    >
-                                        {{ sport.name }}
-                                    </h4>
+                                <div class="flex justify-end gap-2 mb-2">
                                     <Sheet>
                                         <SheetTrigger as-child>
                                             <Button
@@ -469,31 +507,48 @@ const onUpdateSubmit = handleUpdateSubmit(async (values) => {
                                             </div>
                                         </SheetContent>
                                     </Sheet>
-                                </div>
 
-                                <!-- Interest Level -->
-                                <div class="mt-2">
-                                    <Label> Interest Level </Label>
-                                    <div
-                                        class="scroll-m-20 text-lg font-semibold tracking-tight text-primary"
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        @click="deleteInterest(sport.id)"
                                     >
-                                        {{
-                                            sport.interest_level
-                                                .charAt(0)
-                                                .toUpperCase() +
-                                            sport.interest_level.slice(1)
-                                        }}
-                                    </div>
+                                        <Trash class="w-4 h-4" />
+                                    </Button>
                                 </div>
+                                <div>
+                                    <h4
+                                        class="scroll-m-20 text-xl font-semibold tracking-tight"
+                                    >
+                                        {{ sport.name }}
+                                    </h4>
 
-                                <!-- Skill Level -->
-                                <div class="mt-1">
-                                    <Label> Skill Level </Label>
-                                    <Progress
-                                        :model-value="
-                                            getSliderValue(sport.skill_level)
-                                        "
-                                    />
+                                    <!-- Interest Level -->
+                                    <div>
+                                        <Label> Interest Level </Label>
+                                        <div
+                                            class="scroll-m-20 text-lg font-semibold tracking-tight text-primary"
+                                        >
+                                            {{
+                                                sport.interest_level
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                sport.interest_level.slice(1)
+                                            }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Skill Level -->
+                                    <div class="mt-1">
+                                        <Label> Skill Level </Label>
+                                        <Progress
+                                            :model-value="
+                                                getSliderValue(
+                                                    sport.skill_level
+                                                )
+                                            "
+                                        />
+                                    </div>
                                 </div>
                             </Card>
                         </div>

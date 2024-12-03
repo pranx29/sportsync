@@ -110,10 +110,16 @@ const leaveGroup = () => {
                             <li class="flex items-center space-x-3">
                                 <Avatar>
                                     <AvatarImage
-                                        :src="`https://api.dicebear.com/6.x/initials/svg?seed=${$page.props.leader.first_name}+${$page.props.leader.last_name}&fontSize=32`"
+                                        :src="
+                                            $page.props.leader.profile
+                                                .profile_image
+                                        "
                                     />
                                     <AvatarFallback>
-                                        <User class="w-4 h-4" />
+                                        {{
+                                            props.leader.first_name.charAt(0) +
+                                            props.leader.last_name.charAt(0)
+                                        }}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div class="w-full">
@@ -135,11 +141,12 @@ const leaveGroup = () => {
                                 class="flex items-center space-x-3"
                             >
                                 <Avatar>
-                                    <AvatarImage
-                                        :src="`https://api.dicebear.com/6.x/initials/svg?seed=${member.first_name}+${member.last_name}&fontSize=32`"
-                                    />
+                                    <AvatarImage :src="member.profile?.profile_image" />
                                     <AvatarFallback>
-                                        <User class="w-4 h-4" />
+                                        {{
+                                            member.first_name.charAt(0) +
+                                            member.last_name.charAt(0)
+                                        }}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
