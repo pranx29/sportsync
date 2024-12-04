@@ -105,4 +105,8 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, 'group_user');
     }
 
+    public function sessions()
+    {
+        return $this->belongsToMany(Session::class, 'session_user')->withTimestamps();
+    }
 }
