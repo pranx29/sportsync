@@ -28,13 +28,15 @@ import {
     AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
 import { toast, Toaster } from "@/Components/ui/toast";
-import { MoreVertical, LogOut, CirclePlus, MessageCircle } from "lucide-vue-next";
+import { MoreVertical, LogOut, CirclePlus, MessageCircle, EditIcon, CircleX } from "lucide-vue-next";
 import { router, usePage } from "@inertiajs/vue3";
 import CreateSessionForm from "../Session/CreateSessionForm.vue";
+import EditSessionForm from '../Session/EditSessionForm.vue';
 
 const { props } = usePage();
 
 const sessions = ref(props.sessions || []);
+const joinedSessions = ref(props.joinedSessions || []);
 
 const leaveGroup = () => {
     if (props.group.leader.id === props.auth.user.id) {
@@ -85,15 +87,19 @@ const sendMessage = () => {
 };
 
 const isMembersExpanded = ref(false);
+const isSessionsExpanded = ref(false);
+const isJoinedSessionsExpanded = ref(false);
 
 const toggleMembers = () => {
     isMembersExpanded.value = !isMembersExpanded.value;
 };
 
-const isSessionsExpanded = ref(true);
-
 const toggleSessions = () => {
     isSessionsExpanded.value = !isSessionsExpanded.value;
+};
+
+const toggleJoinedSessions = () => {
+    isJoinedSessionsExpanded.value = !isJoinedSessionsExpanded.value;
 };
 
 const selectedSession = ref(null);
@@ -110,101 +116,68 @@ const goBackToChat = () => {
 
 // console.log("Sessions data from props:", props.sessions);
 
+// Join a session
 const joinSession = async () => {
-    if (selectedSession.value) {
-        try {
-            await router.post(route("session.join"), { session_id: selectedSession.value.id });
-            toast({
-                title: "Joined Session",
-                description: "You have successfully joined the session.",
-                variant: "success",
-            });
-            selectedSession.value.participants.push({ name: "You" }); // Add the user to the participants list
-        } catch (error) {
-            toast({
-                title: "Failed to Join Session",
-                description: error.response.data.message || "An error occurred.",
-                variant: "destructive",
-            });
-        }
+    try {
+        // Send the join request to the server
+        const response = await axios.post(route("sessions.join", { id: selectedSession.value.id }));
+        
+        // Update the selected session with the participants list from the server
+        selectedSession.value.participants = response.data.session.participants;
+        
+        toast({
+            title: "Joined Session",
+            description: response.data.message,
+            variant: "success",
+        });
+    } catch (error) {
+        toast({
+            title: "Cannot join the session",
+            description: error.response?.data.message || "Unable to join session.",
+            variant: "destructive",
+        });
     }
 };
 
+// Leave a session
 const leaveSession = async () => {
-    if (selectedSession.value) {
-        try {
-            await router.post(route("session.leave"), { session_id: selectedSession.value.id });
-            toast({
-                title: "Left Session",
-                description: "You have left the session.",
-                variant: "success",
-            });
-            selectedSession.value.participants = selectedSession.value.participants.filter(
-                (participant) => participant.name !== "You"
-            ); // Remove the user from the participants list
-        } catch (error) {
-            toast({
-                title: "Failed to Leave Session",
-                description: error.response.data.message || "An error occurred.",
-                variant: "destructive",
-            });
-        }
+    try {
+        await router.post(route("sessions.leave", { id: selectedSession.value.id }));
+        selectedSession.value.participants = selectedSession.value.participants.filter(
+            (participant) => participant.id !== props.auth.user.id
+        );
+        toast({ 
+            title: "Left Session", 
+            description: "You successfully left the session.", 
+            variant: "destructive" });
+    } catch (error) {
+        toast({ 
+            title: "Error", 
+            description: error.response?.data.message || "Unable to leave session.", 
+            variant: "destructive" });
     }
 };
 
+// Edit a session
+// const editSession = (session) => {
+//     selectedSession.value = session; // Pass the selected session data
+//     modal.open({
+//         content: EditSessionForm,
+//         props: {
+//             session: selectedSession.value,
+//         },
+//     });
+// };
+
+// Cancel a session
 const cancelSession = async () => {
-    if (selectedSession.value && selectedSession.value.creator_id === props.auth.user.id) {
-        try {
-            await router.post(route("session.cancel"), { session_id: selectedSession.value.id });
-            toast({
-                title: "Session Canceled",
-                description: "The session has been canceled.",
-                variant: "success",
-            });
-            // Remove session from the list
-            sessions.value = sessions.value.filter((session) => session.id !== selectedSession.value.id);
-            selectedSession.value = null;
-        } catch (error) {
-            toast({
-                title: "Failed to Cancel Session",
-                description: error.response.data.message || "An error occurred.",
-                variant: "destructive",
-            });
-        }
-    } else {
-        toast({
-            title: "Action Denied",
-            description: "You are not authorized to cancel this session.",
-            variant: "destructive",
-        });
-    }
-};
-
-const editSession = async () => {
-    if (selectedSession.value && selectedSession.value.creator_id === props.auth.user.id) {
-        try {
-            // Here you would show a form to edit the session and submit the updated data
-            const updatedSession = { ...selectedSession.value, session_name: "Updated Session Name" };
-            await router.post(route("session.update"), { session_id: updatedSession.id, data: updatedSession });
-            toast({
-                title: "Session Updated",
-                description: "The session has been updated successfully.",
-                variant: "success",
-            });
-            selectedSession.value = updatedSession;
-        } catch (error) {
-            toast({
-                title: "Failed to Update Session",
-                description: error.response.data.message || "An error occurred.",
-                variant: "destructive",
-            });
-        }
-    } else {
-        toast({
-            title: "Action Denied",
-            description: "Only the session creator can edit the session.",
-            variant: "destructive",
-        });
+    try {
+        await router.delete(route("sessions.destroy", { id: selectedSession.value.id }));
+        sessions.value = sessions.value.filter((session) => session.id !== selectedSession.value.id);
+        toast({ title: "Session Cancelled", description: "The session was successfully cancelled.", variant: "success" });
+        goBackToChat();
+    } catch (error) {
+        toast({ title: "Error", description: error.response?.data.message || "Unable to cancel session.", variant: "destructive" });
     }
 };
 </script>
@@ -325,6 +298,40 @@ const editSession = async () => {
                             </template>
                         </ScrollArea>
                     </transition>
+
+                    <!-- Joined Sessions -->
+                    <CardHeader @click="toggleJoinedSessions" class="cursor-pointer">
+                        <CardTitle>Joined Sessions <span v-if="!isJoinedSessionsExpanded">+</span><span v-else>-</span></CardTitle>
+                    </CardHeader>
+                    <transition
+                        name="dropdown"
+                        enter-active-class="transition-max-height duration-300 ease-in-out"
+                        leave-active-class="transition-max-height duration-300 ease-in-out"
+                        enter-from-class="max-h-0"
+                        enter-to-class="max-h-[500px]"
+                        leave-from-class="max-h-[500px]"
+                        leave-to-class="max-h-0"
+                    >
+                        <ScrollArea v-show="isJoinedSessionsExpanded" class="flex-1 overflow-y-auto p-6">
+                            <template v-if="joinedSessions && joinedSessions.length">
+                                <div v-for="session in joinedSessions" :key="session.id" class="mb-2">
+                                    <Card class="flex flex-col sm:flex-row items-center cursor-pointer" @click="viewSessionDetails(session)">
+                                        <CardHeader class="flex-1 flex flex-col sm:flex-row items-start">
+                                            <div class="mr-4 flex-1">
+                                                <CardTitle>{{ session.session_name }}</CardTitle>
+                                                <p class="text-sm text-muted-foreground">{{ session.date_time }}</p>
+                                                <CardDescription>{{ session.description }}</CardDescription>
+                                            </div>
+                                        </CardHeader>
+                                    </Card>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <p class="text-sm text-muted-foreground">No joined sessions available.</p>
+                            </template>
+                        </ScrollArea>
+                    </transition>
+
                 </Card>
                 
                 <Card class="h-[calc(100vh-12rem)] flex flex-col">
@@ -357,15 +364,74 @@ const editSession = async () => {
                             </CardDescription>
                         </div>
                         <div class="ml-auto flex items-center gap-1">
-                            <Button @click="joinSession" class="bg-primary" size="sm">
+                            <template v-if="selectedSession && props.auth.user.id === selectedSession.leader_id">
+                                <AlertDialog>
+                                    <AlertDialogTrigger as-child>
+                                        <Button variant="outline" size="sm">
+                                            <LogOut class="w-4 h-4 mr-2" />
+                                            <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Cancel Session</span>
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure you want to cancel the session?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Are you sure you want to cancel this session? This action cannot be undone.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction @click="cancelSession">Confirm</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger as-child>
+                                        <Button size="icon" variant="outline" class="h-8 w-8">
+                                            <ChevronDown class="h-4 w-4" />
+                                            <span class="sr-only">Session Options</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <EditSessionForm :session="selectedSession">
+                                            <DropdownMenuItem>
+                                                <EditIcon class="h-3.5 w-3.5" />
+                                                Edit Session
+                                            </DropdownMenuItem>
+                                        </EditSessionForm>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </template>      
+                            <template v-else>
+                                <Button
+                                    v-if="!selectedSession.participants.find((participant) => participant.id === props.auth.user.id)"
+                                    @click="joinSession"
+                                    class="bg-primary"
+                                    size="sm"
+                                >
+                                    <CirclePlus class="h-3.5 w-3.5" />
+                                    <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Join Session</span>
+                                </Button>
+                                <Button
+                                    v-else
+                                    @click="leaveSession"
+                                    class="bg-danger"
+                                    size="sm"
+                                    variant="outline"
+                                >
+                                    <LogOut class="w-4 h-4 mr-2" />
+                                    <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Leave Session</span>
+                                </Button>
+                            </template>                      
+                            <!-- <Button @click="joinSession" class="bg-primary" size="sm">
                                 <CirclePlus class="h-3.5 w-3.5" />
                                 <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Join Session</span>
                             </Button>
                             <Button @click="leaveSession" class="bg-danger" variant="outline" size="sm">
                                 <LogOut class="w-4 h-4 mr-2" />
                                 <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Leave Session</span>
-                            </Button>
-                            <DropdownMenu>
+                            </Button> -->
+                            <!-- <DropdownMenu>
                                 <DropdownMenuTrigger as-child>
                                     <Button
                                         size="icon"
@@ -379,7 +445,7 @@ const editSession = async () => {
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem> Edit </DropdownMenuItem>
                                 </DropdownMenuContent>
-                            </DropdownMenu>
+                            </DropdownMenu> -->
                         </div>
                     </CardHeader>
 
@@ -407,10 +473,9 @@ const editSession = async () => {
                         <!-- Session Details View -->
                         <div v-else class="space-y-4">
                             <div class="grid gap-0.5">
-                                <p class="text-sm text-muted-foreground py-2"><strong>{{ selectedSession?.description }}</strong></p>
-                                <!-- <p class="text-sm">
-                                    <strong>Date and Time:</strong> {{ new Date(selectedSession?.date_time).toLocaleString() }}
-                                </p> -->
+                                <p class="text-sm text-muted-foreground py-2">
+                                    <strong>{{ selectedSession?.description }}</strong>
+                                </p>
                                 <p><strong>Location:</strong> {{ selectedSession.location }}</p>
                                 <p class="text-sm">
                                     <strong>Participation Limit:</strong> {{ selectedSession?.participation_limit }}
@@ -419,16 +484,56 @@ const editSession = async () => {
                                     <strong>Equipment Provided:</strong>
                                     {{ selectedSession?.equipment_provided ? 'Yes' : 'No' }}
                                 </p>
-                                <p class="text-sm">
+                                <p class="text-sm p-4">
                                     <strong>Group Members Joined:</strong>
                                 </p>
-                                <ul class="list-disc pl-5">
-                                    <li v-for="participant in selectedSession?.participants" :key="participant.id">
-                                        {{ participant.name }}
+                                
+                                <!-- Member List -->
+                                <ul class="space-y-4 px-4">
+                                    <!-- Leader -->
+                                    <li v-if="selectedSession?.leader" class="flex items-center space-x-3">
+                                        <Avatar>
+                                            <AvatarImage
+                                                :src="`https://api.dicebear.com/6.x/initials/svg?seed=${selectedSession.leader.first_name}+${selectedSession.leader.last_name}&fontSize=32`"
+                                            />
+                                            <AvatarFallback>
+                                                <User class="w-4 h-4" />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div class="w-full">
+                                            <div class="flex justify-between">
+                                                <h3 class="font-medium text-sm">
+                                                    {{ selectedSession.leader.first_name }} {{ selectedSession.leader.last_name }}
+                                                </h3>
+                                                <Badge variant="outline">Leader</Badge>
+                                            </div>
+                                            <p class="text-xs text-muted-foreground">{{ selectedSession.leader.email }}</p>
+                                        </div>
+                                    </li>
+                                    
+                                    <!-- Participants -->
+                                    <li
+                                        v-for="member in selectedSession?.participants"
+                                        :key="member.id"
+                                        class="flex items-center space-x-3"
+                                    >
+                                        <Avatar>
+                                            <AvatarImage
+                                                :src="`https://api.dicebear.com/6.x/initials/svg?seed=${member.first_name}+${member.last_name}&fontSize=32`"
+                                            />
+                                            <AvatarFallback>
+                                                <User class="w-4 h-4" />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <h3 class="font-medium text-sm">{{ member.first_name }} {{ member.last_name }}</h3>
+                                            <p class="text-xs text-muted-foreground">{{ member.email }}</p>
+                                        </div>
                                     </li>
                                 </ul>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- Chat Input Area -->
@@ -456,5 +561,6 @@ const editSession = async () => {
 
             </div>
         </div>
+        <Toaster/>
     </AuthenticatedLayout>
 </template>

@@ -19,17 +19,28 @@ import { DialogTitle, DialogDescription } from 'radix-vue';
 import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/Components/ui/sheet";
+import { 
+    Sheet, 
+    SheetContent, 
+    SheetTrigger, 
+    SheetTitle,
+    SheetDescription  
+} from "@/Components/ui/sheet";
 import { useForm as useVeeForm } from "vee-validate";
 import { ref } from "vue";
 import * as z from "zod";
 import { toTypedSchema } from "@vee-validate/zod";
 import { router, usePage } from "@inertiajs/vue3";
 import { toast } from "@/Components/ui/toast";
-import { CirclePlus } from "lucide-vue-next";
+import { CirclePlus, EditIcon } from "lucide-vue-next";
 
-const { props } = usePage();
-const groupId = props.group?.id; 
+const props = defineProps({
+    session: {
+        type: Object,
+        required: true,
+        default: () => ({}),
+    },
+});
 
 const isAddFormOpen = ref(false);
 
@@ -62,26 +73,39 @@ const {
     handleSubmit: handleSessionSubmit,
     resetForm: resetSessionForm,
     setFieldError,
+    setValues,
 } = useVeeForm({
     validationSchema: createSessionSchema,
+    initialValues: {
+        session_name: props.session?.session_name || "",
+        date_time: props.session?.date_time || "",
+        location: props.session?.location || "",
+        participation_limit: props.session?.participation_limit || 1,
+        equipment_provided: props.session?.equipment_provided ? "yes" : "no",
+        description: props.session?.description || "",
+    }
 });
 
-const onSessionSubmit = handleSessionSubmit(async (values) => {
-    const payload = {
-        ...values,
-        group_id: groupId,
-    };
+// // Pre-fill form with session data
+// setValues({
+//     session_name: props.session.session_name,
+//     date_time: props.session.date_time,
+//     location: props.session.location,
+//     participation_limit: props.session.participation_limit,
+//     equipment_provided: props.session.equipment_provided ? "yes" : "no",
+//     description: props.session.description,
+// });
 
-    router.post(route("sessions.create", { group: groupId }), payload, {
+const onSessionSubmit = handleSessionSubmit(async (values) => {
+    router.put(route("sessions.update", { session: props.session.id }), values, {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
             toast({
-                title: "Session Created",
-                description: "The session has been created successfully.",
+                title: "Session Updated",
+                description: "The session has been updated successfully.",
                 variant: "success",
             });
-            isAddFormOpen.value = false;
         },
         onError: (errors) => {
             if (errors) {
@@ -90,7 +114,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                 });
             }
             toast({
-                title: "Failed to Create Session",
+                title: "Failed to Update Session",
                 description: "Please check the form for errors.",
                 variant: "destructive",
             });
@@ -104,43 +128,44 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
 <template>
     <Sheet v-model:open="isAddFormOpen">
         <SheetTrigger as-child>
-            <Button size="sm" class="mb-4">
-                <CirclePlus class="h-3.5 w-3.5" />
-                <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Create Session</span>
+            <Button
+                class="px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground cursor-default w-full justify-start font-normal"
+                variant="ghost"
+                size="sm"
+            >
+                <EditIcon class="h-3.5 w-3.5" />
+                Edit Session
             </Button>
         </SheetTrigger>
         <SheetContent class="overflow-y-auto py-10">
-            <div class="mb-4">
-                <DialogTitle>
-                    <h2 class="text-xl font-semibold">Create Session for {{ props.group.name }}</h2>
-                </DialogTitle>
-                <DialogDescription>
-                    <p class="text-sm text-gray-500">Enter the details to create a new session for this group.</p>
-                </DialogDescription>
-            </div>
+                <SheetTitle>
+                    <h2 class="text-xl font-semibold">Edit Session details</h2>
+                </SheetTitle>
+                <SheetDescription>
+                    <p class="text-sm text-gray-500">Update the details of the session below.</p>
+                </SheetDescription>
             <form class="space-y-6" @submit.prevent="onSessionSubmit">
                 <FormField v-slot="{ componentField }" name="session_name">
                     <FormItem>
                         <FormLabel>Session Name</FormLabel>
                         <FormControl>
-                            <Input 
-                                v-bind="componentField" 
-                                placeholder="Enter session name" 
+                            <Input
+                                v-bind="componentField"
+                                placeholder="Enter session name"
                             />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                 </FormField>
-                
+
                 <FormField v-slot="{ componentField }" name="date_time">
                     <FormItem>
                         <FormLabel>Date & Time</FormLabel>
                         <FormControl>
-                            <Input 
+                            <Input
                                 v-bind="componentField"
                                 type="datetime-local"
                                 placeholder="Select date and time"
-                                :min="new Date().toISOString().slice(0, 16)" 
                             />
                         </FormControl>
                         <FormMessage />
@@ -151,11 +176,11 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     <FormItem>
                         <FormLabel>Participation Limit</FormLabel>
                         <FormControl>
-                            <Input 
-                                v-bind="componentField" 
-                                type="number" 
-                                min="1" 
-                                placeholder="Enter participation limit" 
+                            <Input
+                                v-bind="componentField"
+                                type="number"
+                                min="1"
+                                placeholder="Enter participation limit"
                             />
                         </FormControl>
                         <FormMessage />
@@ -188,7 +213,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     <FormItem>
                         <FormLabel>Location</FormLabel>
                         <FormControl>
-                            <Input 
+                            <Input
                                 v-bind="componentField"
                                 placeholder="Enter location"
                             />
@@ -202,7 +227,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                         <FormLabel>Description</FormLabel>
                         <FormControl>
                             <Textarea
-                                v-bind="componentField" 
+                                v-bind="componentField"
                                 placeholder="Enter an optional description"
                             />
                         </FormControl>
@@ -210,7 +235,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     </FormItem>
                 </FormField>
 
-                <Button type="submit">Create Session</Button>
+                <Button type="submit">Update Session</Button>
             </form>
         </SheetContent>
     </Sheet>

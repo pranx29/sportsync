@@ -60,12 +60,12 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
     Route::get('/employee/groups/{group}', [SessionController::class, 'show'])
         ->name('employee.groups.show');
         
-    Route::post('/sessions/{session}/join', [SessionController::class, 'joinSession'])->name('sessions.join');
-    Route::post('/sessions/{session}/leave', [SessionController::class, 'leaveSession'])->name('sessions.leave');
+    Route::post('/sessions/{session}/join', [SessionController::class, 'join'])->name('sessions.join');
+    Route::post('/sessions/{session}/leave', [SessionController::class, 'leave'])->name('sessions.leave');
     
     // Edit or cancel session (only for the leader)
-    Route::post('/sessions/{session}/edit', [SessionController::class, 'editSession'])->name('sessions.edit');
-    Route::delete('/sessions/{session}/cancel', [SessionController::class, 'cancelSession'])->name('sessions.cancel');
+    Route::put('/sessions/{session}', [SessionController::class, 'update'])->name('sessions.update');
+    Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
 });
 
 // Before creating a profile
