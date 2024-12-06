@@ -30,7 +30,7 @@ class Group extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id');
     }
 
     public function messages()
@@ -50,4 +50,8 @@ class Group extends Model
         return $value ? Storage::url($value) : url('https://www.ibcs.com/wp-content/uploads/2024/01/Projekt-bez-nazwy-15.png');
     }
 
+    public function sessions()
+    {
+        return $this->hasMany(Session::class, 'group_id');
+    }
 }

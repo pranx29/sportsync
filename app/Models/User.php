@@ -116,4 +116,8 @@ class User extends Authenticatable
         return $this->hasMany(Message::class);
     }
 
+    public function sessions()
+    {
+        return $this->belongsToMany(Session::class, 'session_user')->withTimestamps();
+    }
 }

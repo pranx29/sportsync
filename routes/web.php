@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InterestController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\SessionController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\AdminGroupController;
 use App\Http\Controllers\Admin\AdminSettingController;
@@ -53,6 +54,20 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
     Route::get('/settings/change-password', [PasswordController::class, 'edit'])->name('password.edit');
     Route::patch('/settings/change-password', [PasswordController::class, 'update'])->name('password.update');
 
+    //session routes
+    // Route for creating a session within a group
+    Route::post('/employee/groups/{group}', [SessionController::class, 'store'])
+        ->name('sessions.create');
+    // Route for viewing a specific group
+    Route::get('/employee/groups/{group}', [SessionController::class, 'show'])
+        ->name('employee.groups.show');
+        
+    Route::post('/sessions/{session}/join', [SessionController::class, 'join'])->name('sessions.join');
+    Route::post('/sessions/{session}/leave', [SessionController::class, 'leave'])->name('sessions.leave');
+    
+    // Edit or cancel session (only for the leader)
+    Route::put('/sessions/{session}', [SessionController::class, 'update'])->name('sessions.update');
+    Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
 });
 
 // Before creating a profile
