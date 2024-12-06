@@ -110,6 +110,16 @@ const viewSessionDetails = (session) => {
     isChatView.value = false;
 };
 
+// Helper function to validate URLs
+const isValidUrl = (string) => {
+    try {
+        const url = new URL(string);
+        return url.protocol === "http:" || url.protocol === "https:";
+    } catch (e) {
+        return false;
+    }
+};
+
 const goBackToChat = () => {
     isChatView.value = true;
 };
@@ -157,17 +167,6 @@ const leaveSession = async () => {
             variant: "destructive" });
     }
 };
-
-// Edit a session
-// const editSession = (session) => {
-//     selectedSession.value = session; // Pass the selected session data
-//     modal.open({
-//         content: EditSessionForm,
-//         props: {
-//             session: selectedSession.value,
-//         },
-//     });
-// };
 
 // Cancel a session
 const cancelSession = async () => {
@@ -331,7 +330,6 @@ const cancelSession = async () => {
                             </template>
                         </ScrollArea>
                     </transition>
-
                 </Card>
                 
                 <Card class="h-[calc(100vh-12rem)] flex flex-col">
@@ -476,7 +474,19 @@ const cancelSession = async () => {
                                 <p class="text-sm text-muted-foreground py-2">
                                     <strong>{{ selectedSession?.description }}</strong>
                                 </p>
-                                <p><strong>Location:</strong> {{ selectedSession.location }}</p>
+                                <p>
+                                    <strong>Location: </strong>
+                                    <span v-if="isValidUrl(selectedSession.location)">
+                                        <a :href="selectedSession.location" target="_blank" rel="noopener noreferrer" 
+                                            class="text-blue-600 hover:text-blue-800"
+                                        >
+                                            {{ selectedSession.location }}
+                                        </a>
+                                    </span>
+                                    <span v-else>
+                                        {{ selectedSession.location }}
+                                    </span>
+                                </p>
                                 <p class="text-sm">
                                     <strong>Participation Limit:</strong> {{ selectedSession?.participation_limit }}
                                 </p>

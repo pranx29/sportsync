@@ -17,9 +17,12 @@ class SessionController extends Controller
                            ->with('participants')
                            ->get();
     
-        $joinedSessions = $group->sessions()->whereHas('participants', function ($query) {
-            $query->where('user_id', auth()->id());
-        })->get();
+        $joinedSessions = Session::where('group_id', $group->id)
+                                 ->whereHas('participants', function ($query) {
+                                     $query->where('user_id', auth()->id());
+                                 })
+                                 ->with('participants')
+                                 ->get();
     
         return Inertia::render('Employee/Group/Show', [
             'group' => $group,
@@ -29,6 +32,7 @@ class SessionController extends Controller
             'members' => $group->users,
         ]);
     }
+    
     
 
     public function store(Request $request, Group $group)
@@ -80,6 +84,7 @@ class SessionController extends Controller
     
         return response()->json(['message' => 'Successfully joined the session.', 'session' => $session->load('participants')]);
     }
+    
 
     public function leave(Session $session)
     {
