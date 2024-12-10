@@ -30,7 +30,7 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
 
 <template>
     <div>
-        <div class="min-h-screen bg-background">
+        <div class="min-h-screen bg-background grid grid-rows-[auto_1fr]">
             <header
                 class="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6"
             >
@@ -87,15 +87,15 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                 >
                     <form class="ml-auto flex-1 sm:flex-initial">
                         <!-- <div class="relative">
-                            <Search
-                                class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"
-                            />
-                            <Input
-                                type="search"
-                                placeholder="Search events and groups"
-                                class="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
-                            />
-                        </div> -->
+                    <Search
+                    class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"
+                    />
+                    <Input
+                    type="search"
+                    placeholder="Search events and groups"
+                    class="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+                    />
+                </div> -->
                     </form>
                     <div class="flex items-center gap-2">
                         <ThemeModeToggle />
@@ -163,7 +163,7 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
             </header>
 
             <!-- Page Content -->
-            <div>
+            <div class="p-4">
                 <slot />
             </div>
         </div>

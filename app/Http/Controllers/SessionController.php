@@ -11,30 +11,10 @@ use App\Models\Group;
 class SessionController extends Controller
 {
 
-    public function show(Group $group)
-    {
-        $sessions = Session::where('group_id', $group->id)
-                           ->with('participants')
-                           ->get();
-    
-        $joinedSessions = $group->sessions()->whereHas('participants', function ($query) {
-            $query->where('user_id', auth()->id());
-        })->get();
-    
-        return Inertia::render('Employee/Group/Show', [
-            'group' => $group,
-            'sessions' => $sessions,
-            'joinedSessions' => $joinedSessions,
-            'leader' => $group->leader,
-            'members' => $group->users,
-        ]);
-    }
-    
-
     public function store(Request $request, Group $group)
     {
-        if (!$group->users->contains(auth()->id())) {
-            abort(403, 'Unauthorized action. Only group members can create sessions.');
+        if (!$group->users->contains(auth()->id()) || $group->leader_id == auth()->id()) {
+            redirect()->back()->with('error', 'Unauthorized action.');
         }
 
         $request->validate([
@@ -59,26 +39,25 @@ class SessionController extends Controller
 
         $session->participants()->attach(auth()->id());
 
-        return redirect()->route('employee.groups.show', ['group' => $request->group_id])
-            ->with('success', 'Session created successfully.');
+        return redirect()->back()->with('success', 'Session created successfully.');
     }
 
 
     public function join(Session $session)
     {
         if ($session->participants()->where('user_id', auth()->id())->exists()) {
-            return response()->json(['message' => 'You are already a participant.'], 400);
+            return redirect()->back()->with('error', 'You have already joined this session.');
         }
-    
+
         $totalParticipants = $session->participants->count();
         if ($totalParticipants >= $session->participation_limit) {
-            return response()->json(['message' => 'Session is full.'], 400);
+            return redirect()->back()->with('error', 'Session is full.');
         }
-    
+
         // Add authenticated user to the participants list
         $session->participants()->attach(auth()->id());
-    
-        return response()->json(['message' => 'Successfully joined the session.', 'session' => $session->load('participants')]);
+
+        return redirect()->back()->with('success', 'Successfully joined the session.');
     }
 
     public function leave(Session $session)
@@ -89,7 +68,7 @@ class SessionController extends Controller
 
         $session->participants()->detach(auth()->id());
 
-        return back()->with('success', 'Successfully left the session.');
+        redirect()->back()->with('success', 'Successfully left the session.');
     }
 
     public function update(Request $request, Session $session)
@@ -97,7 +76,7 @@ class SessionController extends Controller
         if ($session->leader_id !== auth()->id()) {
             abort(403, 'Unauthorized action. Only the session leader can edit this session.');
         }
-    
+
         $request->validate([
             'session_name' => 'required|string|max:255',
             'date_time' => 'required|date|after:now',
@@ -106,7 +85,7 @@ class SessionController extends Controller
             'location' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
         ]);
-    
+
         $session->update([
             'session_name' => $request->session_name,
             'date_time' => $request->date_time,
@@ -115,7 +94,7 @@ class SessionController extends Controller
             'location' => $request->location,
             'description' => $request->description,
         ]);
-    
+
         return redirect()->route('employee.groups.show', ['group' => $session->group_id])
             ->with('success', 'Session updated successfully.');
     }
@@ -123,13 +102,12 @@ class SessionController extends Controller
     public function destroy(Session $session)
     {
         if ($session->leader_id !== auth()->id()) {
-            abort(403, 'Unauthorized action. Only the session leader can cancel this session.');
+            return redirect()->back()->with('error', 'Unauthorized action. Only the session leader can cancel this session.');
         }
 
         $session->delete();
 
-        return redirect()->route('employee.groups.show', ['group' => $session->group_id])
-            ->with('success', 'Session canceled successfully.');
+        return redirect()->back()->with('success', 'Session canceled successfully.');
     }
 
 }

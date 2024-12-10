@@ -52,7 +52,7 @@ const props = defineProps({
                             <div class="mr-4 flex-1">
                                 <CardTitle>{{ group.name }}</CardTitle>
                                 <p class="text-sm text-muted-foreground">
-                                    members
+                                    {{ group.users_count }} members
                                 </p>
                                 <CardDescription>
                                     {{ group.description }}
@@ -67,6 +67,7 @@ const props = defineProps({
                                     })
                                 "
                                 method="post"
+                                as="button"
                             >
                                 <Button>Join</Button>
                             </Link>

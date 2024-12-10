@@ -9,17 +9,21 @@ import {
     FormDescription,
     FormMessage,
 } from "@/Components/ui/form";
-import { useForm } from "@inertiajs/vue3";
-import { useForm as useVeeForm } from "vee-validate";
+import { router } from "@inertiajs/vue3";
+import {
+    useSetFieldError,
+    useSetFieldValue,
+    useForm as useVeeForm,
+} from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { toast, Toaster, ToastAction } from "@/Components/ui/toast";
 import { h } from "vue";
 import Logo from "@/Components/Logo.vue";
-import { useColorMode } from '@vueuse/core'
+import { useColorMode } from "@vueuse/core";
 
-const mode = useColorMode()
-mode.value = 'light'
+const mode = useColorMode();
+mode.value = "light";
 
 const formSchema = toTypedSchema(
     z.object({
@@ -28,44 +32,38 @@ const formSchema = toTypedSchema(
     })
 );
 
-const validateForm = useVeeForm({
+const { handleSubmit: handleLogin, setFieldValue } = useVeeForm({
     validationSchema: formSchema,
+    initialValues: {
+        email: "",
+        password: "",
+    },
 });
 
-const form = useForm({
-    password: "",
-    email: "",
-    remember: false,
-});
-
-const onSubmit = () => {
-    validateForm.validate().then(() => {
-        if (Object.keys(validateForm.errors.value).length > 0) {
-            console.log("Client-side validation failed");
-            return;
-        }
-        console.log("Client-side validation passed");
-        form.clearErrors();
-        form.post(route("login"), {
-            onError: () => {
-                toast({
-                    title: "Login Failed",
-                    description: "Invalid credentials. Please try again.",
-                    variant: "destructive",
-                    action: h(
-                        ToastAction,
-                        {
-                            altText: "Try again",
-                        },
-                        {
-                            default: () => "Try again",
-                        }
-                    ),
-                });
-            },
-        });
+const onSubmit = handleLogin(async (values) => {
+    router.post(route("login"), values, {
+        preserveScroll: true,
+        preserveState: true,
+        onError: () => {
+            setFieldValue("email", values.email);
+            setFieldValue("password", "");
+            toast({
+                title: "Login Failed",
+                description: "Invalid credentials. Please try again.",
+                variant: "destructive",
+                action: h(
+                    ToastAction,
+                    {
+                        altText: "Try again",
+                    },
+                    {
+                        default: () => "Try again",
+                    }
+                ),
+            });
+        },
     });
-};
+});
 </script>
 
 <template>
@@ -182,14 +180,11 @@ const onSubmit = () => {
                                 <FormControl>
                                     <Input
                                         type="email"
-                                        v-model:modelValue="form.email"
                                         placeholder="Your work email"
                                         v-bind="componentField"
                                     />
                                 </FormControl>
-                                <FormMessage>
-                                    {{ form.errors.email }}
-                                </FormMessage>
+                                <FormMessage />
                             </FormItem>
                         </FormField>
                         <FormField v-slot="{ componentField }" name="password">
@@ -198,14 +193,11 @@ const onSubmit = () => {
                                 <FormControl>
                                     <Input
                                         type="password"
-                                        v-model:modelValue="form.password"
                                         placeholder="Your password"
                                         v-bind="componentField"
                                     />
                                 </FormControl>
-                                <FormMessage>
-                                    {{ form.errors.password }}
-                                </FormMessage>
+                                <FormMessage />
                             </FormItem>
                         </FormField>
                         <Button class="mt-2" type="submit"> Login </Button>

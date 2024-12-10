@@ -58,16 +58,13 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
     // Route for creating a session within a group
     Route::post('/employee/groups/{group}', [SessionController::class, 'store'])
         ->name('sessions.create');
-    // Route for viewing a specific group
-    Route::get('/employee/groups/{group}', [SessionController::class, 'show'])
-        ->name('employee.groups.show');
         
-    Route::post('/sessions/{session}/join', [SessionController::class, 'join'])->name('sessions.join');
-    Route::post('/sessions/{session}/leave', [SessionController::class, 'leave'])->name('sessions.leave');
+    Route::post('/sessions/{session}/join', [SessionController::class, 'join'])->name('group.sessions.join');
+    Route::post('/sessions/{session}/leave', [SessionController::class, 'leave'])->name('group.sessions.leave');
     
     // Edit or cancel session (only for the leader)
-    Route::put('/sessions/{session}', [SessionController::class, 'update'])->name('sessions.update');
-    Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
+    Route::put('/sessions/{session}', [SessionController::class, 'update'])->name('group.sessions.update');
+    Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('group.sessions.destroy');
 });
 
 // Before creating a profile

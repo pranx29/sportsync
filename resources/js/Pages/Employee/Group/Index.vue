@@ -27,14 +27,14 @@ import {
 import { Input } from "@/Components/ui/input";
 import AuthenticatedLayout from "@/Layouts/EmployeeLayout.vue";
 import { ListFilter } from "lucide-vue-next";
-import GroupList from "./GroupList.vue";
-import JoinedGroupList from "./JoinedGroupList.vue";
+import GroupList from "./Partials/GroupList.vue";
+import JoinedGroupList from "./Partials/JoinedGroupList.vue";
 </script>
 
 <template>
     <Head title="Groups" />
     <AuthenticatedLayout>
-        <div class="flex flex-col lg:flex-row min-h-screen p-4 lg:p-16 gap-8">
+        <div class="flex flex-col lg:flex-row p-4 lg:p-16 gap-8">
             <!-- Group List Section -->
             <GroupList :groups="$page.props.groups" />
             <!-- Joined Groups List Section -->
@@ -42,3 +42,4 @@ import JoinedGroupList from "./JoinedGroupList.vue";
         </div>
     </AuthenticatedLayout>
 </template>
+

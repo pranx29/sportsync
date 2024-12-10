@@ -25,12 +25,12 @@ class Group extends Model
 
     public function leader()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id')->with('profile');   
     }
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id');
+        return $this->belongsToMany(User::class, 'group_user', 'group_id', 'user_id')->with('profile');
     }
 
     public function messages()

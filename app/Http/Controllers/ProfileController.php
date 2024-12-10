@@ -27,7 +27,6 @@ class ProfileController extends Controller
         // If user has not created a profile, return the about form
         $jobs = Role::select('id', 'title')->get();
         $departments = Department::select('id', 'name')->get();
-        sleep(1);
         return Inertia::render(
             'Employee/Profile/Partials/CreateAboutForm',
             [

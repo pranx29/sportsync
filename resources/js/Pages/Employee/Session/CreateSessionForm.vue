@@ -15,7 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import { DialogTitle, DialogDescription } from 'radix-vue';
+import { DialogTitle, DialogDescription } from "radix-vue";
 import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
@@ -29,21 +29,15 @@ import { toast } from "@/Components/ui/toast";
 import { CirclePlus } from "lucide-vue-next";
 
 const { props } = usePage();
-const groupId = props.group?.id; 
+const groupId = props.group?.id;
 
 const isAddFormOpen = ref(false);
 
 const createSessionSchema = toTypedSchema(
     z.object({
-        session_name: z
-            .string()
-            .nonempty("Session name is required."),
-        date_time: z
-            .string()
-            .nonempty("Date and time are required."),
-        location: z
-            .string()
-            .nonempty("Location is required."),
+        session_name: z.string().nonempty("Session name is required."),
+        date_time: z.string().nonempty("Date and time are required."),
+        location: z.string().nonempty("Location is required."),
         participation_limit: z
             .number()
             .positive("Participation limit must be greater than 0.")
@@ -51,7 +45,7 @@ const createSessionSchema = toTypedSchema(
         equipment_provided: z
             .string()
             .nonempty("Please specify if equipment will be provided.")
-            .refine(value => ["yes", "no"].includes(value), {
+            .refine((value) => ["yes", "no"].includes(value), {
                 message: "Invalid selection for equipment provided.",
             }),
         description: z.string().optional(),
@@ -106,16 +100,23 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
         <SheetTrigger as-child>
             <Button size="sm" class="mb-4">
                 <CirclePlus class="h-3.5 w-3.5" />
-                <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Create Session</span>
+                <span class="sr-only sm:not-sr-only sm:whitespace-nowrap"
+                    >Create Session</span
+                >
             </Button>
         </SheetTrigger>
         <SheetContent class="overflow-y-auto py-10">
             <div class="mb-4">
                 <DialogTitle>
-                    <h2 class="text-xl font-semibold">Create Session for {{ props.group.name }}</h2>
+                    <h2 class="text-xl font-semibold">
+                        Create Session for {{ props.group.name }}
+                    </h2>
                 </DialogTitle>
                 <DialogDescription>
-                    <p class="text-sm text-gray-500">Enter the details to create a new session for this group.</p>
+                    <p class="text-sm text-gray-500">
+                        Enter the details to create a new session for this
+                        group.
+                    </p>
                 </DialogDescription>
             </div>
             <form class="space-y-6" @submit.prevent="onSessionSubmit">
@@ -123,46 +124,53 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     <FormItem>
                         <FormLabel>Session Name</FormLabel>
                         <FormControl>
-                            <Input 
-                                v-bind="componentField" 
-                                placeholder="Enter session name" 
+                            <Input
+                                v-bind="componentField"
+                                placeholder="Enter session name"
                             />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                 </FormField>
-                
+
                 <FormField v-slot="{ componentField }" name="date_time">
                     <FormItem>
                         <FormLabel>Date & Time</FormLabel>
                         <FormControl>
-                            <Input 
+                            <Input
                                 v-bind="componentField"
                                 type="datetime-local"
                                 placeholder="Select date and time"
-                                :min="new Date().toISOString().slice(0, 16)" 
+                                :min="new Date(Date.now() + 86400000).toISOString().slice(0, 16)"
+                                :max="new Date(Date.now() + 2592000000).toISOString().slice(0, 16)"
                             />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                 </FormField>
 
-                <FormField v-slot="{ componentField }" name="participation_limit">
+                <FormField
+                    v-slot="{ componentField }"
+                    name="participation_limit"
+                >
                     <FormItem>
                         <FormLabel>Participation Limit</FormLabel>
                         <FormControl>
-                            <Input 
-                                v-bind="componentField" 
-                                type="number" 
-                                min="1" 
-                                placeholder="Enter participation limit" 
+                            <Input
+                                v-bind="componentField"
+                                type="number"
+                                min="1"
+                                placeholder="Enter participation limit"
                             />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                 </FormField>
 
-                <FormField v-slot="{ componentField }" name="equipment_provided">
+                <FormField
+                    v-slot="{ componentField }"
+                    name="equipment_provided"
+                >
                     <FormItem>
                         <FormLabel>Equipment Provided</FormLabel>
                         <Select v-bind="componentField">
@@ -188,7 +196,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     <FormItem>
                         <FormLabel>Location</FormLabel>
                         <FormControl>
-                            <Input 
+                            <Input
                                 v-bind="componentField"
                                 placeholder="Enter location"
                             />
@@ -202,7 +210,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                         <FormLabel>Description</FormLabel>
                         <FormControl>
                             <Textarea
-                                v-bind="componentField" 
+                                v-bind="componentField"
                                 placeholder="Enter an optional description"
                             />
                         </FormControl>

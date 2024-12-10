@@ -67,7 +67,7 @@ const sendMessage = () => {
 
 <template>
     <!-- Chat Area -->
-    <Card class="h-[calc(100vh-12rem)] flex flex-col">
+    <Card class="flex flex-col h-[calc(100vh-28vh)]">
         <CardHeader>
             <CardTitle>Chat</CardTitle>
         </CardHeader>
@@ -134,3 +134,5 @@ const sendMessage = () => {
         </div>
     </Card>
 </template>
+
+
