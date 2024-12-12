@@ -52,6 +52,10 @@ const createSessionSchema = toTypedSchema(
         date_time: z
             .string()
             .nonempty("Date and time are required."),
+        duration: z
+            .number()
+            .positive("Duration must be greater than 0.")
+            .int("Duration must be an integer."),
         location: z
             .string()
             .nonempty("Location is required."),
@@ -79,22 +83,13 @@ const {
     initialValues: {
         session_name: props.session?.session_name || "",
         date_time: props.session?.date_time || "",
+        duration: props.session?.duration || "",
         location: props.session?.location || "",
         participation_limit: props.session?.participation_limit || 1,
         equipment_provided: props.session?.equipment_provided ? "yes" : "no",
         description: props.session?.description || "",
     }
 });
-
-// // Pre-fill form with session data
-// setValues({
-//     session_name: props.session.session_name,
-//     date_time: props.session.date_time,
-//     location: props.session.location,
-//     participation_limit: props.session.participation_limit,
-//     equipment_provided: props.session.equipment_provided ? "yes" : "no",
-//     description: props.session.description,
-// });
 
 const onSessionSubmit = handleSessionSubmit(async (values) => {
     router.put(route("sessions.update", { session: props.session.id }), values, {
@@ -166,6 +161,22 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                                 v-bind="componentField"
                                 type="datetime-local"
                                 placeholder="Select date and time"
+                                :min="new Date().toISOString().slice(0, 16)"
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                </FormField>
+
+                <FormField v-slot="{ componentField }" name="duration">
+                    <FormItem>
+                        <FormLabel>Session Duration (in minutes)</FormLabel>
+                        <FormControl>
+                            <Input 
+                                v-bind="componentField" 
+                                type="number" 
+                                min="1" 
+                                placeholder="Enter session duration" 
                             />
                         </FormControl>
                         <FormMessage />

@@ -19,6 +19,7 @@ class Session extends Model
         'group_id',
         'session_name',
         'date_time',
+        'duration',
         'participation_limit',
         'equipment_provided',
         'location',
@@ -39,5 +40,10 @@ class Session extends Model
     public function leader()
     {
         return $this->belongsTo(User::class, 'leader_id');
+    }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class);
     }
 }

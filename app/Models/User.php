@@ -109,4 +109,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Session::class, 'session_user')->withTimestamps();
     }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class);
+    }
 }

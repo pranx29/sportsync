@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { User, Send, ChevronDown, ChevronUp } from "lucide-vue-next";
+import { ref } from "vue";
+import { User, Send, ChevronDown, ChevronUp, Navigation } from "lucide-vue-next";
 import AuthenticatedLayout from "@/Layouts/EmployeeLayout.vue";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/Components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/Components/ui/avatar";
@@ -28,15 +28,17 @@ import {
     AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
 import { toast, Toaster } from "@/Components/ui/toast";
-import { MoreVertical, LogOut, CirclePlus, MessageCircle, EditIcon, CircleX } from "lucide-vue-next";
+import { LogOut, CirclePlus, MessageCircle, EditIcon, CircleX } from "lucide-vue-next";
 import { router, usePage } from "@inertiajs/vue3";
 import CreateSessionForm from "../Session/CreateSessionForm.vue";
 import EditSessionForm from '../Session/EditSessionForm.vue';
+import FeedbackForm from "../Session/FeedbackForm.vue";
 
 const { props } = usePage();
 
-const sessions = ref(props.sessions || []);
+const sessions = ref(props.availableSessions || []);
 const joinedSessions = ref(props.joinedSessions || []);
+const pastSessions = ref(props.pastSessions || []);
 
 const leaveGroup = () => {
     if (props.group.leader.id === props.auth.user.id) {
@@ -89,6 +91,7 @@ const sendMessage = () => {
 const isMembersExpanded = ref(false);
 const isSessionsExpanded = ref(false);
 const isJoinedSessionsExpanded = ref(false);
+const isPastSessionsExpanded = ref(false);
 
 const toggleMembers = () => {
     isMembersExpanded.value = !isMembersExpanded.value;
@@ -102,15 +105,20 @@ const toggleJoinedSessions = () => {
     isJoinedSessionsExpanded.value = !isJoinedSessionsExpanded.value;
 };
 
+const togglePastSessions = () => {
+    isPastSessionsExpanded.value = !isPastSessionsExpanded.value;
+};
+
 const selectedSession = ref(null);
 const isChatView = ref(true);
+const isFeedbackView = ref(false);
 
 const viewSessionDetails = (session) => {
     selectedSession.value = session;
     isChatView.value = false;
+    isFeedbackView.value = false;
 };
 
-// Helper function to validate URLs
 const isValidUrl = (string) => {
     try {
         const url = new URL(string);
@@ -122,17 +130,42 @@ const isValidUrl = (string) => {
 
 const goBackToChat = () => {
     isChatView.value = true;
+    isFeedbackView.value = false;
 };
 
 // console.log("Sessions data from props:", props.sessions);
 
-// Join a session
+const updateSessionLists = () => {
+    const now = new Date();
+
+    joinedSessions.value = joinedSessions.value.filter((session) => {
+        const sessionEnd = new Date(session.date_time);
+        sessionEnd.setMinutes(sessionEnd.getMinutes() + session.duration);
+
+        if (now >= sessionEnd) {
+            pastSessions.value.push(session);
+            return false;
+        }
+
+        return true;
+    });
+
+    // Update regular sessions list
+    sessions.value = sessions.value.filter((session) => {
+        const sessionEnd = new Date(session.date_time);
+        sessionEnd.setMinutes(sessionEnd.getMinutes() + session.duration);
+
+        return now < sessionEnd; // Keep future sessions
+    });
+};
+
+// Set up a periodic update to session lists every minute
+setInterval(updateSessionLists, 10000);
+
 const joinSession = async () => {
     try {
-        // Send the join request to the server
         const response = await axios.post(route("sessions.join", { id: selectedSession.value.id }));
         
-        // Update the selected session with the participants list from the server
         selectedSession.value.participants = response.data.session.participants;
         
         toast({
@@ -149,7 +182,6 @@ const joinSession = async () => {
     }
 };
 
-// Leave a session
 const leaveSession = async () => {
     try {
         await router.post(route("sessions.leave", { id: selectedSession.value.id }));
@@ -168,7 +200,6 @@ const leaveSession = async () => {
     }
 };
 
-// Cancel a session
 const cancelSession = async () => {
     try {
         await router.delete(route("sessions.destroy", { id: selectedSession.value.id }));
@@ -178,6 +209,12 @@ const cancelSession = async () => {
     } catch (error) {
         toast({ title: "Error", description: error.response?.data.message || "Unable to cancel session.", variant: "destructive" });
     }
+};
+
+const viewFeedbackForm = (session) => {
+    selectedSession.value = session;
+    isChatView.value = false;
+    isFeedbackView.value = true;
 };
 </script>
 
@@ -224,8 +261,7 @@ const cancelSession = async () => {
                         enter-from-class="max-h-0"
                         enter-to-class="max-h-[500px]"
                         leave-from-class="max-h-[500px]"
-                        leave-to-class="max-h-0"
-                    >
+                        leave-to-class="max-h-0">
                         <ScrollArea v-show="isMembersExpanded" class="flex-1 overflow-y-auto p-6">
                             <ul class="space-y-4">
                                 <li class="flex items-center space-x-3">
@@ -276,16 +312,15 @@ const cancelSession = async () => {
                         enter-from-class="max-h-0"
                         enter-to-class="max-h-[500px]"
                         leave-from-class="max-h-[500px]"
-                        leave-to-class="max-h-0"
-                    >
+                        leave-to-class="max-h-0">
                         <ScrollArea v-show="isSessionsExpanded" class="flex-1 overflow-y-auto p-6">
                             <template v-if="sessions && sessions.length">
                                 <div v-for="session in sessions" :key="session.id" class="mb-2">
-                                    <Card class="flex flex-col sm:flex-row items-center cursor-pointer" @click="viewSessionDetails(session)">
+                                    <Card @click="viewSessionDetails(session)" class="flex flex-col sm:flex-row items-center cursor-pointer">
                                         <CardHeader class="flex-1 flex flex-col sm:flex-row items-start">
-                                            <div class="mr-4 flex-1">
-                                                <CardTitle>{{ session.session_name }}</CardTitle>
-                                                <p class="text-sm text-muted-foreground">{{ session.date_time }}</p>
+                                            <div class="flex-1">
+                                                <CardTitle class="text-xl">{{ session.session_name }}</CardTitle>
+                                                <time class="text-sm">{{ new Date(session.date_time).toLocaleString() }}</time>
                                                 <CardDescription>{{ session.description }}</CardDescription>
                                             </div>
                                         </CardHeader>
@@ -302,23 +337,22 @@ const cancelSession = async () => {
                     <CardHeader @click="toggleJoinedSessions" class="cursor-pointer">
                         <CardTitle>Joined Sessions <span v-if="!isJoinedSessionsExpanded">+</span><span v-else>-</span></CardTitle>
                     </CardHeader>
-                    <transition
-                        name="dropdown"
-                        enter-active-class="transition-max-height duration-300 ease-in-out"
-                        leave-active-class="transition-max-height duration-300 ease-in-out"
-                        enter-from-class="max-h-0"
-                        enter-to-class="max-h-[500px]"
-                        leave-from-class="max-h-[500px]"
-                        leave-to-class="max-h-0"
-                    >
+                    <transition 
+                        name="dropdown" 
+                        enter-active-class="transition-max-height duration-300 ease-in-out" 
+                        leave-active-class="transition-max-height duration-300 ease-in-out" 
+                        enter-from-class="max-h-0" 
+                        enter-to-class="max-h-[500px]" 
+                        leave-from-class="max-h-[500px]" 
+                        leave-to-class="max-h-0">
                         <ScrollArea v-show="isJoinedSessionsExpanded" class="flex-1 overflow-y-auto p-6">
                             <template v-if="joinedSessions && joinedSessions.length">
                                 <div v-for="session in joinedSessions" :key="session.id" class="mb-2">
-                                    <Card class="flex flex-col sm:flex-row items-center cursor-pointer" @click="viewSessionDetails(session)">
+                                    <Card @click="viewSessionDetails(session)" class="flex flex-col sm:flex-row items-center cursor-pointer">
                                         <CardHeader class="flex-1 flex flex-col sm:flex-row items-start">
-                                            <div class="mr-4 flex-1">
-                                                <CardTitle>{{ session.session_name }}</CardTitle>
-                                                <p class="text-sm text-muted-foreground">{{ session.date_time }}</p>
+                                            <div class="flex-1">
+                                                <CardTitle class="text-xl">{{ session.session_name }}</CardTitle>
+                                                <time class="text-sm">{{ new Date(session.date_time).toLocaleString() }}</time>
                                                 <CardDescription>{{ session.description }}</CardDescription>
                                             </div>
                                         </CardHeader>
@@ -330,13 +364,55 @@ const cancelSession = async () => {
                             </template>
                         </ScrollArea>
                     </transition>
+
+                    <!-- Past Sessions -->
+                    <CardHeader @click="togglePastSessions" class="cursor-pointer">
+                        <CardTitle>
+                            Past Sessions 
+                            <span v-if="!isPastSessionsExpanded">+</span>
+                            <span v-else>-</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <transition
+                        name="dropdown"
+                        enter-active-class="transition-max-height duration-300 ease-in-out"
+                        leave-active-class="transition-max-height duration-300 ease-in-out"
+                        enter-from-class="max-h-0"
+                        enter-to-class="max-h-[500px]"
+                        leave-from-class="max-h-[500px]"
+                        leave-to-class="max-h-0"
+                    >
+                        <ScrollArea v-show="isPastSessionsExpanded" class="flex-1 overflow-y-auto p-6">
+                            <template v-if="pastSessions && pastSessions.length">
+                                <div v-for="session in pastSessions" :key="session.id" class="mb-2">
+                                    <Card class="flex flex-col sm:flex-row items-center">
+                                        <CardHeader class="flex-1 flex flex-col sm:flex-row items-start">
+                                            <div class="mr-4 flex-1">
+                                                <CardTitle>{{ session.session_name }}</CardTitle>
+                                                <time class="text-sm">{{ new Date(session.date_time).toLocaleString() }}</time>
+                                                <CardDescription>{{ session.description }}</CardDescription>
+                                            </div>
+                                        </CardHeader>
+                                        <div class="flex space-x-2 p-3">
+                                            <Button @click="viewFeedbackForm(session)" class="bg-primary" size="sm">
+                                                Feedback
+                                            </Button>
+                                        </div>
+                                    </Card>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <p class="text-sm text-muted-foreground">No past sessions available.</p>
+                            </template>
+                        </ScrollArea>
+                    </transition>
                 </Card>
                 
                 <Card class="h-[calc(100vh-12rem)] flex flex-col">
                     <CardHeader v-if="isChatView">
                         <CardTitle>Group Chat</CardTitle>
                     </CardHeader>
-                    <CardHeader v-else class="flex flex-row items-start bg-muted/50">
+                    <CardHeader v-else-if="!isFeedbackView && selectedSession" class="flex flex-row items-start bg-muted/50">
                         <div class="grid gap-0.5">
                             <CardTitle class="group flex items-center gap-2 text-lg">
                                 {{ selectedSession.session_name }}
@@ -366,7 +442,7 @@ const cancelSession = async () => {
                                 <AlertDialog>
                                     <AlertDialogTrigger as-child>
                                         <Button variant="outline" size="sm">
-                                            <LogOut class="w-4 h-4 mr-2" />
+                                            <CircleX class="w-4 h-4" />
                                             <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Cancel Session</span>
                                         </Button>
                                     </AlertDialogTrigger>
@@ -421,29 +497,6 @@ const cancelSession = async () => {
                                     <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Leave Session</span>
                                 </Button>
                             </template>                      
-                            <!-- <Button @click="joinSession" class="bg-primary" size="sm">
-                                <CirclePlus class="h-3.5 w-3.5" />
-                                <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Join Session</span>
-                            </Button>
-                            <Button @click="leaveSession" class="bg-danger" variant="outline" size="sm">
-                                <LogOut class="w-4 h-4 mr-2" />
-                                <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">Leave Session</span>
-                            </Button> -->
-                            <!-- <DropdownMenu>
-                                <DropdownMenuTrigger as-child>
-                                    <Button
-                                        size="icon"
-                                        variant="outline"
-                                        class="h-8 w-8"
-                                    >
-                                        <MoreVertical class="h-3.5 w-3.5" />
-                                        <span class="sr-only">More</span>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem> Edit </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu> -->
                         </div>
                     </CardHeader>
 
@@ -467,6 +520,11 @@ const cancelSession = async () => {
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Feedback View -->
+                        <div v-else-if="isFeedbackView">
+                            <FeedbackForm :session="selectedSession" />
+                        </div>
                         
                         <!-- Session Details View -->
                         <div v-else class="space-y-4">
@@ -488,7 +546,12 @@ const cancelSession = async () => {
                                     </span>
                                 </p>
                                 <p class="text-sm">
-                                    <strong>Participation Limit:</strong> {{ selectedSession?.participation_limit }}
+                                    <strong>Session duration:</strong> 
+                                    {{ selectedSession?.duration }}
+                                </p>
+                                <p class="text-sm">
+                                    <strong>Participation Limit:</strong> 
+                                    {{ selectedSession?.participation_limit }}
                                 </p>
                                 <p class="text-sm">
                                     <strong>Equipment Provided:</strong>
@@ -499,29 +562,7 @@ const cancelSession = async () => {
                                 </p>
                                 
                                 <!-- Member List -->
-                                <ul class="space-y-4 px-4">
-                                    <!-- Leader -->
-                                    <li v-if="selectedSession?.leader" class="flex items-center space-x-3">
-                                        <Avatar>
-                                            <AvatarImage
-                                                :src="`https://api.dicebear.com/6.x/initials/svg?seed=${selectedSession.leader.first_name}+${selectedSession.leader.last_name}&fontSize=32`"
-                                            />
-                                            <AvatarFallback>
-                                                <User class="w-4 h-4" />
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div class="w-full">
-                                            <div class="flex justify-between">
-                                                <h3 class="font-medium text-sm">
-                                                    {{ selectedSession.leader.first_name }} {{ selectedSession.leader.last_name }}
-                                                </h3>
-                                                <Badge variant="outline">Leader</Badge>
-                                            </div>
-                                            <p class="text-xs text-muted-foreground">{{ selectedSession.leader.email }}</p>
-                                        </div>
-                                    </li>
-                                    
-                                    <!-- Participants -->
+                                <ul class="space-y-4 px-4">                                    
                                     <li
                                         v-for="member in selectedSession?.participants"
                                         :key="member.id"

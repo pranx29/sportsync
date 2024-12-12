@@ -66,6 +66,8 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
     // Edit or cancel session (only for the leader)
     Route::put('/sessions/{session}', [SessionController::class, 'update'])->name('sessions.update');
     Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
+
+    Route::post('/sessions/{session}/feedback', [SessionController::class, 'storeFeedback'])->name('sessions.feedback');
 });
 
 // Before creating a profile

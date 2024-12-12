@@ -41,6 +41,10 @@ const createSessionSchema = toTypedSchema(
         date_time: z
             .string()
             .nonempty("Date and time are required."),
+        duration: z
+            .number()
+            .positive("Duration must be greater than 0.")
+            .int("Duration must be an integer."),
         location: z
             .string()
             .nonempty("Location is required."),
@@ -141,6 +145,21 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                                 type="datetime-local"
                                 placeholder="Select date and time"
                                 :min="new Date().toISOString().slice(0, 16)" 
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                </FormField>
+
+                <FormField v-slot="{ componentField }" name="duration">
+                    <FormItem>
+                        <FormLabel>Session Duration (in minutes)</FormLabel>
+                        <FormControl>
+                            <Input 
+                                v-bind="componentField" 
+                                type="number" 
+                                min="1" 
+                                placeholder="Enter session duration" 
                             />
                         </FormControl>
                         <FormMessage />
