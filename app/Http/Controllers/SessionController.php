@@ -9,6 +9,9 @@ use App\Models\Session;
 use App\Models\Group;
 use App\Models\Feedback;
 use Carbon\Carbon;
+use App\Notifications\SessionUpdatedNotification;
+use App\Notifications\ParticipantUpdatedNotification;
+use Illuminate\Support\Facades\Notification;
 
 class SessionController extends Controller
 {
@@ -101,6 +104,11 @@ class SessionController extends Controller
         }
     
         $session->participants()->attach(auth()->id());
+
+        // Notify session creator
+        $sessionCreator = $session->leader;
+        $participant = auth()->user();
+        $sessionCreator->notify(new ParticipantUpdatedNotification($session, $participant, 'joined'));
     
         return response()->json(['message' => 'Successfully joined the session.', 'session' => $session->load('participants')]);
     }
@@ -113,6 +121,11 @@ class SessionController extends Controller
         }
 
         $session->participants()->detach(auth()->id());
+
+        // Notify session creator
+        $sessionCreator = $session->leader;
+        $participant = auth()->user();
+        $sessionCreator->notify(new ParticipantUpdatedNotification($session, $participant, 'left'));
 
         return back()->with('success', 'Successfully left the session.');
     }
@@ -146,6 +159,9 @@ class SessionController extends Controller
             'location' => $request->location,
             'description' => $request->description,
         ]);
+
+        // Notify participants
+        Notification::send($session->participants, new SessionUpdatedNotification($session, 'updated'));
     
         return redirect()->route('employee.groups.show', ['group' => $session->group_id])
             ->with('success', 'Session updated successfully.');
@@ -156,6 +172,9 @@ class SessionController extends Controller
         if ($session->leader_id !== auth()->id()) {
             abort(403, 'Unauthorized action. Only the session leader can cancel this session.');
         }
+
+        // Notify participants
+        Notification::send($session->participants, new SessionUpdatedNotification($session, 'canceled'));
 
         $session->delete();
 
