@@ -18,7 +18,7 @@ const props = defineProps({
 
 <template>
     <!-- Members List -->
-    <Card class="flex flex-col h-[calc(100vh-35vh)]">
+    <Card class="flex flex-col">
         <ScrollArea class="flex-1 overflow-y-auto p-4">
             <ul class="space-y-4">
                 <li class="flex items-center space-x-3">

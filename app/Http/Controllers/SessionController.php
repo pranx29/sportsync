@@ -13,6 +13,7 @@ class SessionController extends Controller
 
     public function store(Request $request, Group $group)
     {
+
         if (!$group->users->contains(auth()->id()) || $group->leader_id == auth()->id()) {
             redirect()->back()->with('error', 'Unauthorized action.');
         }
@@ -20,6 +21,7 @@ class SessionController extends Controller
         $request->validate([
             'session_name' => 'required|string|max:255',
             'date_time' => 'required|date|after:now',
+            'duration' => 'required|integer|min:1|max:5',
             'participation_limit' => 'required|integer|min:1',
             'equipment_provided' => 'required|in:yes,no',
             'location' => 'required|string|max:255',
@@ -30,6 +32,7 @@ class SessionController extends Controller
             'group_id' => $request->group_id,
             'session_name' => $request->session_name,
             'date_time' => $request->date_time,
+            'duration' => $request->duration,
             'participation_limit' => $request->participation_limit,
             'equipment_provided' => $request->equipment_provided === 'yes',
             'location' => $request->location,
@@ -38,7 +41,6 @@ class SessionController extends Controller
         ]);
 
         $session->participants()->attach(auth()->id());
-
         return redirect()->back()->with('success', 'Session created successfully.');
     }
 
@@ -74,12 +76,13 @@ class SessionController extends Controller
     public function update(Request $request, Session $session)
     {
         if ($session->leader_id !== auth()->id()) {
-            abort(403, 'Unauthorized action. Only the session leader can edit this session.');
+            return redirect()->back()->with('error', 'Unauthorized action. Only the session leader can update this session.');
         }
 
         $request->validate([
             'session_name' => 'required|string|max:255',
             'date_time' => 'required|date|after:now',
+            'duration' => 'required|integer|min:1|max:5',
             'participation_limit' => 'required|integer|min:1',
             'equipment_provided' => 'required|in:yes,no',
             'location' => 'required|string|max:255',
@@ -89,14 +92,14 @@ class SessionController extends Controller
         $session->update([
             'session_name' => $request->session_name,
             'date_time' => $request->date_time,
+            'duration' => $request->duration,
             'participation_limit' => $request->participation_limit,
             'equipment_provided' => $request->equipment_provided === 'yes',
             'location' => $request->location,
             'description' => $request->description,
         ]);
 
-        return redirect()->route('employee.groups.show', ['group' => $session->group_id])
-            ->with('success', 'Session updated successfully.');
+        return redirect()->back()->with('success', 'Session created successfully.');
     }
 
     public function destroy(Session $session)

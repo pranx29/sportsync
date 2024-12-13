@@ -15,16 +15,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import { DialogTitle, DialogDescription } from 'radix-vue';
+import { DialogTitle, DialogDescription } from "radix-vue";
 import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
-import { 
-    Sheet, 
-    SheetContent, 
-    SheetTrigger, 
+import {
+    Sheet,
+    SheetContent,
+    SheetTrigger,
     SheetTitle,
-    SheetDescription  
+    SheetDescription,
 } from "@/Components/ui/sheet";
 import { useForm as useVeeForm } from "vee-validate";
 import { ref } from "vue";
@@ -33,28 +33,28 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { router, usePage } from "@inertiajs/vue3";
 import { toast } from "@/Components/ui/toast";
 import { CirclePlus, EditIcon } from "lucide-vue-next";
+import EditSessionForm from "@/Pages/Employee/Session/EditSessionForm.vue";
 
 const props = defineProps({
     session: {
         type: Object,
         required: true,
-        default: () => ({}),
     },
 });
+
+const emit = defineEmits(["updatedSession"]);
 
 const isAddFormOpen = ref(false);
 
 const createSessionSchema = toTypedSchema(
     z.object({
-        session_name: z
-            .string()
-            .nonempty("Session name is required."),
-        date_time: z
-            .string()
-            .nonempty("Date and time are required."),
-        location: z
-            .string()
-            .nonempty("Location is required."),
+        session_name: z.string().nonempty("Session name is required."),
+        date_time: z.string().nonempty("Date and time are required."),
+        duration: z
+            .number()
+            .min(1, "Duration must be at least 1 hour.")
+            .max(5, "Duration cannot exceed 5 hours."),
+        location: z.string().nonempty("Location is required."),
         participation_limit: z
             .number()
             .positive("Participation limit must be greater than 0.")
@@ -62,88 +62,75 @@ const createSessionSchema = toTypedSchema(
         equipment_provided: z
             .string()
             .nonempty("Please specify if equipment will be provided.")
-            .refine(value => ["yes", "no"].includes(value), {
+            .refine((value) => ["yes", "no"].includes(value), {
                 message: "Invalid selection for equipment provided.",
             }),
         description: z.string().optional(),
     })
 );
 
-const {
-    handleSubmit: handleSessionSubmit,
-    resetForm: resetSessionForm,
-    setFieldError,
-    setValues,
-} = useVeeForm({
+const { handleSubmit: handleSessionSubmit, setFieldError } = useVeeForm({
     validationSchema: createSessionSchema,
     initialValues: {
         session_name: props.session?.session_name || "",
         date_time: props.session?.date_time || "",
+        duration: props.session?.duration || 1,
         location: props.session?.location || "",
         participation_limit: props.session?.participation_limit || 1,
         equipment_provided: props.session?.equipment_provided ? "yes" : "no",
         description: props.session?.description || "",
-    }
+    },
 });
 
-// // Pre-fill form with session data
-// setValues({
-//     session_name: props.session.session_name,
-//     date_time: props.session.date_time,
-//     location: props.session.location,
-//     participation_limit: props.session.participation_limit,
-//     equipment_provided: props.session.equipment_provided ? "yes" : "no",
-//     description: props.session.description,
-// });
-
 const onSessionSubmit = handleSessionSubmit(async (values) => {
-    router.put(route("sessions.update", { session: props.session.id }), values, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            toast({
-                title: "Session Updated",
-                description: "The session has been updated successfully.",
-                variant: "success",
-            });
-        },
-        onError: (errors) => {
-            if (errors) {
-                Object.entries(errors).forEach(([key, message]) => {
-                    setFieldError(key, message[0]);
+    router.put(
+        route("group.sessions.update", { session: props.session.id }),
+        values,
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast({
+                    title: "Session Updated",
+                    description: "The session has been updated successfully.",
+                    variant: "success",
                 });
-            }
-            toast({
-                title: "Failed to Update Session",
-                description: "Please check the form for errors.",
-                variant: "destructive",
-            });
-        },
-    });
-
-    resetSessionForm();
+                emit("updatedSession");
+                isAddFormOpen.value = false;
+            },
+            onError: (errors) => {
+                if (errors) {
+                    Object.entries(errors).forEach(([key, message]) => {
+                        setFieldError(key, message[0]);
+                    });
+                }
+                toast({
+                    title: "Failed to Update Session",
+                    description: "Please check the form for errors.",
+                    variant: "destructive",
+                });
+            },
+        }
+    );
 });
 </script>
 
 <template>
     <Sheet v-model:open="isAddFormOpen">
         <SheetTrigger as-child>
-            <Button
-                class="px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground cursor-default w-full justify-start font-normal"
-                variant="ghost"
-                size="sm"
-            >
-                <EditIcon class="h-3.5 w-3.5" />
-                Edit Session
+            <Button variant="outline" size="sm">
+                <EditIcon class="w-4 h-4" />
             </Button>
         </SheetTrigger>
         <SheetContent class="overflow-y-auto py-10">
-                <SheetTitle>
-                    <h2 class="text-xl font-semibold">Edit Session details</h2>
-                </SheetTitle>
-                <SheetDescription>
-                    <p class="text-sm text-gray-500">Update the details of the session below.</p>
-                </SheetDescription>
+            <SheetTitle>
+                <h2 class="text-xl font-semibold">Edit Session details</h2>
+            </SheetTitle>
+            <SheetDescription>
+                <p class="text-sm text-gray-500">
+                    Update the details of the session below.
+                </p>
+            </SheetDescription>
             <form class="space-y-6" @submit.prevent="onSessionSubmit">
                 <FormField v-slot="{ componentField }" name="session_name">
                     <FormItem>
@@ -158,21 +145,55 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     </FormItem>
                 </FormField>
 
-                <FormField v-slot="{ componentField }" name="date_time">
-                    <FormItem>
-                        <FormLabel>Date & Time</FormLabel>
-                        <FormControl>
-                            <Input
-                                v-bind="componentField"
-                                type="datetime-local"
-                                placeholder="Select date and time"
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                </FormField>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <!-- Field to get start time  -->
+                    <FormField v-slot="{ componentField }" name="date_time">
+                        <FormItem>
+                            <FormLabel>Date & Time</FormLabel>
+                            <FormControl>
+                                <Input
+                                    v-bind="componentField"
+                                    type="datetime-local"
+                                    placeholder="Select date and time"
+                                    class="w-full"
+                                    :min="
+                                        new Date(Date.now() + 86400000)
+                                            .toISOString()
+                                            .slice(0, 16)
+                                    "
+                                    :max="
+                                        new Date(Date.now() + 2592000000)
+                                            .toISOString()
+                                            .slice(0, 16)
+                                    "
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
+                    <!-- Field to get duration -->
+                    <FormField v-slot="{ componentField }" name="duration">
+                        <FormItem>
+                            <FormLabel>Duration</FormLabel>
+                            <FormControl>
+                                <Input
+                                    v-bind="componentField"
+                                    type="number"
+                                    min="1"
+                                    max="5"
+                                    class="w-28"
+                                    placeholder="1-5"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
+                </div>
 
-                <FormField v-slot="{ componentField }" name="participation_limit">
+                <FormField
+                    v-slot="{ componentField }"
+                    name="participation_limit"
+                >
                     <FormItem>
                         <FormLabel>Participation Limit</FormLabel>
                         <FormControl>
@@ -187,7 +208,10 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     </FormItem>
                 </FormField>
 
-                <FormField v-slot="{ componentField }" name="equipment_provided">
+                <FormField
+                    v-slot="{ componentField }"
+                    name="equipment_provided"
+                >
                     <FormItem>
                         <FormLabel>Equipment Provided</FormLabel>
                         <Select v-bind="componentField">
@@ -235,7 +259,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     </FormItem>
                 </FormField>
 
-                <Button type="submit">Update Session</Button>
+                <Button type="submit">Save Changes</Button>
             </form>
         </SheetContent>
     </Sheet>

@@ -37,6 +37,10 @@ const createSessionSchema = toTypedSchema(
     z.object({
         session_name: z.string().nonempty("Session name is required."),
         date_time: z.string().nonempty("Date and time are required."),
+        duration: z
+            .number()
+            .min(1, "Duration must be at least 1 hour.")
+            .max(5, "Duration cannot exceed 5 hours."),
         location: z.string().nonempty("Location is required."),
         participation_limit: z
             .number()
@@ -132,22 +136,52 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                         <FormMessage />
                     </FormItem>
                 </FormField>
-
-                <FormField v-slot="{ componentField }" name="date_time">
-                    <FormItem>
-                        <FormLabel>Date & Time</FormLabel>
-                        <FormControl>
-                            <Input
-                                v-bind="componentField"
-                                type="datetime-local"
-                                placeholder="Select date and time"
-                                :min="new Date(Date.now() + 86400000).toISOString().slice(0, 16)"
-                                :max="new Date(Date.now() + 2592000000).toISOString().slice(0, 16)"
-                            />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                </FormField>
+                <!-- Container for Date and Time and Duration fields -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <!-- Field to get start time  -->
+                    <FormField v-slot="{ componentField }" name="date_time">
+                        <FormItem>
+                            <FormLabel>Date & Time</FormLabel>
+                            <FormControl>
+                                <Input
+                                    v-bind="componentField"
+                                    type="datetime-local"
+                                    placeholder="Select date and time"
+                                    class="w-full"
+                                    :min="
+                                        new Date(Date.now() + 86400000)
+                                            .toISOString()
+                                            .slice(0, 16)
+                                    "
+                                    :max="
+                                        new Date(Date.now() + 2592000000)
+                                            .toISOString()
+                                            .slice(0, 16)
+                                    "
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
+                    <!-- Field to get duration -->
+                    <FormField v-slot="{ componentField }" name="duration">
+                        <FormItem>
+                            <FormLabel>Duration</FormLabel>
+                            <FormControl>
+                                <Input
+                                    v-bind="componentField"
+                                    type="number"
+                                    min="1"
+                                    max="5"
+                                    value="1"
+                                    class="w-28"
+                                    placeholder="1-5"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    </FormField>
+                </div>
 
                 <FormField
                     v-slot="{ componentField }"

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FeedbackController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
@@ -65,6 +66,9 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
     // Edit or cancel session (only for the leader)
     Route::put('/sessions/{session}', [SessionController::class, 'update'])->name('group.sessions.update');
     Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('group.sessions.destroy');
+
+    // Feedback
+    Route::post('/sessions/{session}/feedback', [FeedbackController::class, 'session'])->name('group.sessions.feedback');
 });
 
 // Before creating a profile

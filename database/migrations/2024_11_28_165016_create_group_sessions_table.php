@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->foreignId('group_id')->constrained()->onDelete('cascade');
             $table->string('session_name');
             $table->timestamp('date_time');
+            $table->integer('duration');
             $table->integer('participation_limit')->nullable();
             $table->boolean('equipment_provided')->default(false);
             $table->string('location');

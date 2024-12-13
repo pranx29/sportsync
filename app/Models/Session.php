@@ -19,6 +19,7 @@ class Session extends Model
         'group_id',
         'session_name',
         'date_time',
+        'duration',
         'participation_limit',
         'equipment_provided',
         'location',
@@ -36,8 +37,14 @@ class Session extends Model
         return $this->belongsToMany(User::class, 'session_user')->withTimestamps();
     }
 
+    public function feedbacks()
+    {
+        return $this->hasMany(SessionFeedback::class, 'session_id')->orderBy('created_at', 'desc');
+    }
+
     public function leader()
     {
         return $this->belongsTo(User::class, 'leader_id');
     }
+
 }

@@ -67,7 +67,7 @@ const sendMessage = () => {
 
 <template>
     <!-- Chat Area -->
-    <Card class="flex flex-col h-[calc(100vh-28vh)]">
+    <Card class="flex flex-col">
         <CardHeader>
             <CardTitle>Chat</CardTitle>
         </CardHeader>
@@ -75,45 +75,55 @@ const sendMessage = () => {
             ref="messageContainer"
             class="flex-1 overflow-y-auto p-4 space-y-4"
         >
-            <div
-                v-for="message in props.messages"
-                :key="message.id"
-                class="flex"
-                :class="{
-                    'justify-end':
-                        message.user.email === $page.props.auth.user.email,
-                }"
-            >
+            <div v-for="(message, index) in props.messages" :key="message.id">
+                <!-- Display date above messages -->
+                <div v-if="index === 0 || new Date(message.created_at).toDateString() !== new Date(props.messages[index - 1].created_at).toDateString()" class="text-center text-xs text-gray-500 my-2">
+                    {{
+                        new Date(message.created_at).toDateString() === new Date().toDateString()
+                            ? 'Today'
+                            : new Date(message.created_at).toDateString() === new Date(Date.now() - 86400000).toDateString()
+                            ? 'Yesterday'
+                            : new Intl.DateTimeFormat('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(message.created_at))
+                    }}
+                </div>
                 <div
-                    class="max-w-[80%] px-4 py-2 rounded-lg"
-                    :class="
-                        message.user.email === $page.props.auth.user.email
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
-                    "
+                    class="flex"
+                    :class="{
+                        'justify-end':
+                            message.user.email === $page.props.auth.user.email,
+                    }"
                 >
-                    <p class="text-sm">{{ message.message }}</p>
-                    <div class="flex items-center justify-between gap-4">
-                        <span class="text-xs opacity-75 block">
-                            {{
-                                message.user.email ===
-                                $page.props.auth.user.email
-                                    ? "You"
-                                    : `${message.user.first_name} ${message.user.last_name}`
-                            }}
-                        </span>
-                        <span class="text-xs opacity-50">
-                            {{
-                                new Date(message.created_at).toLocaleTimeString(
-                                    [],
-                                    {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        hour12: false,
-                                    }
-                                )
-                            }}
-                        </span>
+                    <div
+                        class="max-w-[80%] px-4 py-2 rounded-lg"
+                        :class="
+                            message.user.email === $page.props.auth.user.email
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted'
+                        "
+                    >
+                        <p class="text-sm">{{ message.message }}</p>
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="text-xs opacity-75 block">
+                                {{
+                                    message.user.email ===
+                                    $page.props.auth.user.email
+                                        ? "You"
+                                        : `${message.user.first_name} ${message.user.last_name}`
+                                }}
+                            </span>
+                            <span class="text-xs opacity-50">
+                                {{
+                                    new Date(message.created_at).toLocaleTimeString(
+                                        [],
+                                        {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            hour12: false,
+                                        }
+                                    )
+                                }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

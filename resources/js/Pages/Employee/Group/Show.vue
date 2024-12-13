@@ -97,13 +97,20 @@ const handleCancelledSession = () => {
     isChatOpen.value = true;
 };
 
+const handleUpdatedSession = () => {
+    console.log("Updated session");
+    selectedSession.value = usePage().props.group.sessions.find(
+        (session) => session.id === selectedSession.value.id
+    );
+    console.log(selectedSession.value);
+};
+
 const handleJoinedsession = () => {
     console.log("Joined session");
     selectedSession.value = usePage().props.group.sessions.find(
         (session) => session.id === selectedSession.value.id
     );
     console.log(selectedSession.value);
-
 };
 </script>
 
@@ -147,6 +154,7 @@ const handleJoinedsession = () => {
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
+                    
                 </div>
             </div>
 
@@ -158,12 +166,14 @@ const handleJoinedsession = () => {
                     </TabsList>
                     <TabsContent value="members">
                         <MemberList
+                            class="h-[calc(100vh-27vh)]"
                             :leader="$page.props.group.leader"
                             :members="$page.props.group.users"
                         />
                     </TabsContent>
                     <TabsContent value="sessions">
                         <SessionList
+                            class="h-[calc(100vh-27vh)]"
                             :sessions="$page.props.group.sessions"
                             @selectedSessionId="handleSelectedSession"
                         />
@@ -195,6 +205,7 @@ const handleJoinedsession = () => {
                             <Chat
                                 :messages="$page.props.group.messages"
                                 :group_id="$page.props.group.id"
+                                class="h-[calc(100vh-20vh)]"
                             />
                         </CollapsibleContent>
                     </Collapsible>
@@ -205,6 +216,7 @@ const handleJoinedsession = () => {
                         :session="selectedSession"
                         @cancelledSession="handleCancelledSession"
                         @joinedSession="handleJoinedsession"
+                        @updatedSession="handleUpdatedSession"
                     />
                 </div>
             </div>

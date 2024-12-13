@@ -20,40 +20,81 @@ import { ListFilter } from "lucide-vue-next";
 import { Button } from "@/Components/ui/button";
 import { cn } from "@/lib/utils";
 import { ref } from "vue";
+import { usePage } from "@inertiajs/vue3";
 
 const props = defineProps({
     sessions: Array,
 });
+
+const sessions = ref(props.sessions);
+
+const filterSessions = (filter) => {
+    console.log(filter);
+    switch (filter) {
+        case "joined":
+            sessions.value = props.sessions.filter(
+                (session) =>
+                    session.participants.find(
+                        (participant) =>
+                            participant.id === usePage().props.auth.user.id
+                    ) || session.leader_id === usePage().props.auth.user.id
+            );
+            break;
+        case "upcoming":
+            sessions.value = props.sessions.filter(
+                (session) => new Date(session.date_time) > new Date()
+            );
+            break;
+        case "past":
+            sessions.value = props.sessions.filter(
+                (session) => new Date(session.date_time) < new Date()
+            );
+            break;
+        case "all":
+            sessions.value = props.sessions;
+            break;
+        default:
+            sessions.value;
+    }
+};
 
 const selectedSession = ref(null);
 </script>
 
 <template>
     <!-- Sessions List -->
-    <Card class="flex flex-col h-[calc(100vh-35vh)]">
+    <Card class="flex flex-col">
+        <div class="flex items-center justify-end px-4 pt-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                    <Button variant="outline" size="sm" class="h-7 gap-1">
+                        <ListFilter class="h-3.5 w-3.5" />
+                        <span
+                            class="sr-only sm:not-sr-only sm:whitespace-nowrap"
+                        >
+                            Filter
+                        </span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem @click="filterSessions('all')">
+                        All
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="filterSessions('joined')">
+                        Joined
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="filterSessions('upcoming')">
+                        Upcoming
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="filterSessions('past')">
+                        Past
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
         <template v-if="sessions.length">
-            <div class="flex items-center justify-end px-4 pt-2">
-                <DropdownMenu>
-                    <DropdownMenuTrigger as-child>
-                        <Button variant="outline" size="sm" class="h-7 gap-1">
-                            <ListFilter class="h-3.5 w-3.5" />
-                            <span
-                                class="sr-only sm:not-sr-only sm:whitespace-nowrap"
-                            >
-                                Filter
-                            </span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem> All </DropdownMenuItem>
-                        <DropdownMenuItem> Joined </DropdownMenuItem>
-                        <DropdownMenuItem> Upcoming </DropdownMenuItem>
-                        <DropdownMenuItem> Past </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
             <ScrollArea class="h-screen flex p-4">
                 <div class="flex-1 flex flex-col gap-2 pt-0">
                     <TransitionGroup name="list" appear>

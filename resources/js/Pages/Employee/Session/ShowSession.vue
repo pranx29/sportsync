@@ -6,6 +6,12 @@ import {
     LogOut,
     EditIcon,
     User,
+    Calendar,
+    Clock,
+    Users,
+    Dumbbell,
+    MapPin,
+    Star,
 } from "lucide-vue-next";
 import { router, usePage } from "@inertiajs/vue3";
 import { toast } from "@/Components/ui/toast";
@@ -36,13 +42,22 @@ import {
     CardHeader,
     CardTitle,
 } from "@/Components/ui/card";
+import { ScrollArea } from "@/Components/ui/scroll-area";
 import Badge from "@/Components/ui/badge/Badge.vue";
+import EditSessionForm from "./EditSessionForm.vue";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/Components/ui/accordion";
+import ProvideSessionFeedback from "../Session/ProvideSessionFeedback.vue";
 
 const props = defineProps({
     session: Object,
 });
 
-const emit = defineEmits(["cancelledSession"]);
+const emit = defineEmits(["cancelledSession", "updatedSession"]);
 
 // Cancel a session
 const cancelSession = () => {
@@ -124,12 +139,35 @@ const leaveSession = async () => {
         }
     );
 };
+
+// Update the session
+const updateSession = () => {
+    emit("updatedSession");
+};
+
 </script>
 
 <template>
     <Card>
         <CardHeader>
             <div class="flex justify-end items-center gap-2">
+                <ProvideSessionFeedback
+                    @feedbackSubmitted="updateSession"
+                    :sessionId="session.id"
+                    v-if="
+                        new Date(session.date_time) < new Date() &&
+                        session.participants.some(
+                            (participant) =>
+                                participant.id === $page.props.auth.user.id &&
+                                session.leader_id != $page.props.auth.user.id &&
+                                !session.feedbacks.some(
+                                    (feedback) =>
+                                        feedback.user_id ===
+                                        participant.id
+                                )
+                        )
+                    "
+                />
                 <template v-if="session.leader_id === $page.props.auth.user.id">
                     <AlertDialog>
                         <AlertDialogTrigger as-child>
@@ -161,11 +199,11 @@ const leaveSession = async () => {
                         </AlertDialogContent>
                     </AlertDialog>
 
-                    <Button variant="outline" size="sm">
-                        <EditIcon class="w-4 h-4" />
-                    </Button>
+                    <EditSessionForm
+                        :session="session"
+                        @updatedSession="updateSession"
+                    />
                 </template>
-
                 <Button
                     @click="joinSession"
                     class="bg-primary"
@@ -174,7 +212,9 @@ const leaveSession = async () => {
                         !session.participants.some(
                             (participant) =>
                                 participant.id === $page.props.auth.user.id
-                        ) && session.leader_id !== $page.props.auth.user.id
+                        ) &&
+                        session.leader_id !== $page.props.auth.user.id &&
+                        new Date(session.date_time) > new Date()
                     "
                 >
                     <CirclePlus class="h-3.5 w-3.5" />
@@ -201,85 +241,144 @@ const leaveSession = async () => {
                     >
                 </Button>
             </div>
+            <CardTitle class="text-2xl font-bold">{{
+                session.session_name
+            }}</CardTitle>
         </CardHeader>
         <CardContent>
-            <div class="space-y-4" v-if="session">
-                <div class="grid gap-0.5">
-                    <p class="text-sm text-muted-foreground py-2">
-                        <strong>{{ session?.description }}</strong>
-                    </p>
-                    <p>
-                        <strong>Location:</strong>
-                        {{ session.location }}
-                    </p>
-                    <p class="text-sm">
-                        <strong>Participation Limit:</strong>
-                        {{ session?.participation_limit }}
-                    </p>
-                    <p class="text-sm">
-                        <strong>Equipment Provided:</strong>
-                        {{ session?.equipment_provided ? "Yes" : "No" }}
-                    </p>
-                    <p class="text-sm p-4">
-                        <strong>Group Members Joined:</strong>
-                    </p>
+            <div class="space-y-4">
+                <p class="text-muted-foreground col-span-full">
+                    {{ session.description }}
+                </p>
+                <div class="flex items-center gap-2">
+                    <Calendar class="w-5 h-5 text-primary" />
+                    <span>{{
+                        new Date(session.date_time).toLocaleDateString(
+                            "en-US",
+                            {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                            }
+                        )
+                    }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <Clock class="w-5 h-5 text-primary" />
+                    <span
+                        >{{
+                            new Date(session.date_time).toLocaleTimeString(
+                                "en-US",
+                                {
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                    hour12: true,
+                                }
+                            )
+                        }}
+                        -
+                        {{
+                            new Date(
+                                new Date(session.date_time).getTime() +
+                                    session.duration * 60 * 60 * 1000
+                            ).toLocaleTimeString("en-US", {
+                                hour: "numeric",
+                                minute: "numeric",
+                                hour12: true,
+                            })
+                        }}
+                    </span>
+                </div>
 
-                    <!-- Member List -->
-                    <ul class="space-y-4 px-4">
-                        <!-- Leader -->
-                        <li
-                            v-if="session?.leader"
-                            class="flex items-center space-x-3"
-                        >
-                            <Avatar>
-                                <AvatarImage
-                                    :src="`https://api.dicebear.com/6.x/initials/svg?seed=${session.leader.first_name}+${session.leader.last_name}&fontSize=32`"
-                                />
-                                <AvatarFallback>
-                                    <User class="w-4 h-4" />
-                                </AvatarFallback>
-                            </Avatar>
-                            <div class="w-full">
-                                <div class="flex justify-between">
-                                    <h3 class="font-medium text-sm">
-                                        {{ session.leader.first_name }}
-                                        {{ session.leader.last_name }}
-                                    </h3>
-                                    <Badge variant="outline">Leader</Badge>
-                                </div>
-                                <p class="text-xs text-muted-foreground">
-                                    {{ session.leader.email }}
-                                </p>
-                            </div>
-                        </li>
+                <div class="flex items-center gap-2">
+                    <Users class="w-5 h-5 text-primary" />
+                    <span>
+                        {{ session.participants.length }} /
+                        {{ session.participation_limit }} participants
+                    </span>
+                </div>
 
-                        <!-- Participants -->
-                        <li
-                            v-for="member in session?.participants"
-                            :key="member.id"
-                            class="flex items-center space-x-3"
-                        >
-                            <Avatar>
-                                <AvatarImage
-                                    :src="`https://api.dicebear.com/6.x/initials/svg?seed=${member.first_name}+${member.last_name}&fontSize=32`"
-                                />
-                                <AvatarFallback>
-                                    <User class="w-4 h-4" />
-                                </AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <h3 class="font-medium text-sm">
-                                    {{ member.first_name }}
-                                    {{ member.last_name }}
-                                </h3>
-                                <p class="text-xs text-muted-foreground">
-                                    {{ member.email }}
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
+                <div class="flex items-center gap-2">
+                    <Dumbbell class="w-5 h-5 text-primary" />
+                    <span
+                        >Equipment provided:
+                        {{ session.equipmentProvided ? "Yes" : "No" }}</span
+                    >
+                </div>
+
+                <div class="flex items-center gap-2 col-span-full">
+                    <MapPin class="w-5 h-5 text-primary" />
+                    <span>{{ session.location }}</span>
                 </div>
             </div>
+
+            <Accordion type="single" collapsible class="w-full py-4">
+                <AccordionItem value="members">
+                    <AccordionTrigger>Participant List</AccordionTrigger>
+                    <AccordionContent>
+                        <ScrollArea
+                            class="h-[200px] w-full rounded-md border p-4"
+                        >
+                            <div
+                                v-for="(
+                                    participant, index
+                                ) in session.participants"
+                                :key="index"
+                                class="mb-2"
+                            >
+                                <p class="font-medium">
+                                    {{ participant.first_name }}
+                                    {{ participant.last_name }}
+                                </p>
+                                <p class="text-sm text-muted-foreground">
+                                    {{ participant.email }}
+                                </p>
+                            </div>
+                        </ScrollArea>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="feedbacks">
+                    <AccordionTrigger>Session Feedbacks</AccordionTrigger>
+                    <AccordionContent>
+                        <ScrollArea
+                            class="h-[300px] w-full rounded-md border p-4"
+                        >
+                            <div
+                                v-for="feedback in session.feedbacks"
+                                :key="feedback.id"
+                                class="mb-4 pb-4 border-b border-gray-200 last:border-b-0"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium">{{
+                                        feedback.user.first_name + " " + feedback.user.last_name
+                                    }}</span>
+                                    <div class="flex items-center">
+                                        <template
+                                            v-for="index in 5"
+                                            :key="index"
+                                        >
+                                            <Star
+                                                class="w-4 h-4"
+                                                :class="
+                                                    index <= feedback.rating
+                                                        ? 'text-yellow-400 fill-yellow-400'
+                                                        : 'text-gray-300'
+                                                "
+                                            />
+                                        </template>
+                                    </div>
+                                </div>
+                                <p
+                                    v-if="feedback.comments"
+                                    class="text-sm text-gray-600"
+                                >
+                                    {{ feedback.comments }}
+                                </p>
+                            </div>
+                        </ScrollArea>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
         </CardContent>
     </Card>
 </template>
