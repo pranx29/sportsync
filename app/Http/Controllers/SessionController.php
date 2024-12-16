@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageSent;
+use App\Events\SessionCreated;
+use App\Models\Message;
+use Inertia\Inertia;
+use App\Models\Group;
+use App\Models\Session;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Inertia\Inertia;
-use App\Models\Session;
-use App\Models\Group;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\SessionUpdatedNotification;
+use App\Notifications\ParticipantUpdatedNotification;
 
 class SessionController extends Controller
 {
@@ -40,8 +46,21 @@ class SessionController extends Controller
             'leader_id' => auth()->id(),
         ]);
 
+        // Notify the group members via chat message
+        $message = Message::create([
+            'group_id' => $request->group_id,
+            'user_id' => auth()->id(),
+            'message' => auth()->user()->first_name . ' ' . auth()->user()->last_name . ' created a session: ' . $session->session_name,
+            'type' => 'notification',
+        ]);
+
+        // Notify the group members via broadcast in chat
+        broadcast(new MessageSent($message));
+
         $session->participants()->attach(auth()->id());
-        return redirect()->back()->with('success', 'Session created successfully.');
+        return redirect()->back()->with([
+            'success' => 'Session created successfully.',
+        ]);
     }
 
 
@@ -59,6 +78,9 @@ class SessionController extends Controller
         // Add authenticated user to the participants list
         $session->participants()->attach(auth()->id());
 
+        // Notify the session leader
+        $participant = auth()->user();
+        $session->leader->notify(new ParticipantUpdatedNotification($session, $participant, 'joined'));
         return redirect()->back()->with('success', 'Successfully joined the session.');
     }
 
@@ -70,6 +92,10 @@ class SessionController extends Controller
 
         $session->participants()->detach(auth()->id());
 
+        // Notify the session leader
+
+        $participant = auth()->user();
+        $session->leader->notify(new ParticipantUpdatedNotification($session, $participant, 'left'));
         redirect()->back()->with('success', 'Successfully left the session.');
     }
 
@@ -99,6 +125,9 @@ class SessionController extends Controller
             'description' => $request->description,
         ]);
 
+        // Notify participants
+        Notification::send($session->participants, new SessionUpdatedNotification($session, 'updated'));
+
         return redirect()->back()->with('success', 'Session created successfully.');
     }
 
@@ -109,6 +138,9 @@ class SessionController extends Controller
         }
 
         $session->delete();
+
+        // Notify participants
+        Notification::send($session->participants, new SessionUpdatedNotification($session, 'updated'));
 
         return redirect()->back()->with('success', 'Session canceled successfully.');
     }

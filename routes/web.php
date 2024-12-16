@@ -58,7 +58,7 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
     //session routes
     // Route for creating a session within a group
     Route::post('/employee/groups/{group}', [SessionController::class, 'store'])
-        ->name('sessions.create');
+        ->name('group.sessions.create');
         
     Route::post('/sessions/{session}/join', [SessionController::class, 'join'])->name('group.sessions.join');
     Route::post('/sessions/{session}/leave', [SessionController::class, 'leave'])->name('group.sessions.leave');

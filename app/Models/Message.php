@@ -15,6 +15,7 @@ class Message extends Model
         'message',
         'user_id',
         'group_id',
+        'type',
     ];
 
     /**

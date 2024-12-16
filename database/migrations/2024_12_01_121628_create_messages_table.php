@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('group_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->text('message');
+            $table->enum('type', ['text', 'notification'])->default('text');
             $table->timestamps();
         });
     }

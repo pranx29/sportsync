@@ -29,7 +29,9 @@ const props = defineProps({
 const sessions = ref(props.sessions);
 
 const filterSessions = (filter) => {
-    console.log(filter);
+    if (sessions === null) {
+        return;
+    }
     switch (filter) {
         case "joined":
             sessions.value = props.sessions.filter(
@@ -99,7 +101,7 @@ const selectedSession = ref(null);
                 <div class="flex-1 flex flex-col gap-2 pt-0">
                     <TransitionGroup name="list" appear>
                         <button
-                            v-for="session of sessions"
+                            v-for="session of props.sessions"
                             :key="session.id"
                             :class="
                                 cn(

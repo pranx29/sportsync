@@ -6,7 +6,6 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Maatwebsite\Excel\Facades\Excel;
 use Redirect;
 
 class EmployeeController extends Controller
@@ -23,11 +22,6 @@ class EmployeeController extends Controller
         }
 
         $employees->load(['profile.department', 'profile.role']);
-
-        // if ($request->has('export') && $request->export === 'excel') {
-        //     return Excel::download(new EmployeesExport($employees), 'employees.xlsx');
-        // }
-
         return Inertia::render(
             'Admin/Employee/Index',
             ['employees' => $employees]

@@ -144,7 +144,6 @@ const leaveSession = async () => {
 const updateSession = () => {
     emit("updatedSession");
 };
-
 </script>
 
 <template>
@@ -162,13 +161,12 @@ const updateSession = () => {
                                 session.leader_id != $page.props.auth.user.id &&
                                 !session.feedbacks.some(
                                     (feedback) =>
-                                        feedback.user_id ===
-                                        participant.id
+                                        feedback.user_id === participant.id
                                 )
                         )
                     "
                 />
-                <template v-if="session.leader_id === $page.props.auth.user.id">
+                <template v-if="session.leader_id === $page.props.auth.user.id && new Date(session.date_time) > new Date()">
                     <AlertDialog>
                         <AlertDialogTrigger as-child>
                             <Button variant="outline" size="sm">
@@ -250,46 +248,49 @@ const updateSession = () => {
                 <p class="text-muted-foreground col-span-full">
                     {{ session.description }}
                 </p>
-                <div class="flex items-center gap-2">
-                    <Calendar class="w-5 h-5 text-primary" />
-                    <span>{{
-                        new Date(session.date_time).toLocaleDateString(
-                            "en-US",
-                            {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            }
-                        )
-                    }}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <Clock class="w-5 h-5 text-primary" />
-                    <span
-                        >{{
-                            new Date(session.date_time).toLocaleTimeString(
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-4"
+                >
+                    <div class="flex items-center gap-2">
+                        <Calendar class="w-5 h-5 text-primary" />
+                        <span>{{
+                            new Date(session.date_time).toLocaleDateString(
                                 "en-US",
                                 {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                }
+                            )
+                        }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <Clock class="w-5 h-5 text-primary" />
+                        <span
+                            >{{
+                                new Date(session.date_time).toLocaleTimeString(
+                                    "en-US",
+                                    {
+                                        hour: "numeric",
+                                        minute: "numeric",
+                                        hour12: true,
+                                    }
+                                )
+                            }}
+                            -
+                            {{
+                                new Date(
+                                    new Date(session.date_time).getTime() +
+                                        session.duration * 60 * 60 * 1000
+                                ).toLocaleTimeString("en-US", {
                                     hour: "numeric",
                                     minute: "numeric",
                                     hour12: true,
-                                }
-                            )
-                        }}
-                        -
-                        {{
-                            new Date(
-                                new Date(session.date_time).getTime() +
-                                    session.duration * 60 * 60 * 1000
-                            ).toLocaleTimeString("en-US", {
-                                hour: "numeric",
-                                minute: "numeric",
-                                hour12: true,
-                            })
-                        }}
-                    </span>
+                                })
+                            }}
+                        </span>
+                    </div>
                 </div>
-
                 <div class="flex items-center gap-2">
                     <Users class="w-5 h-5 text-primary" />
                     <span>
@@ -350,7 +351,9 @@ const updateSession = () => {
                             >
                                 <div class="flex items-center justify-between">
                                     <span class="font-medium">{{
-                                        feedback.user.first_name + " " + feedback.user.last_name
+                                        feedback.user.first_name +
+                                        " " +
+                                        feedback.user.last_name
                                     }}</span>
                                     <div class="flex items-center">
                                         <template

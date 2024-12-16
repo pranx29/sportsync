@@ -76,17 +76,46 @@ const sendMessage = () => {
             class="flex-1 overflow-y-auto p-4 space-y-4"
         >
             <div v-for="(message, index) in props.messages" :key="message.id">
-                <!-- Display date above messages -->
-                <div v-if="index === 0 || new Date(message.created_at).toDateString() !== new Date(props.messages[index - 1].created_at).toDateString()" class="text-center text-xs text-gray-500 my-2">
+                <!-- Date separator -->
+                <div
+                    v-if="
+                        index === 0 ||
+                        new Date(message.created_at).toDateString() !==
+                            new Date(
+                                props.messages[index - 1].created_at
+                            ).toDateString()
+                    "
+                    class="text-center text-xs text-gray-500 my-2"
+                >
                     {{
-                        new Date(message.created_at).toDateString() === new Date().toDateString()
-                            ? 'Today'
-                            : new Date(message.created_at).toDateString() === new Date(Date.now() - 86400000).toDateString()
-                            ? 'Yesterday'
-                            : new Intl.DateTimeFormat('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(message.created_at))
+                        new Date(message.created_at).toDateString() ===
+                        new Date().toDateString()
+                            ? "Today"
+                            : new Date(message.created_at).toDateString() ===
+                              new Date(Date.now() - 86400000).toDateString()
+                            ? "Yesterday"
+                            : new Intl.DateTimeFormat("en-US", {
+                                  weekday: "long",
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                              }).format(new Date(message.created_at))
                     }}
                 </div>
+                <!-- Notification messages -->
                 <div
+                    v-if="message.type === 'notification'"
+                    class="flex justify-center my-2"
+                >
+                    <div class="bg-muted px-4 py-2 rounded-full">
+                        <p class="text-xs text-muted-foreground">
+                            {{ message.message }}
+                        </p>
+                    </div>
+                </div>
+                <!-- Text messages -->
+                <div
+                    v-else
                     class="flex"
                     :class="{
                         'justify-end':
@@ -113,14 +142,13 @@ const sendMessage = () => {
                             </span>
                             <span class="text-xs opacity-50">
                                 {{
-                                    new Date(message.created_at).toLocaleTimeString(
-                                        [],
-                                        {
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                            hour12: false,
-                                        }
-                                    )
+                                    new Date(
+                                        message.created_at
+                                    ).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                    })
                                 }}
                             </span>
                         </div>
@@ -144,5 +172,3 @@ const sendMessage = () => {
         </div>
     </Card>
 </template>
-
-

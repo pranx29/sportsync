@@ -179,6 +179,7 @@ const onSubmit = handleLogin(async (values) => {
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
                                     <Input
+                                        id="email"
                                         type="email"
                                         placeholder="Your work email"
                                         v-bind="componentField"

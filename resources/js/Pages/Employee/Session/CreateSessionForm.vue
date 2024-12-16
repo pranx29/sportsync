@@ -62,6 +62,15 @@ const {
     setFieldError,
 } = useVeeForm({
     validationSchema: createSessionSchema,
+    initialValues: {
+        session_name: "",
+        date_time: "",
+        duration: 1,
+        location: "",
+        participation_limit: "",
+        equipment_provided: "",
+        description: "",
+    },
 });
 
 const onSessionSubmit = handleSessionSubmit(async (values) => {
@@ -70,7 +79,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
         group_id: groupId,
     };
 
-    router.post(route("sessions.create", { group: groupId }), payload, {
+    router.post(route("group.sessions.create", { group: groupId }), payload, {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
@@ -173,7 +182,6 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                                     type="number"
                                     min="1"
                                     max="5"
-                                    value="1"
                                     class="w-28"
                                     placeholder="1-5"
                                 />

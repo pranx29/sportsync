@@ -3,23 +3,24 @@
 namespace App\Events;
 
 use App\Models\Message;
+use App\Models\Session;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class MessageSent implements ShouldBroadcastNow
+
+class SessionCreated
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(public Message $message)
+    public function __construct(public Message $message, public Session $session)
     {
         //
     }
@@ -41,11 +42,11 @@ class MessageSent implements ShouldBroadcastNow
         return [
             'message' => [
                 'id' => $this->message->id,
+                'session' => $this->session,
                 'message' => $this->message->message,
-                'user' => $this->message->user,
-                'type' => $this->message->type,
                 'created_at' => $this->message->created_at->toDateTimeString(),
-
+                'type' => $this->message->type,
+                'user' => $this->message->user,
             ],
         ];
     }
