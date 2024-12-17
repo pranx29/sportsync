@@ -137,11 +137,10 @@ class SessionController extends Controller
             return redirect()->back()->with('error', 'Unauthorized action. Only the session leader can cancel this session.');
         }
 
-        $session->delete();
-
         // Notify participants
-        Notification::send($session->participants, new SessionUpdatedNotification($session, 'updated'));
+        Notification::send($session->participants, new SessionUpdatedNotification($session, 'cancelled'));
 
+        $session->delete();
         return redirect()->back()->with('success', 'Session canceled successfully.');
     }
 
