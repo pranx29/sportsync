@@ -19,9 +19,8 @@ class SessionController extends Controller
 
     public function store(Request $request, Group $group)
     {
-
-        if (!$group->users->contains(auth()->id()) || $group->leader_id == auth()->id()) {
-            redirect()->back()->with('error', 'Unauthorized action.');
+        if (!$group->users->contains(auth()->id()) && $group->leader_id === auth()->id()) {
+            return redirect()->back()->with('error', 'Unauthorized action. You must be a group member or leader to create a session.');
         }
 
         $request->validate([
@@ -71,7 +70,7 @@ class SessionController extends Controller
         }
 
         $totalParticipants = $session->participants->count();
-        if ($totalParticipants >= $session->participation_limit) {
+        if ($totalParticipants === $session->participation_limit) {
             return redirect()->back()->with('error', 'Session is full.');
         }
 
@@ -88,6 +87,14 @@ class SessionController extends Controller
     {
         if ($session->leader_id === auth()->id()) {
             return back()->with('error', 'Session leaders cannot leave.');
+        }
+
+        if (!$session->participants()->where('user_id', auth()->id())->exists()) {
+            return redirect()->back()->with('error', 'You have not joined this session.');
+        }
+
+        if ($session->date_time < now()) {
+            return redirect()->back()->with('error', 'Cannot leave past sessions.');
         }
 
         $session->participants()->detach(auth()->id());
@@ -137,11 +144,15 @@ class SessionController extends Controller
             return redirect()->back()->with('error', 'Unauthorized action. Only the session leader can cancel this session.');
         }
 
-        $session->delete();
+        // Check if the session is past the current date
+        if ($session->date_time < now()) {
+            return redirect()->back()->with('error', 'Cannot cancel past sessions.');
+        }
 
         // Notify participants
-        Notification::send($session->participants, new SessionUpdatedNotification($session, 'updated'));
+        Notification::send($session->participants, new SessionUpdatedNotification($session, 'cancelled'));
 
+        $session->delete();
         return redirect()->back()->with('success', 'Session canceled successfully.');
     }
 

@@ -26,14 +26,14 @@ class SessionUpdatedNotification extends Notification
 
     public function toMail($notifiable)
     {
-        $actionText = $this->action === 'canceled' ? 'canceled' : 'updated';
+        $actionText = $this->action === 'cancelled' ? 'cancelled' : 'updated';
         return (new MailMessage)
             ->subject("Session {$this->action}: {$this->session->session_name}")
             ->line("The session '{$this->session->session_name}' scheduled on {$this->session->date_time} has been {$actionText}.")
             ->line("Details: {$this->session->description}")
             ->line("Participation_limit: {$this->session->participation_limit}")
-            ->line("Equipment_provided: {$this->session->equipment_provided}")
+            ->line("Equipment_provided: " . ($this->session->equipment_provided === 'no' ? 'yes' : 'no'))
             ->line("Location: {$this->session->location}")
-            ->line("Duration: {$this->session->duration} minutes");
+            ->line("Duration: {$this->session->duration} hour(s)");
     }
 }

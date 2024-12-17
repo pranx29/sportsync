@@ -1,0 +1,82 @@
+
+   PASS  Tests\Feature\Auth\AuthenticationTest
+  ✓ login screen can be rendered                                         0.21s  
+  ✓ users can authenticate using the login screen                        0.05s  
+  ✓ users can not authenticate with invalid password                     0.23s  
+  ✓ users can logout                                                     0.03s  
+
+   PASS  SessionFeedbackTest
+  ✓ user can submit feedback for attended session                        0.03s  
+  ✓ user cannot submit feedback for unattended session                   0.02s  
+  ✓ user cannot submit feedback for upcoming session                     0.02s  
+  ✓ user cannot submit multiple feedback                                 0.02s  
+
+   PASS  CancelSessionTest
+  ✓ session leader can cancel session                                    0.02s  
+  ✓ non leader cannot cancel session                                     0.02s  
+  ✓ cannot cancel past session                                           0.01s  
+
+   PASS  CreateSessionTest
+  ✓ user can create session in group                                     0.03s  
+  ✓ unauthorized user cannot create session                              0.01s  
+  ✓ session validation rules                                             0.01s  
+
+   PASS  JoinSessionTest
+  ✓ user can join session                                                0.10s  
+  ✓ user cannot join session twice                                       0.02s  
+  ✓ user cannot join full session                                        0.02s  
+
+   PASS  UpdateSessionTest
+  ✓ session leader can update session                                    0.02s  
+  ✓ non leader cannot update session                                     0.02s  
+  ✓ validation fails for past date                                       0.02s  
+  ✓ validation fails for invalid duration                                0.01s  
+  ✓ validation fails for invalid equipment provided                      0.01s  
+
+  Tests:    22 passed (42 assertions)
+  Duration: 1.03s
+
+
+   PASS  Tests\Feature\Auth\AuthenticationTest
+  ✓ login screen can be rendered                                         0.11s  
+  ✓ users can authenticate using the login screen                        0.02s  
+  ✓ users can not authenticate with invalid password                     0.23s  
+  ✓ users can logout                                                     0.03s  
+
+   PASS  SessionFeedbackTest
+  ✓ user can submit feedback for attended session                        0.04s  
+  ✓ user cannot submit feedback for unattended session                   0.02s  
+  ✓ user cannot submit feedback for upcoming session                     0.02s  
+  ✓ user cannot submit multiple feedback                                 0.02s  
+
+   PASS  CancelSessionTest
+  ✓ session leader can cancel session                                    0.02s  
+  ✓ non leader cannot cancel session                                     0.02s  
+  ✓ cannot cancel past session                                           0.02s  
+
+   PASS  CreateSessionTest
+  ✓ user can create session in group                                     0.03s  
+  ✓ unauthorized user cannot create session                              0.01s  
+  ✓ session validation rules                                             0.02s  
+
+   PASS  JoinSessionTest
+  ✓ user can join session                                                0.10s  
+  ✓ user cannot join session twice                                       0.02s  
+  ✓ user cannot join full session                                        0.02s  
+
+   PASS  LeaveSessionTest
+  ✓ session leader cannot leave                                          0.02s  
+  ✓ cannot leave if not participant                                      0.02s  
+  ✓ cannot leave past session                                            0.02s  
+  ✓ can leave session successfully                                       0.02s  
+
+   PASS  UpdateSessionTest
+  ✓ session leader can update session                                    0.02s  
+  ✓ non leader cannot update session                                     0.02s  
+  ✓ validation fails for past date                                       0.02s  
+  ✓ validation fails for invalid duration                                0.01s  
+  ✓ validation fails for invalid equipment provided                      0.01s  
+
+  Tests:    26 passed (49 assertions)
+  Duration: 0.94s
+

@@ -212,7 +212,7 @@ const updateSession = () => {
                                 participant.id === $page.props.auth.user.id
                         ) &&
                         session.leader_id !== $page.props.auth.user.id &&
-                        new Date(session.date_time) > new Date()
+                        new Date(session.date_time) > new Date() && session.participants.length < session.participation_limit
                     "
                 >
                     <CirclePlus class="h-3.5 w-3.5" />
