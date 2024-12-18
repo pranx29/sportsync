@@ -31,10 +31,9 @@
         --chart-5: 27 87% 67%;
     }
 
+    /* Apply the font to your elements */
     body {
-        font-family: "Geist Sans", ui-sans-serif, system-ui, sans-serif,
-            "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-            "Noto Color Emoji";
+        font-family: "Poppins", sans-serif;
     }
 
     .dark {

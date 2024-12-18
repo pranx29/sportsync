@@ -22,9 +22,11 @@
     },
     "dependencies": {
         "@vee-validate/zod": "^4.14.6",
-        "@vueuse/core": "^11.2.0",
+        "@vueuse/core": "^11.3.0",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
+        "embla-carousel-autoplay": "^8.5.1",
+        "embla-carousel-vue": "^8.5.1",
         "lucide-vue-next": "^0.454.0",
         "radix-vue": "^1.9.8",
         "tailwind-merge": "^2.5.4",

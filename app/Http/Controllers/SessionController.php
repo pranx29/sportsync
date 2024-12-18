@@ -143,6 +143,7 @@ class SessionController extends Controller
         if ($session->leader_id !== auth()->id()) {
             return redirect()->back()->with('error', 'Unauthorized action. Only the session leader can cancel this session.');
         }
+        
         // Check if the session is past the current date
         if ($session->date_time < now()) {
             return redirect()->back()->with('error', 'Cannot cancel past sessions.');
