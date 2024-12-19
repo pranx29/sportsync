@@ -303,7 +303,7 @@ const updateSession = () => {
                     <Dumbbell class="w-5 h-5 text-primary" />
                     <span
                         >Equipment provided:
-                        {{ session.equipmentProvided ? "Yes" : "No" }}</span
+                        {{ session.equipment_provided ? "Yes" : "No" }}</span
                     >
                 </div>
 
