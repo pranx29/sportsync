@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\FeedbackController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
@@ -59,10 +60,10 @@ Route::middleware(['auth', 'verified', 'employee', 'checkProfile'])->group(funct
     // Route for creating a session within a group
     Route::post('/employee/groups/{group}', [SessionController::class, 'store'])
         ->name('group.sessions.create');
-        
+
     Route::post('/sessions/{session}/join', [SessionController::class, 'join'])->name('group.sessions.join');
     Route::post('/sessions/{session}/leave', [SessionController::class, 'leave'])->name('group.sessions.leave');
-    
+
     // Edit or cancel session (only for the leader)
     Route::put('/sessions/{session}', [SessionController::class, 'update'])->name('group.sessions.update');
     Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('group.sessions.destroy');
@@ -120,6 +121,11 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         ->name('admin.groups.create');
     Route::post('/admin/groups/update/{id}', [AdminGroupController::class, 'update'])->name('admin.groups.update');
 
+
+    // Events
+    Route::get('/admin/events', [EventController::class, 'index'])
+        ->name('admin.events.index');
+    Route::get('/admin/events/create', [EventController::class, 'create'])->name('admin.events.create');
 
     Route::get('/admin/settings/account', [
         AdminSettingController::class,
