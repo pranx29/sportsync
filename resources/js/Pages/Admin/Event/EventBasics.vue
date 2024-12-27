@@ -105,9 +105,6 @@ const handleImageUpload = (e) => {
                             @change="
                                 (event) => {
                                     handleImageUpload(event);
-                                    eventImageUrl = convertFileToUrl(
-                                        event.target.files[0]
-                                    );
                                 }
                             "
                         />

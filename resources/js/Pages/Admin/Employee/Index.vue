@@ -19,7 +19,6 @@ import {
     PaginationNext,
     PaginationPrev,
 } from "@/Components/ui/pagination";
-import { Toaster } from "@/Components/ui/toast";
 import { File, ListFilter, PlusCircle } from "lucide-vue-next";
 import AddEmployeeForm from "./AddEmployeeForm.vue";
 import EmployeeTable from "./EmployeeTable.vue";
@@ -138,6 +137,5 @@ import EmployeeTable from "./EmployeeTable.vue";
                 </Pagination>
             </template>
         </main>
-        <Toaster />
     </AdminLayout>
 </template>

@@ -20,6 +20,7 @@ import {
 } from "@/Components/ui/dropdown-menu";
 import { Input } from "@/Components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/Components/ui/sheet";
+import { Toaster } from "@/Components/ui/toast";
 import { CircleUser, Menu, Package2, Search } from "lucide-vue-next";
 import Logo from "@/Components/Logo.vue";
 </script>
@@ -138,4 +139,5 @@ import Logo from "@/Components/Logo.vue";
             </main>
         </div>
     </div>
+    <Toaster />
 </template>

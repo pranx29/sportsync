@@ -17,4 +17,21 @@ class EventController extends Controller
     {
         return Inertia::render('Admin/Event/Create');
     }
+
+
+    // TODO - Implement store method
+    public function store(Request $request)
+    {
+
+    }
+
+    public function show($id, Request $request)
+    {
+        // TODO - Fetch event by id
+        $editMode = $request->query('editMode', false);
+
+        return Inertia::render('Admin/Event/Show', [
+            'editMode' => $editMode,
+        ]);
+    }
 }

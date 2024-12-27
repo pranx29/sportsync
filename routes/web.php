@@ -126,6 +126,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/events', [EventController::class, 'index'])
         ->name('admin.events.index');
     Route::get('/admin/events/create', [EventController::class, 'create'])->name('admin.events.create');
+    Route::post('/admin/events/create', [EventController::class, 'store'])->name('admin.events.store');
+    Route::get('/admin/events/{event}', [EventController::class, 'show'])->name('admin.events.show');
 
     Route::get('/admin/settings/account', [
         AdminSettingController::class,

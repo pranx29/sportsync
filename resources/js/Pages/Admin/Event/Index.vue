@@ -1,3 +1,31 @@
+<script setup>
+import { ref } from "vue";
+import { Button } from "@/Components/ui/button";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
+import {
+    Pagination,
+    PaginationEllipsis,
+    PaginationFirst,
+    PaginationLast,
+    PaginationList,
+    PaginationListItem,
+    PaginationNext,
+    PaginationPrev,
+} from "@/Components/ui/pagination";
+import { toast } from "@/Components/ui/toast";
+import { File, ListFilter, CirclePlus } from "lucide-vue-next";
+import EventCreationForm from "./Create.vue";
+import EventTable from "./EventTable.vue";
+</script>
+
 <template>
     <Head title="Events" />
     <AdminLayout>
@@ -66,57 +94,9 @@
                     </Button>
                 </Link>
             </div>
+            <div class="min-h-screen overflow-x-auto">
+                <EventTable />
+            </div>
         </main>
-        <Toaster />
     </AdminLayout>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
-import { Button } from "@/Components/ui/button";
-import EventBasics from "./EventBasics.vue";
-// import ParticipantDetails from "./ParticipantDetails";
-// import LocationSchedule from "./LocationSchedule";
-// import TeamSetup from "./TeamSetup";
-// import RulesNotifications from "./RulesNotifications";
-import AdminLayout from "@/Layouts/AdminLayout.vue";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
-import {
-    Pagination,
-    PaginationEllipsis,
-    PaginationFirst,
-    PaginationLast,
-    PaginationList,
-    PaginationListItem,
-    PaginationNext,
-    PaginationPrev,
-} from "@/Components/ui/pagination";
-import { Toaster } from "@/Components/ui/toast";
-import { File, ListFilter, CirclePlus } from "lucide-vue-next";
-import EventCreationForm from "./Create.vue";
-
-const steps = [
-    "Event Details",
-    "Registration Setup",
-    "Team Setup",
-    "Review & Publish",
-];
-
-const currentStep = ref(0);
-
-const handleNext = () => {
-    currentStep.value = Math.min(currentStep.value + 1, steps.length - 1);
-};
-
-const handleBack = () => {
-    currentStep.value = Math.max(currentStep.value - 1, 0);
-};
-</script>

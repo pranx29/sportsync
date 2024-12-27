@@ -19,7 +19,6 @@ import {
     PaginationNext,
     PaginationPrev,
 } from "@/Components/ui/pagination";
-import { Toaster } from "@/Components/ui/toast";
 import { File, ListFilter, PlusCircle } from "lucide-vue-next";
 import AddGroupForm from "./AddGroupForm.vue";
 import GroupTable from "./GroupTable.vue";
@@ -108,6 +107,5 @@ const handleGroupSelected = (group) => {
                 </div>
             </div>
         </main>
-        <Toaster />
     </AdminLayout>
 </template>

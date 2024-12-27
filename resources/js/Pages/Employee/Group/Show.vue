@@ -32,7 +32,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
-import { toast, Toaster } from "@/Components/ui/toast";
+import { toast } from "@/Components/ui/toast";
 import {
     MoreVertical,
     LogOut,
@@ -154,7 +154,7 @@ const handleJoinedsession = () => {
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
-                    
+
                 </div>
             </div>
 
@@ -221,6 +221,5 @@ const handleJoinedsession = () => {
                 </div>
             </div>
         </div>
-        <Toaster />
     </AuthenticatedLayout>
 </template>
