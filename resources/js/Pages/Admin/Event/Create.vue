@@ -10,7 +10,7 @@
                 v-slot="{ meta, values, validate }"
                 as=""
                 keep-values
-                :validation-schema="toTypedSchema(formSchema[stepIndex - 1])"
+                :validation-schema="currentSchema"
             >
                 <Stepper
                     v-slot="{
@@ -28,7 +28,7 @@
                                 e.preventDefault();
                                 validate();
                                 if (stepIndex === steps.length && meta.valid) {
-                                    onSubmit(values);
+                                    handleSubmit(values);
                                 }
                             }
                         "
@@ -139,12 +139,10 @@
                                 <Participants :eventDetails="eventDetails" />
                             </template>
                             <template v-if="stepIndex === 3">
-                                <LocationSchedule
-                                    :eventDetails="eventDetails"
-                                />
+                                <LocationSchedule :eventDetails="eventDetails" />
                             </template>
                             <template v-if="stepIndex === 4">
-                                <RuleNotification />
+                                <RuleNotification :eventDetails="eventDetails" />
                             </template>
                         </div>
                     </form>
@@ -177,7 +175,7 @@ import {
 import { Check, Circle, Dot, TestTube } from "lucide-vue-next";
 import { toast } from "@/Components/ui/toast";
 import { toTypedSchema } from "@vee-validate/zod";
-import { ref, h } from "vue";
+import { ref, computed } from "vue";
 import * as z from "zod";
 import {
     Form,
@@ -188,6 +186,7 @@ import {
     FormMessage,
 } from "@/Components/ui/form";
 import { useForm } from "vee-validate";
+import axios from "axios";
 import EventBasics from "./EventBasics.vue";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import Participants from "./RegistrationSetup.vue";
@@ -233,6 +232,13 @@ const formSchema = [
                 .min(2, "Registration type is required"),
             maxParticipants: z.number().min(1, "Max participants is required"),
             registrationDeadline: z.string(),
+            numberOfTeams: z
+                .string()
+                // .refine((value) => /^[1-9][0-9]*$/.test(value), {
+                //     message: "The number of teams must be a positive integer.",
+                // })
+                .optional(),
+            teamAssignment: z.string().optional(),
         })
         .refine(
             (data) => {
@@ -260,41 +266,49 @@ const formSchema = [
         ),
 
     // Validation for location and schedule
-    z
-        .object({
-            venue: z.string(),
-            customLocation: z.boolean().optional(),
-            customLocationName: z.string().optional(),
-            customLocationLink: z.string().optional(),
-            locationType: z.enum(["indoor", "outdoor"]),
-            eventDate: z.string(),
-            startTime: z.string(),
-            endTime: z.string(),
-        })
-        .refine(
-            (data) => {
-                if (data.customLocation) {
-                    return data.customLocationName;
-                }
-                return true;
-            },
-            {
-                message: "Custom location name is required",
-                path: ["customLocationName"],
+    z.object({
+        venue: z.string().optional(),
+        customLocation: z.boolean().optional(),
+        customLocationName: z.string().optional(),
+        customLocationLink: z.string().url().optional().or(z.literal("")),
+        locationType: z.enum(["indoor", "outdoor"]),
+        eventDate: z.string(),
+        startTime: z.string(),
+        endTime: z.string(),
+    }).refine(
+        (data) => {
+            if (data.customLocation) {
+                return !!data.customLocationName;
             }
-        )
-        .refine(
-            (data) => {
-                if (data.customLocation) {
-                    return data.customLocationLink;
-                }
-                return true;
-            },
-            {
-                message: "Custom location link is required",
-                path: ["customLocationLink"],
+            return true;
+        },
+        {
+            message: "Custom location name is required",
+            path: ["customLocationName"],
+        }
+    ).refine(
+        (data) => {
+            if (data.customLocation) {
+                return !!data.customLocationLink;
             }
-        ),
+            return true;
+        },
+        {
+            message: "Custom location link is required when custom location is enabled.",
+            path: ["customLocationLink"],
+        }
+    ).refine(
+        (data) => {
+            if (!data.customLocation) {
+                return !!data.venue;
+            }
+            return true;
+        },
+        {
+            message: "Venue is required",
+            path: ["venue"],
+        }
+    ),
 
     // Validation for rules and notifications
     z.object({
@@ -319,14 +333,93 @@ const formSchema = [
 
 const eventDetails = ref({});
 
-const onSubmit = (values) => {
-    toast({
-        title: "You submitted the following values:",
-        description: h(
-            "pre",
-            { class: "mt-2 w-[340px] rounded-md bg-slate-950 p-4" },
-            h("code", { class: "text-white" }, JSON.stringify(values, null, 2))
-        ),
-    });
+const currentSchema = computed(() => {
+    return toTypedSchema(formSchema[stepIndex.value - 1]);
+});
+
+const { handleSubmit: validateForm } = useForm({
+    validationSchema: currentSchema,
+});
+
+const nextStep = async () => {
+    const isValid = await validateForm();
+    if (isValid) {
+        stepIndex.value += 1;
+    }
+};
+
+const prevStep = () => {
+    stepIndex.value -= 1;
+};
+
+const handleSubmit = async (values) => {
+    try {
+        console.log("Submitted values:", values); // Log submitted values
+
+        // Declare formData properly
+        const formData = new FormData();
+
+
+
+        // Populate remaining fields
+        Object.keys(values).forEach((key) => {
+            if (
+                key !== "customLocationName" &&
+                key !== "customLocationLink" &&
+                key !== "venue" // Already handled above
+            ) {
+                formData.append(key, values[key]);
+            }
+        });
+
+        // // Populate formData with values
+        // Object.keys(values).forEach((key) => {
+        //     formData.append(key, values[key]);
+        // });
+
+        // Ensure boolean fields are correctly converted
+        formData.set("customLocation", values.customLocation ? "1" : "0");
+        formData.set("notifyCreation", values.notifyCreation ? "1" : "0");
+        formData.set("sendReminder", values.sendReminder ? "1" : "0");
+        formData.set("notifyAssignments", values.notifyAssignments ? "1" : "0");
+
+        console.log("notifyCreation:", values.notifyCreation);
+        console.log("sendReminder:", values.sendReminder);
+        console.log("notifyAssignments:", values.notifyAssignments);
+
+        console.log("FormData prepared:", formData); // Debug FormData contents
+
+        // Make the API call
+        await axios.post(route("admin.events.store"), formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        // Notify success
+        toast({
+            title: "Event created successfully!",
+            description: "Your event has been saved to the database.",
+        });
+
+        // Redirect after successful creation
+        //// router.visit(route("admin.events.index"));
+    } catch (error) {
+        
+        // Handle validation or submission errors
+        console.error("Error during form submission:", error.response?.data?.errors || error);
+
+        if (error.response?.data?.errors) {
+            toast({
+                title: "Validation Error",
+                description: JSON.stringify(error.response.data.errors),
+            });
+        } else {
+            toast({
+                title: "Error",
+                description: "There was an error saving your event.",
+            });
+        }
+    }
 };
 </script>

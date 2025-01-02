@@ -36,9 +36,10 @@
                 <FormItem>
                     <div class="flex items-center space-x-2">
                         <FormControl>
-                            <Checkbox
-                                v-bind="componentField"
+                            <input
+                                type="checkbox"
                                 id="notify-creation"
+                                v-model="notifyCreation"
                             />
                         </FormControl>
                         <FormLabel for="notify-creation"
@@ -52,9 +53,10 @@
                 <FormItem>
                     <div class="flex items-center space-x-2">
                         <FormControl>
-                            <Checkbox
-                                v-bind="componentField"
+                            <input
+                                type="checkbox"
                                 id="send-reminder"
+                                v-model="sendReminder"
                             />
                         </FormControl>
                         <FormLabel for="send-reminder"
@@ -68,9 +70,10 @@
                 <FormItem>
                     <div class="flex items-center space-x-2">
                         <FormControl>
-                            <Checkbox
-                                v-bind="componentField"
+                            <input
+                                type="checkbox"
                                 id="notify-assignments"
+                                v-model="notifyAssignments"
                             />
                         </FormControl>
                         <FormLabel for="notify-assignments"

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { RadioGroup, RadioGroupItem } from "@/Components/ui/radio-group";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
@@ -20,13 +20,27 @@ import {
     FormMessage,
 } from "@/Components/ui/form";
 import EventPreview from "./EventPreview.vue";
-import { useForm } from "vee-validate";
+import { useField } from "vee-validate";
 
 const props = defineProps({
     eventDetails: Object,
 });
 
-const showTeamOptions = ref(false);
+const { value: registrationType } = useField("registrationType");
+const { value: numberOfTeams } = useField("numberOfTeams");
+const { value: teamAssignment } = useField("teamAssignment");
+
+const showTeamOptions = ref(props.eventDetails.registrationType === "team");
+
+watch(registrationType, (newValue) => {
+    showTeamOptions.value = newValue === "team";
+    
+    // Reset fields when switching to 'individual'
+    if (newValue === "individual") {
+        numberOfTeams.value = "";  // Clear number of teams
+        teamAssignment.value = "";  // Clear team assignment options
+    }
+});
 </script>
 
 <template>
@@ -44,16 +58,11 @@ const showTeamOptions = ref(false);
                                 <RadioGroupItem
                                     value="individual"
                                     id="individual"
-                                    @click="showTeamOptions = false"
                                 />
                                 <Label for="individual">Individual</Label>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <RadioGroupItem
-                                    value="team"
-                                    id="team"
-                                    @click="showTeamOptions = true"
-                                />
+                                <RadioGroupItem value="team" id="team" />
                                 <Label for="team">Team-Based</Label>
                             </div>
                         </RadioGroup>
@@ -109,7 +118,7 @@ const showTeamOptions = ref(false);
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem
-                                        v-for="num in [
+                                    v-for="num in [
                                             '2',
                                             '4',
                                             '6',
@@ -166,12 +175,12 @@ const showTeamOptions = ref(false);
         <EventPreview
             :eventName="eventDetails.eventName"
             :description="eventDetails.eventDescription"
-            :posterImage="eventDetails.eventImage"
+            :posterImage="eventDetails.eventImageUrl"
             :sportType="eventDetails.sportType"
             :registrationDeadline="eventDetails.registrationDeadline"
             :maxParticipants="eventDetails.maxParticipants"
             :registrationType="eventDetails.registrationType"
-            :numberOfTeams="eventDetails.numberOfTeams"
+            :numberOfTeams="Number(props.eventDetails.numberOfTeams) || 0"
         />
     </div>
 </template>

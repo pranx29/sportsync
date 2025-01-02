@@ -13,9 +13,9 @@ const props = defineProps({
     eventName: String,
     sportType: String,
     description: String,
-    posterImage: String,
+    posterImage: {File, String},
     registrationType: String,
-    maxParticipants: String,
+    maxParticipants: [String, Number],
     registrationDeadline: String,
     venue: String,
     locationType: String,
@@ -24,7 +24,7 @@ const props = defineProps({
     endTime: String,
     customLocation: Boolean,
     customLocationName: String,
-    numberOfTeams: String,
+    numberOfTeams: {Number, String},
 });
 </script>
 
@@ -105,8 +105,8 @@ const props = defineProps({
                 >
                     <UsersIcon class="w-4 h-4 mr-2" />
                     <span
-                        >Number of Teams: {{ numberOfTeams || "Not set" }}</span
-                    >
+                        >Number of Teams: {{ numberOfTeams ? Number(numberOfTeams) : "Not set" }}
+                    </span>
                 </div>
             </div>
         </CardContent>

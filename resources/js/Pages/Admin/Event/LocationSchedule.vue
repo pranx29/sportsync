@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import {
     Select,
     SelectContent,
@@ -19,42 +19,52 @@ import {
     FormMessage,
 } from "@/Components/ui/form";
 import EventPreview from "./EventPreview.vue";
-import { custom } from "zod";
 
 const props = defineProps({
     eventDetails: Object,
 });
 
 const customLocation = ref(false);
-customLocation.value = props.eventDetails.customLocation;
+const customLocationName = ref("");
+const customLocationLink = ref("");
+const venue = ref("");
+
+const resetCustomLocation = (value) => {
+    if (!value) {
+        customLocationName.value = "";
+        customLocationLink.value = "";
+    } else {
+        venue.value = ""; // Reset venue when custom location is enabled
+    }
+};
+
+watch(customLocation, (newValue) => {
+    if (newValue) {
+        venue.value = ""; // Clear venue if custom location is enabled
+    } else {
+        customLocationName.value = "";
+        customLocationLink.value = "";
+    }
+});
 </script>
 
 
 <template>
     <div class="grid grid-cols-2 gap-8">
         <div class="space-y-6">
-            <FormField
-                v-if="!customLocation"
-                v-slot="{ componentField }"
-                name="venue"
-            >
-                <FormItem v-if="!customLocation">
+            <!-- Venue -->
+            <FormField v-if="!customLocation" v-slot="{ componentField }" name="venue">
+                <FormItem>
                     <FormLabel>Venue/Location</FormLabel>
                     <FormControl>
-                        <Select v-bind="componentField">
+                        <Select v-bind="componentField" v-model="venue">
                             <SelectTrigger id="venue">
                                 <SelectValue placeholder="Select a venue" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="stadium"
-                                    >Main Stadium</SelectItem
-                                >
-                                <SelectItem value="park"
-                                    >Central Park</SelectItem
-                                >
-                                <SelectItem value="gym"
-                                    >Community Gym</SelectItem
-                                >
+                                <SelectItem value="Main stadium">Main Stadium</SelectItem>
+                                <SelectItem value="Central park">Central Park</SelectItem>
+                                <SelectItem value="Community gym">Community Gym</SelectItem>
                             </SelectContent>
                         </Select>
                     </FormControl>
@@ -62,18 +72,18 @@ customLocation.value = props.eventDetails.customLocation;
                 </FormItem>
             </FormField>
 
+            <!-- Custom Location -->
             <FormField v-slot="{ value, handleChange }" name="customLocation">
                 <FormItem>
                     <FormControl>
                         <div class="flex items-center space-x-2">
                             <Switch
                                 :checked="value"
-                                @update:checked="
-                                    (val) => {
-                                        handleChange(val);
-                                        customLocation = val;
-                                    }
-                                "
+                                @update:checked="(val) => {
+                                    handleChange(val);
+                                    resetCustomLocation(val);
+                                    customLocation = val;
+                                }"
                             />
                             <Label for="custom-location">Custom Location</Label>
                         </div>
@@ -83,16 +93,13 @@ customLocation.value = props.eventDetails.customLocation;
             </FormField>
 
             <div v-if="customLocation" class="space-y-4">
-                <FormField
-                    v-slot="{ componentField }"
-                    name="customLocationName"
-                >
+                <FormField v-slot="{ componentField }" name="customLocationName">
                     <FormItem>
                         <FormLabel>Location Name</FormLabel>
                         <FormControl>
                             <Input
                                 v-bind="componentField"
-                                id="custom-location-name"
+                                v-model="customLocationName"
                                 placeholder="Enter custom location name"
                             />
                         </FormControl>
@@ -100,16 +107,13 @@ customLocation.value = props.eventDetails.customLocation;
                     </FormItem>
                 </FormField>
 
-                <FormField
-                    v-slot="{ componentField }"
-                    name="customLocationLink"
-                >
+                <FormField v-slot="{ componentField }" name="customLocationLink">
                     <FormItem>
                         <FormLabel>Location Link</FormLabel>
                         <FormControl>
                             <Input
                                 v-bind="componentField"
-                                id="custom-location-link"
+                                v-model="customLocationLink"
                                 placeholder="Enter location link (e.g., Google Maps URL)"
                             />
                         </FormControl>
@@ -189,18 +193,19 @@ customLocation.value = props.eventDetails.customLocation;
         <EventPreview
             :eventName="eventDetails.eventName"
             :description="eventDetails.eventDescription"
-            :posterImage="eventDetails.eventImage"
+            :posterImage="eventDetails.eventImageUrl"
             :sportType="eventDetails.sportType"
             :registrationDeadline="eventDetails.registrationDeadline"
             :maxParticipants="eventDetails.maxParticipants"
             :registrationType="eventDetails.registrationType"
-            :venue="eventDetails.venue"
+            :numberOfTeams="Number(props.eventDetails.numberOfTeams) || 0"
+            :venue="venue"
             :locationType="eventDetails.locationType"
             :eventDate="eventDetails.eventDate"
             :startTime="eventDetails.startTime"
             :endTime="eventDetails.endTime"
-            :customLocation="eventDetails.customLocation"
-            :customLocationName="eventDetails.customLocationName"
+            :customLocation="customLocation"
+            :customLocationName="customLocationName"
         />
     </div>
 </template>

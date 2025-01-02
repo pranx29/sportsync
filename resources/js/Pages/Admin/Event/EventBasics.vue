@@ -25,14 +25,13 @@ const { value: eventName } = useField("eventName");
 const { value: eventDescription } = useField("eventDescription");
 const { value: eventImage } = useField("eventImage");
 
+const eventImageUrl = ref(null);
+
 const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            eventImage.value = reader.result;
-        };
-        reader.readAsDataURL(file);
+        eventImage.value = file;
+        eventImageUrl.value = URL.createObjectURL(file);
     }
 };
 </script>
@@ -105,9 +104,6 @@ const handleImageUpload = (e) => {
                             @change="
                                 (event) => {
                                     handleImageUpload(event);
-                                    eventImageUrl = convertFileToUrl(
-                                        event.target.files[0]
-                                    );
                                 }
                             "
                         />
@@ -121,7 +117,7 @@ const handleImageUpload = (e) => {
         <EventPreview
             :eventName="eventName"
             :description="eventDescription"
-            :posterImage="eventImage"
+            :posterImage="eventImageUrl"
             :sportType="sportType"
         />
     </div>

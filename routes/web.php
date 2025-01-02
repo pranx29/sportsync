@@ -125,7 +125,10 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     // Events
     Route::get('/admin/events', [EventController::class, 'index'])
         ->name('admin.events.index');
-    Route::get('/admin/events/create', [EventController::class, 'create'])->name('admin.events.create');
+    Route::get('/admin/events/create', [EventController::class, 'create'])
+        ->name('admin.events.create');
+    Route::post('/admin/events', [EventController::class, 'store'])
+        ->name('admin.events.store');
 
     Route::get('/admin/settings/account', [
         AdminSettingController::class,
@@ -187,7 +190,6 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         'updateRole'
     ])->name('admin.role.update');
 });
-
 
 require __DIR__ . '/auth.php';
 
