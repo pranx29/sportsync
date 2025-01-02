@@ -40,7 +40,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { Field, useForm as useVeeForm } from "vee-validate";
 import { z } from "zod";
 import { router } from "@inertiajs/vue3";
-import { toast, Toaster } from "@/Components/ui/toast";
+import { toast } from "@/Components/ui/toast";
 import EditSport from "./EditSport.vue";
 
 const addSportSchema = toTypedSchema(
@@ -214,6 +214,5 @@ const addSport = handleSportSubmit(async (values) => {
                 </CardContent>
             </Card>
         </div>
-        <Toaster />
     </AdminSettingLayout>
 </template>

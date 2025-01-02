@@ -48,7 +48,7 @@ import { Pencil, CirclePlus, Trash } from "lucide-vue-next";
 import { useForm as useVeeForm } from "vee-validate";
 import { ref } from "vue";
 import { router } from "@inertiajs/vue3";
-import { toast, Toaster } from "@/Components/ui/toast";
+import { toast } from "@/Components/ui/toast";
 import InterestForm from "./AddInterestForm.vue";
 import { Navigation } from "lucide-vue-next";
 
@@ -614,5 +614,4 @@ const deleteInterest = async (sportId) => {
             </div>
         </div>
     </AuthenticatedLayout>
-    <Toaster />
 </template>

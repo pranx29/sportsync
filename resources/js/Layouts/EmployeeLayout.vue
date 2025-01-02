@@ -25,6 +25,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/Components/ui/sheet";
 import { CircleUser, Menu, Search } from "lucide-vue-next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Separator } from "@/Components/ui/separator";
+import { Toaster } from "@/Components/ui/toast";
 import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
 </script>
 
@@ -168,4 +169,5 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
             </div>
         </div>
     </div>
+    <Toaster />
 </template>
