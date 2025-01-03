@@ -1,18 +1,18 @@
 <?php
 
-use App\Http\Controllers\Admin\EventController;
-use App\Http\Controllers\FeedbackController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SessionController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InterestController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\SessionController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\AdminEventController;
 use App\Http\Controllers\Admin\AdminGroupController;
 use App\Http\Controllers\Admin\AdminSettingController;
 
@@ -89,6 +89,12 @@ Route::middleware(['auth', 'verified', 'employee'])->group(function () {
     Route::get('create/availability', [AvailabilityController::class, 'create'])
         ->name('create.availability');
     Route::post('create/availability', [AvailabilityController::class, 'store']);
+
+    // Events
+    Route::get('events', [EventController::class, 'index'])
+        ->name('employee.events.index');
+
+    Route::get('events/{event}', [EventController::class, 'show'])->name('employee.events.show');
 });
 
 
@@ -123,11 +129,11 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
 
     // Events
-    Route::get('/admin/events', [EventController::class, 'index'])
+    Route::get('/admin/events', [AdminEventController::class, 'index'])
         ->name('admin.events.index');
-    Route::get('/admin/events/create', [EventController::class, 'create'])->name('admin.events.create');
-    Route::post('/admin/events/create', [EventController::class, 'store'])->name('admin.events.store');
-    Route::get('/admin/events/{event}', [EventController::class, 'show'])->name('admin.events.show');
+    Route::get('/admin/events/create', [AdminEventController::class, 'create'])->name('admin.events.create');
+    Route::post('/admin/events/create', [AdminEventController::class, 'store'])->name('admin.events.store');
+    Route::get('/admin/events/{event}', [AdminEventController::class, 'show'])->name('admin.events.show');
 
     Route::get('/admin/settings/account', [
         AdminSettingController::class,
