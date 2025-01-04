@@ -18,52 +18,48 @@ import { Button } from "@/Components/ui/button";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-vue-next";
 import { formatDate } from "@vueuse/core";
 import { router } from "@inertiajs/vue3";
+import { toast } from "@/Components/ui/toast";
 
-const events = [
-    {
-        id: "1",
-        name: "Summer Basketball Tournament",
-        sportType: "Basketball",
-        registrationType: "team",
-        venue: "Main Stadium",
-        eventDate: "2024-07-15",
-        startTime: "09:00",
-        status: "Upcoming",
-        createdAt: "2024-12-26T14:30:00Z",
-        posterImage: "/placeholder.svg",
-    },
-    {
-        id: "2",
-        name: "City Tennis Championship",
-        sportType: "Tennis",
-        registrationType: "individual",
-        venue: "Tennis Complex",
-        eventDate: "2024-06-20",
-        startTime: "10:00",
-        status: "Completed",
-        createdAt: "2024-12-25T09:15:00Z",
-        posterImage: "/placeholder.svg",
-    },
-    {
-        id: "3",
-        name: "Volleyball League",
-        sportType: "Volleyball",
-        registrationType: "team",
-        venue: "Community Center",
-        eventDate: "2024-08-01",
-        startTime: "14:00",
-        status: "Canceled",
-        createdAt: "2024-12-24T16:45:00Z",
-        posterImage: "/placeholder.svg",
-    },
-];
+defineProps({
+    events: Array,
+});
 
 const showEvent = (event) => {
     router.get(route("admin.events.show", { event: event.id }));
 };
 
 const editEvent = (event) => {
-    router.get(route("admin.events.show", { event: event.id, editMode: true }));
+    router.get(route("admin.events.show", { event: event.id }), {
+        editMode: true,
+    });
+};
+
+const cancelEvent = (event) => {
+    router.patch(
+        route("admin.events.cancel", { event: event.id }),
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast({
+                    title: "Event Cancelled",
+                    description: "The event was successfully cancelled.",
+                    variant: "success",
+                });
+
+                router.reload();
+            },
+            onError: (errors) => {
+                const errorMessage =
+                    errors.error || "Unable to cancel the event. Please try again.";
+                toast({
+                    title: "Error",
+                    description: errorMessage,
+                    variant: "destructive",
+                });
+            },
+        }
+    );
 };
 
 </script>
@@ -97,15 +93,15 @@ const editEvent = (event) => {
                     <TableCell class="hidden sm:table-cell">
                         <div class="h-16 w-16 rounded-md overflow-hidden">
                             <img
-                                :src="event.posterImage"
-                                :alt="event.name"
+                                :src="event.eventImage"
+                                :alt="event.eventName"
                                 width="64"
                                 height="64"
                                 class="h-full w-full object-cover"
                             />
                         </div>
                     </TableCell>
-                    <TableCell class="font-medium">{{ event.name }}</TableCell>
+                    <TableCell class="font-medium">{{ event.eventName }}</TableCell>
                     <TableCell class="hidden md:table-cell">{{
                         event.sportType
                     }}</TableCell>
@@ -126,7 +122,7 @@ const editEvent = (event) => {
                     }}</TableCell>
                     <TableCell class="hidden md:table-cell">
                         {{
-                            formatDate(new Date(event.createdAt), "YYYY-MM-DD")
+                            formatDate(new Date(event.created_at), "YYYY-MM-DD")
                         }}
                     </TableCell>
                     <TableCell>
@@ -146,9 +142,12 @@ const editEvent = (event) => {
                                     <Edit class="w-4 h-4 mr-2" />
                                     Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem
+                                    v-if="event.status !== 'Cancelled'"
+                                    @click="cancelEvent(event)"
+                                >
                                     <Trash2 class="w-4 h-4 mr-2" />
-                                    Delete
+                                    Cancel
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

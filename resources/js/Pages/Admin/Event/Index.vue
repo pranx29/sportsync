@@ -24,6 +24,10 @@ import { toast } from "@/Components/ui/toast";
 import { File, ListFilter, CirclePlus } from "lucide-vue-next";
 import EventCreationForm from "./Create.vue";
 import EventTable from "./EventTable.vue";
+
+defineProps({
+    events: Array,
+});
 </script>
 
 <template>
@@ -95,7 +99,7 @@ import EventTable from "./EventTable.vue";
                 </Link>
             </div>
             <div class="min-h-screen overflow-x-auto">
-                <EventTable />
+                <EventTable :events="events" />
             </div>
         </main>
     </AdminLayout>

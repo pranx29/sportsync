@@ -28,7 +28,7 @@ import {
     ChevronLeft,
 } from "lucide-vue-next";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
-import { usePage } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 import {
     Form,
     FormField,
@@ -40,49 +40,25 @@ import {
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import { toast } from "@/Components/ui/toast";
 
-const event = ref({
-    id: "1",
-    name: "Annual Sports Meet",
-    sportType: "Athletics",
-    description: "A fun-filled day of various athletic events.",
-    posterImage:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7EQSsfP6Uge_1q4lV90npE1JzSEMBHZGVCQ&s",
-    registrationType: "team",
-    maxParticipants: 100,
-    numberOfTeams: "10",
-    registrationDeadline: "2024-12-30",
-    customLocationName: "Sports Complex",
-    locationType: "Outdoor",
-    customLocation: true,
-    customLocationLink: "https://g.co/kgs/WAqhajW",
-    eventDate: "2024-12-30",
-    startTime: "09:00",
-    endTime: "17:00",
-    status: "upcoming",
-    rulesDescription: "Follow the rules and guidelines provided.",
-    notificationsEnabled: true,
-    createdAt: "2024-11-30",
-});
+const props = usePage().props;
+const event = ref(props.event);
 
 const statusStyles = ref({
     upcoming: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
-    "in-progress": "bg-green-100 text-green-800 hover:bg-green-100/80",
     completed: "bg-gray-100 text-gray-800 hover:bg-gray-100/80",
-    "registration-closed":
-        "bg-yellow-100 text-yellow-800 hover:bg-yellow-100/80",
     cancelled: "bg-red-100 text-red-800 hover:bg-red-100/80",
 });
 
 const statusLabels = ref({
     upcoming: "Upcoming",
-    "in-progress": "In Progress",
     completed: "Completed",
-    "registration-closed": "Registration Closed",
     cancelled: "Cancelled",
 });
 
-const isEditing = ref(usePage().props.editMode);
+const url = new URL(usePage().url, window.location.origin);
+const isEditing = ref(url.searchParams.get('editMode') === 'true');
 
 const handleEdit = () => {
     isEditing.value = true;
@@ -94,10 +70,11 @@ const editEventSchema = toTypedSchema(
         eventName: z.string().min(2, "Event name is required"),
         eventDescription: z.string().min(2, "Event description is required"),
         eventDate: z.string("Event date is required").refine((value) => {
-            return new Date(value) > new Date();
+            return /^\d{4}-\d{2}-\d{2}$/.test(value) && new Date(value) > new Date();
         }, "Event date must be in the future"),
         startTime: z.string("Start time is required"),
         endTime: z.string("End time is required"),
+        venue: z.string(),
         customLocationName: z.string(),
         customLocationLink: z.string().url({ message: "Invalid URL" }),
         maxParticipants: z.number().int().min(1, "Minimum 1 participant"),
@@ -113,43 +90,55 @@ const editEventSchema = toTypedSchema(
     })
 );
 
-const { handleSubmit } = useForm({
+const { handleSubmit: handleEventSubmit, setFieldError } = useForm({
     validationSchema: editEventSchema,
     initialValues: {
         posterImage: event.value.posterImage,
-        eventName: event.value.name,
-        eventDescription: event.value.description,
-        eventDate: event.value.eventDate,
+        eventName: event.value.eventName,
+        eventDescription: event.value.eventDescription,
+        eventDate: event.value.eventDate.split('T')[0],
         startTime: event.value.startTime,
         endTime: event.value.endTime,
+        venue: event.value.venue,
         customLocationName: event.value.customLocationName,
         customLocationLink: event.value.customLocationLink,
         maxParticipants: event.value.maxParticipants,
-        registrationDeadline: event.value.registrationDeadline,
+        registrationDeadline: event.value.registrationDeadline.split('T')[0],
         numberOfTeams: event.value.numberOfTeams,
         rulesDescription: event.value.rulesDescription,
     },
     keepValuesOnUnmount: true,
 });
 
-const onSubmit = handleSubmit(async (values) => {
-    isEditing.value = false;
-    event.value = {
-        ...event.value,
-        name: values.eventName,
-        description: values.eventDescription,
-        eventDate: values.eventDate,
-        startTime: values.startTime,
-        endTime: values.endTime,
-        customLocationName: values.customLocationName,
-        customLocationLink: values.customLocationLink,
-        maxParticipants: values.maxParticipants,
-        registrationDeadline: values.registrationDeadline,
-        numberOfTeams: values.numberOfTeams,
-        rulesDescription: values.rulesDescription,
-    };
-
-    // TODO: Send the updated event data to the server
+const onSubmit = handleEventSubmit(async (values) => {
+    router.put(
+        route("admin.events.update", { event: event.value.id }),
+        values,
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast({
+                    title: "Event Updated",
+                    description: "The event was successfully updated.",
+                    variant: "success",
+                });
+                isEditing.value = false;
+            },
+            onError: (errors) => {
+                if (errors) {
+                    Object.entries(errors).forEach(([key, message]) => {
+                        setFieldError(key, message[0]);
+                    });
+                }
+                toast({
+                    title: "Failed to Update Session",
+                    description: "Please check the form for errors.",
+                    variant: "destructive",
+                });
+            },
+        }
+    );
 });
 
 const handleImageUpload = (e) => {
@@ -185,8 +174,8 @@ const handleImageUpload = (e) => {
                 <Card class="md:col-span-8">
                     <CardHeader class="relative p-0">
                         <img
-                            :src="event.posterImage"
-                            :alt="event.name"
+                            :src="event.eventImage"
+                            :alt="event.eventName"
                             width="800"
                             height="400"
                             class="w-full h-[400px] object-cover rounded-t-lg"
@@ -235,7 +224,7 @@ const handleImageUpload = (e) => {
                                 </template>
                                 <template v-else>
                                     <h2 class="text-2xl font-semibold">
-                                        {{ event.name }}
+                                        {{ event.eventName }}
                                     </h2>
                                 </template>
                                 <Button
@@ -281,7 +270,7 @@ const handleImageUpload = (e) => {
                                 </template>
                                 <template v-else>
                                     <p class="text-muted-foreground">
-                                        {{ event.description }}
+                                        {{ event.eventDescription }}
                                     </p>
                                 </template>
                             </div>
@@ -423,61 +412,36 @@ const handleImageUpload = (e) => {
                                             </FormField>
                                         </template>
                                         <template v-else-if="isEditing">
-                                            <Select v-bind="componentField">
-                                                <SelectTrigger id="venue">
-                                                    <SelectValue
-                                                        placeholder="Select a venue"
-                                                    />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="stadium"
-                                                        >Main
-                                                        Stadium</SelectItem
-                                                    >
-                                                    <SelectItem value="park"
-                                                        >Central
-                                                        Park</SelectItem
-                                                    >
-                                                    <SelectItem value="gym"
-                                                        >Community
-                                                        Gym</SelectItem
-                                                    >
-                                                </SelectContent>
-                                            </Select>
+                                            <FormField v-slot="{ componentField }" name="venue">
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Select v-bind="componentField">
+                                                            <SelectTrigger id="venue">
+                                                                <SelectValue placeholder="Select a venue" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="Main Stadium">Main Stadium</SelectItem>
+                                                                <SelectItem value="Central Park">Central Park</SelectItem>
+                                                                <SelectItem value="Community Gym">Community Gym</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            </FormField>
                                         </template>
-                                        <template
-                                            v-else-if="
-                                                !isEditing &&
-                                                event.customLocation
-                                            "
-                                        >
+                                        <template v-else-if="!isEditing && event.customLocation">
                                             <span>
-                                                <Button
-                                                    variant="link"
-                                                    class="p-0 text-base"
-                                                    asChild
-                                                >
-                                                    <a
-                                                        :href="
-                                                            event.customLocationLink
-                                                        "
-                                                        target="_blank"
-                                                    >
-                                                        {{
-                                                            event.customLocationName
-                                                        }}
+                                                <Button variant="link" class="p-0 text-base" asChild>
+                                                    <a :href="event.customLocationLink" target="_blank">
+                                                        {{ event.customLocationName }}
                                                     </a>
                                                 </Button>
-                                                ({{ event.locationType }})</span
-                                            >
+                                                ({{ event.locationType }})
+                                            </span>
                                         </template>
-                                        <template
-                                            v-else-if="
-                                                !isEditing &&
-                                                !event.customLocation
-                                            "
-                                        >
-                                            {{ event.locationType }}
+                                        <template v-else-if="!isEditing && !event.customLocation">
+                                            {{ event.venue }} ({{ event.locationType }})
                                         </template>
                                     </div>
                                     <div class="flex items-center gap-2">
@@ -720,7 +684,7 @@ const handleImageUpload = (e) => {
                                         Created:
                                         {{
                                             formatDate(
-                                                new Date(event.createdAt),
+                                                new Date(event.created_at),
                                                 "YYYY-MM-DD"
                                             )
                                         }}

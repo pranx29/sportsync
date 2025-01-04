@@ -32,6 +32,8 @@ class Event extends Model
         'notifyCreation',
         'sendReminder',
         'notifyAssignments',
+        'status',
+        'cancelled_at'
     ];
 
     protected $casts = [

@@ -186,6 +186,7 @@ import {
     FormMessage,
 } from "@/Components/ui/form";
 import { useForm } from "vee-validate";
+import { router } from "@inertiajs/vue3";
 import axios from "axios";
 import EventBasics from "./EventBasics.vue";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
@@ -354,30 +355,26 @@ const prevStep = () => {
 
 const handleSubmit = async (values) => {
     try {
-        console.log("Submitted values:", values); // Log submitted values
+        console.log("Submitted values:", values);
 
-        // Declare formData properly
         const formData = new FormData();
 
-
-
-        // Populate remaining fields
-        Object.keys(values).forEach((key) => {
-            if (
-                key !== "customLocationName" &&
-                key !== "customLocationLink" &&
-                key !== "venue" // Already handled above
-            ) {
-                formData.append(key, values[key]);
-            }
-        });
-
-        // // Populate formData with values
+        // // Populate fields
         // Object.keys(values).forEach((key) => {
-        //     formData.append(key, values[key]);
+        //     if (
+        //         key !== "customLocationName" &&
+        //         key !== "customLocationLink" &&
+        //         key !== "venue" // Already handled above
+        //     ) {
+        //         formData.append(key, values[key]);
+        //     }
         // });
 
-        // Ensure boolean fields are correctly converted
+        // Populate formData with values
+        Object.keys(values).forEach((key) => {
+            formData.append(key, values[key]);
+        });
+
         formData.set("customLocation", values.customLocation ? "1" : "0");
         formData.set("notifyCreation", values.notifyCreation ? "1" : "0");
         formData.set("sendReminder", values.sendReminder ? "1" : "0");
@@ -387,26 +384,22 @@ const handleSubmit = async (values) => {
         console.log("sendReminder:", values.sendReminder);
         console.log("notifyAssignments:", values.notifyAssignments);
 
-        console.log("FormData prepared:", formData); // Debug FormData contents
+        console.log("FormData prepared:", formData);
 
-        // Make the API call
         await axios.post(route("admin.events.store"), formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
 
-        // Notify success
         toast({
             title: "Event created successfully!",
             description: "Your event has been saved to the database.",
         });
 
-        // Redirect after successful creation
-        //// router.visit(route("admin.events.index"));
+        router.visit(route("admin.events.index"));
     } catch (error) {
         
-        // Handle validation or submission errors
         console.error("Error during form submission:", error.response?.data?.errors || error);
 
         if (error.response?.data?.errors) {

@@ -13,27 +13,29 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
+            $table->date('registrationDeadline')->nullable();
+            $table->date('eventDate');
+            $table->string('status')->default('Upcoming')->index();
+            $table->timestamp('cancelled_at')->nullable();
+            $table->time('startTime');
+            $table->time('endTime');
             $table->string('eventName');
             $table->text('eventDescription');
             $table->string('sportType');
-            $table->string('eventImage')->nullable();
             $table->string('registrationType');
             $table->integer('maxParticipants');
-            $table->date('registrationDeadline')->nullable();
             $table->integer('numberOfTeams')->nullable();
             $table->string('teamAssignment')->nullable();
             $table->string('venue')->nullable();
             $table->string('customLocationName')->nullable();
             $table->string('customLocationLink')->nullable();
             $table->enum('locationType', ['indoor', 'outdoor']);
-            $table->date('eventDate');
-            $table->time('startTime');
-            $table->time('endTime');
             $table->text('rulesDescription');
-            $table->string('rulesDocument')->nullable();
             $table->boolean('notifyCreation')->default(false);
             $table->boolean('sendReminder')->default(false);
             $table->boolean('notifyAssignments')->default(false);
+            $table->string('eventImage')->nullable();
+            $table->string('rulesDocument')->nullable();
             $table->timestamps();
         });
     }
