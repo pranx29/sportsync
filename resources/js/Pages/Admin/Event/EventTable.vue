@@ -157,7 +157,18 @@ const cancelEvent = (event) => {
                                     Edit
                                 </DropdownMenuItem>
 
-                                <DropdownMenuItem @click="cancelEvent(event)">
+                                <DropdownMenuItem
+                                    @click="cancelEvent(event)"
+                                    v-if="
+                                        new Date(event.event_date) >
+                                            new Date(
+                                                Date.now() +
+                                                    2 * 24 * 60 * 60 * 1000
+                                            ) &&
+                                        event.status !== 'canceled' &&
+                                        event.status !== 'completed'
+                                    "
+                                >
                                     <Trash2 class="w-4 h-4 mr-2" />
                                     Cancel
                                 </DropdownMenuItem>

@@ -17,8 +17,11 @@ class AdminEventController extends Controller
 {
     public function index()
     {
+
+        Event::markCompletedEvents();
+
         return Inertia::render('Admin/Event/Index', [
-            'events' => Event::with('sport', 'venue')->get(),
+            'events' => Event::with('sport', 'venue')->latest()->get(),
         ]);
     }
 
@@ -162,12 +165,36 @@ class AdminEventController extends Controller
             'rules_description' => $validated['rulesDescription'],
         ]);
 
+        $employees = User::where('role', User::EMPLOYEE)->get();
+        Notification::send($employees, new EventUpdatedNotification($event, 'updated'));
+
         return redirect()->back()->with('success', 'Event updated successfully!');
     }
 
     public function cancel(Event $event)
     {
+        // Check if the event is already cancelled
+        if ($event->status === 'Cancelled') {
+            return back()->withErrors(['error' => 'This event is already cancelled.']);
+        }
+
+        // Check if the event has already started or is in the past
+        if (now()->greaterThanOrEqualTo($event->eventDate)) {
+            return back()->withErrors(['error' => 'Event has already started or is in the past and cannot be cancelled.']);
+        }
+
+        // Check if the event can be cancelled at least 2 days before the event date
+        $daysBeforeEvent = now()->diffInDays($event->eventDate, false);
+        if ($daysBeforeEvent < 2) {
+            return back()->withErrors(['error' => 'Event can only be cancelled at least 2 days before the event date.']);
+        }
+
         $event->update(['status' => Event::STATUS_CANCELED]);
+
+        // Notify employees
+        $employees = User::where('role', User::EMPLOYEE)->get();
+        Notification::send($employees, new EventUpdatedNotification($event, 'cancelled'));
+
 
         return redirect()->route('admin.events.index')->with('success', 'Event status updated to canceled successfully!');
     }

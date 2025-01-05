@@ -70,4 +70,11 @@ class Event extends Model
         }
         return $value ? Storage::url($value) : url('https://www.ibcs.com/wp-content/uploads/2024/01/Projekt-bez-nazwy-15.png');
     }
+
+    public static function markCompletedEvents()
+    {
+        self::whereRaw("CONCAT(event_date, ' ', end_time) < ?", [now()])
+            ->where('status', '!=', self::STATUS_COMPLETED)
+            ->update(['status' => self::STATUS_COMPLETED]);
+    }
 }
