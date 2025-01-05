@@ -31,9 +31,8 @@ const emit = defineEmits(["group-selected"]);
 const handleRowClick = (group) => {
     selectedGroup.value = group;
     console.log(selectedGroup.value);
-    emit('group-selected', group);
+    emit("group-selected", group);
 };
-
 </script>
 
 <template>
@@ -54,7 +53,8 @@ const handleRowClick = (group) => {
                         v-for="group in groups"
                         :key="group.id"
                         @click="() => handleRowClick(group)"
-                        :class="{ 'bg-accent': selectedGroup === group }">
+                        :class="{ 'bg-accent': selectedGroup === group }"
+                    >
                         <TableCell>
                             <img
                                 :src="group.image"

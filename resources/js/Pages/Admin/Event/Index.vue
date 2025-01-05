@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from "vue";
 import { Button } from "@/Components/ui/button";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import {
@@ -24,6 +23,20 @@ import { toast } from "@/Components/ui/toast";
 import { File, ListFilter, CirclePlus } from "lucide-vue-next";
 import EventCreationForm from "./Create.vue";
 import EventTable from "./EventTable.vue";
+import { usePage } from "@inertiajs/vue3";
+import { watch, ref } from "vue";
+
+const events = ref(usePage().props.events);
+
+const filterEvents = (status) => {
+    if (status === "all") {
+        events.value = usePage().props.events;
+    } else {
+        events.value = usePage().props.events.filter(
+            (event) => event.status === status
+        );
+    }
+};
 </script>
 
 <template>
@@ -48,41 +61,20 @@ import EventTable from "./EventTable.vue";
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Filter by</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <Link
-                            :href="
-                                route('admin.groups.index', {
-                                    active: true,
-                                })
-                            "
-                        >
-                            <DropdownMenuItem checked>
-                                Active
-                            </DropdownMenuItem>
-                        </Link>
-
-                        <Link
-                            :href="
-                                route('admin.groups.index', {
-                                    active: false,
-                                })
-                            "
-                        >
-                            <DropdownMenuItem checked>
-                                Inactive
-                            </DropdownMenuItem>
-                        </Link>
-
-                        <Link :href="route('admin.groups.index')">
-                            <DropdownMenuItem checked>All</DropdownMenuItem>
-                        </Link>
+                        <DropdownMenuItem @click="filterEvents('upcoming')">
+                            Upcoming
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="filterEvents('completed')">
+                            Completed
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="filterEvents('canceled')">
+                            Canceled
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="filterEvents('all')">
+                            All
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <!-- <Button size="sm" variant="outline" class="h-7 gap-1">
-                    <File class="h-3.5 w-3.5" />
-                    <span class="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                        Export
-                    </span>
-                </Button> -->
                 <Link :href="route('admin.events.create')">
                     <Button size="sm" class="h-7 gap-1">
                         <CirclePlus class="h-3.5 w-3.5" />
@@ -95,7 +87,7 @@ import EventTable from "./EventTable.vue";
                 </Link>
             </div>
             <div class="min-h-screen overflow-x-auto">
-                <EventTable />
+                <EventTable :events="events" />
             </div>
         </main>
     </AdminLayout>

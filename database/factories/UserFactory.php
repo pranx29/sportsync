@@ -1,18 +1,11 @@
 <?php
 
 namespace Database\Factories;
-
-use App\Models\User;
-use App\Models\Sport;
-use App\Models\Profile;
-use Illuminate\Support\Str;
-use App\Models\Availability;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<User>
  */
 class UserFactory extends Factory
 {

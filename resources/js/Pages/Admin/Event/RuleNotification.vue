@@ -32,50 +32,65 @@
             </FormItem>
         </FormField>
         <div class="space-y-2">
-            <FormField v-slot="{ componentField }" name="notifyCreation">
+            <FormField
+                v-slot="{ value, handleChange }"
+                name="notifyCreation"
+                type="checkbox"
+            >
                 <FormItem>
                     <div class="flex items-center space-x-2">
                         <FormControl>
                             <Checkbox
-                                v-bind="componentField"
+                                :checked="value"
+                                @update:checked="handleChange"
                                 id="notify-creation"
                             />
                         </FormControl>
-                        <FormLabel for="notify-creation"
-                            >Notify Participants on Event Creation</FormLabel
-                        >
+                        <FormLabel for="notify-creation">
+                            Notify Participants on Event Creation
+                        </FormLabel>
                     </div>
                     <FormMessage />
                 </FormItem>
             </FormField>
-            <FormField v-slot="{ componentField }" name="sendReminder">
+            <!-- <FormField
+                v-slot="{ value, handleChange }"
+                name="sendReminder"
+                type="checkbox"
+            >
                 <FormItem>
                     <div class="flex items-center space-x-2">
                         <FormControl>
                             <Checkbox
-                                v-bind="componentField"
+                                :checked="value"
+                                @update:checked="handleChange"
                                 id="send-reminder"
                             />
                         </FormControl>
-                        <FormLabel for="send-reminder"
-                            >Send Reminder (1 day before)</FormLabel
-                        >
+                        <FormLabel for="send-reminder">
+                            Send Reminder (1 day before)
+                        </FormLabel>
                     </div>
                     <FormMessage />
                 </FormItem>
-            </FormField>
-            <FormField v-slot="{ componentField }" name="notifyAssignments">
+            </FormField> -->
+            <FormField
+                v-slot="{ value, handleChange }"
+                name="notifyAssignments"
+                type="checkbox"
+            >
                 <FormItem>
                     <div class="flex items-center space-x-2">
                         <FormControl>
                             <Checkbox
-                                v-bind="componentField"
+                                :checked="value"
+                                @update:checked="handleChange"
                                 id="notify-assignments"
                             />
                         </FormControl>
-                        <FormLabel for="notify-assignments"
-                            >Notify Participants of Team Assignments</FormLabel
-                        >
+                        <FormLabel for="notify-assignments">
+                            Notify Participants of Team Assignments
+                        </FormLabel>
                     </div>
                     <FormMessage />
                 </FormItem>
@@ -100,13 +115,6 @@ import {
 import { useField } from "vee-validate";
 
 const { value: rulesDocument } = useField("rulesDocument");
-const { value: notifyCreation } = useField("notifyCreation");
-const { value: sendReminder } = useField("sendReminder");
-const { value: notifyAssignments } = useField("notifyAssignments");
-
-notifyCreation.value = false;
-sendReminder.value = false;
-notifyAssignments.value = false;
 
 const handleFileUpload = (e) => {
     const file = e.target.files?.[0];

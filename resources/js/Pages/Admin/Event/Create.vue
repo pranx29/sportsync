@@ -1,3 +1,195 @@
+<script setup>
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/Components/ui/breadcrumb";
+import {
+    Stepper,
+    StepperDescription,
+    StepperIndicator,
+    StepperItem,
+    StepperSeparator,
+    StepperTitle,
+    StepperTrigger,
+} from "@/Components/ui/stepper";
+import { Check, Circle, Dot, TestTube } from "lucide-vue-next";
+import { toast } from "@/Components/ui/toast";
+import { toTypedSchema } from "@vee-validate/zod";
+import { ref, h } from "vue";
+import * as z from "zod";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/Components/ui/form";
+import { useForm } from "vee-validate";
+import { router } from "@inertiajs/vue3";
+import EventBasics from "./EventBasics.vue";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
+import Participants from "./RegistrationSetup.vue";
+import LocationSchedule from "./LocationSchedule.vue";
+import TeamSetup from "./EventPreview.vue";
+import RuleNotification from "./RuleNotification.vue";
+
+const stepIndex = ref(1);
+
+const steps = [
+    {
+        step: 1,
+        title: "Event Basics",
+    },
+    {
+        step: 2,
+        title: "Registration Setup",
+    },
+    {
+        step: 3,
+        title: "Location & Schedule",
+    },
+    {
+        step: 4,
+        title: "Rules & Notification",
+    },
+];
+
+const formSchema = [
+    // Validation for event basics
+    z.object({
+        eventName: z.string().min(2, "Event name is required"),
+        eventDescription: z.string().min(2, "Event description is required"),
+        sportType: z.string().min(2, "Sport type is required"),
+        eventImage: z.any(),
+    }),
+
+    // Validation for registration setup
+    z
+        .object({
+            registrationType: z.enum(["individual", "team"]),
+            maxParticipants: z.number().min(1, "Max participants is required"),
+            registrationDeadline: z.string(),
+            numberOfTeams: z.string().min(1).optional(),
+            teamAssignment: z.enum(["automatic", "manual"]).optional(),
+        })
+        .refine(
+            (data) => {
+                if (data.registrationType === "team") {
+                    return data.numberOfTeams;
+                }
+                return true;
+            },
+            {
+                message: "Number of teams is required",
+                path: ["numberOfTeams"],
+            }
+        )
+        .refine(
+            (data) => {
+                if (data.registrationType === "team") {
+                    return data.teamAssignment;
+                }
+                return true;
+            },
+            {
+                message: "Team assignment is required",
+                path: ["teamAssignment"],
+            }
+        ),
+
+    // Validation for location and schedule
+    z
+        .object({
+            venue: z.string(),
+            customLocation: z.boolean().default(false).optional(),
+            customLocationName: z.string().optional(),
+            customLocationLink: z.string().optional(),
+            locationType: z.enum(["indoor", "outdoor"]),
+            eventDate: z.string(),
+            startTime: z.string(),
+            endTime: z.string(),
+        })
+        .refine(
+            (data) => {
+                if (data.customLocation) {
+                    return data.customLocationName;
+                }
+                return true;
+            },
+            {
+                message: "Custom location name is required",
+                path: ["customLocationName"],
+            }
+        )
+        .refine(
+            (data) => {
+                if (data.customLocation) {
+                    return data.customLocationLink;
+                }
+                return true;
+            },
+            {
+                message: "Custom location link is required",
+                path: ["customLocationLink"],
+            }
+        ),
+
+    // Validation for rules and notifications
+    z.object({
+        rulesDocument: z.instanceof(File).refine((file) => {
+            return (
+                file &&
+                [
+                    "application/pdf",
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ].includes(file.type)
+            );
+        }, "Invalid file type. Only PDF, DOC, and DOCX are allowed."),
+        rulesDescription: z
+            .string()
+            .min(10, "Short rules description is required"),
+        notifyCreation: z.boolean().optional(),
+        sendReminder: z.boolean().optional(),
+        notifyAssignments: z.boolean().optional(),
+    }),
+];
+
+const eventDetails = ref({});
+
+const onSubmit = (values) => {
+    router.post(route("admin.events.store"), values, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            toast({
+                title: "Event created",
+                description: "Event details have been added successfully.",
+                variant: "success",
+            });
+        },
+        onError: (error) => {
+            {
+                toast({
+                    title: "Error",
+                    description:
+                        "There was an error saving your event." +
+                        JSON.stringify(error),
+                    variant: "error",
+                });
+            }
+        },
+    });
+};
+</script>
+
 <template>
     <Head title="Create Event" />
     <AdminLayout>
@@ -153,180 +345,3 @@
         </main>
     </AdminLayout>
 </template>
-
-<script setup>
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/Components/ui/breadcrumb";
-import {
-    Stepper,
-    StepperDescription,
-    StepperIndicator,
-    StepperItem,
-    StepperSeparator,
-    StepperTitle,
-    StepperTrigger,
-} from "@/Components/ui/stepper";
-import { Check, Circle, Dot, TestTube } from "lucide-vue-next";
-import { toast } from "@/Components/ui/toast";
-import { toTypedSchema } from "@vee-validate/zod";
-import { ref, h } from "vue";
-import * as z from "zod";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/Components/ui/form";
-import { useForm } from "vee-validate";
-import EventBasics from "./EventBasics.vue";
-import AdminLayout from "@/Layouts/AdminLayout.vue";
-import Participants from "./RegistrationSetup.vue";
-import LocationSchedule from "./LocationSchedule.vue";
-import TeamSetup from "./EventPreview.vue";
-import RuleNotification from "./RuleNotification.vue";
-
-const stepIndex = ref(1);
-
-const steps = [
-    {
-        step: 1,
-        title: "Event Basics",
-    },
-    {
-        step: 2,
-        title: "Registration Setup",
-    },
-    {
-        step: 3,
-        title: "Location & Schedule",
-    },
-    {
-        step: 4,
-        title: "Rules & Notification",
-    },
-];
-
-const formSchema = [
-    // Validation for event basics
-    z.object({
-        eventName: z.string().min(2, "Event name is required"),
-        eventDescription: z.string().min(2, "Event description is required"),
-        sportType: z.string().min(2, "Sport type is required"),
-        eventImage: z.any(),
-    }),
-
-    // Validation for registration setup
-    z
-        .object({
-            registrationType: z
-                .string()
-                .min(2, "Registration type is required"),
-            maxParticipants: z.number().min(1, "Max participants is required"),
-            registrationDeadline: z.string(),
-        })
-        .refine(
-            (data) => {
-                if (data.registrationType === "team") {
-                    return data.numberOfTeams;
-                }
-                return true;
-            },
-            {
-                message: "Number of teams is required",
-                path: ["numberOfTeams"],
-            }
-        )
-        .refine(
-            (data) => {
-                if (data.registrationType === "team") {
-                    return data.teamAssignment;
-                }
-                return true;
-            },
-            {
-                message: "Team assignment is required",
-                path: ["teamAssignment"],
-            }
-        ),
-
-    // Validation for location and schedule
-    z
-        .object({
-            venue: z.string(),
-            customLocation: z.boolean().optional(),
-            customLocationName: z.string().optional(),
-            customLocationLink: z.string().optional(),
-            locationType: z.enum(["indoor", "outdoor"]),
-            eventDate: z.string(),
-            startTime: z.string(),
-            endTime: z.string(),
-        })
-        .refine(
-            (data) => {
-                if (data.customLocation) {
-                    return data.customLocationName;
-                }
-                return true;
-            },
-            {
-                message: "Custom location name is required",
-                path: ["customLocationName"],
-            }
-        )
-        .refine(
-            (data) => {
-                if (data.customLocation) {
-                    return data.customLocationLink;
-                }
-                return true;
-            },
-            {
-                message: "Custom location link is required",
-                path: ["customLocationLink"],
-            }
-        ),
-
-    // Validation for rules and notifications
-    z.object({
-        rulesDocument: z.instanceof(File).refine((file) => {
-            return (
-                file &&
-                [
-                    "application/pdf",
-                    "application/msword",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                ].includes(file.type)
-            );
-        }, "Invalid file type. Only PDF, DOC, and DOCX are allowed."),
-        rulesDescription: z
-            .string()
-            .min(10, "Short rules description is required"),
-        notifyCreation: z.boolean().optional(),
-        sendReminder: z.boolean().optional(),
-        notifyAssignments: z.boolean().optional(),
-    }),
-];
-
-const eventDetails = ref({});
-
-const onSubmit = (values) => {
-    toast({
-        title: "You submitted the following values:",
-        description: h(
-            "pre",
-            { class: "mt-2 w-[340px] rounded-md bg-slate-950 p-4" },
-            h("code", { class: "text-white" }, JSON.stringify(values, null, 2))
-        ),
-    });
-};
-</script>

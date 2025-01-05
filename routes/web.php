@@ -134,6 +134,8 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/admin/events/create', [AdminEventController::class, 'create'])->name('admin.events.create');
     Route::post('/admin/events/create', [AdminEventController::class, 'store'])->name('admin.events.store');
     Route::get('/admin/events/{event}', [AdminEventController::class, 'show'])->name('admin.events.show');
+    Route::patch('/admin/events/{event}', [AdminEventController::class, 'update'])->name('admin.events.update');
+    Route::patch('/admin/events/{event}/cancel', [AdminEventController::class, 'cancel'])->name('admin.events.cancel');
 
     Route::get('/admin/settings/account', [
         AdminSettingController::class,

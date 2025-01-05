@@ -20,15 +20,12 @@ import {
 } from "@/Components/ui/form";
 import EventPreview from "./EventPreview.vue";
 import { custom } from "zod";
+import { useField } from "vee-validate";
 
 const props = defineProps({
     eventDetails: Object,
 });
-
-const customLocation = ref(false);
-customLocation.value = props.eventDetails.customLocation;
 </script>
-
 
 <template>
     <div class="grid grid-cols-2 gap-8">
@@ -46,15 +43,13 @@ customLocation.value = props.eventDetails.customLocation;
                                 <SelectValue placeholder="Select a venue" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="stadium"
-                                    >Main Stadium</SelectItem
+                                <SelectItem
+                                    v-for="venue in $page.props.venues"
+                                    :key="venue.id"
+                                    :value="venue.name"
                                 >
-                                <SelectItem value="park"
-                                    >Central Park</SelectItem
-                                >
-                                <SelectItem value="gym"
-                                    >Community Gym</SelectItem
-                                >
+                                    {{ venue.name }}
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </FormControl>
@@ -189,7 +184,7 @@ customLocation.value = props.eventDetails.customLocation;
         <EventPreview
             :eventName="eventDetails.eventName"
             :description="eventDetails.eventDescription"
-            :posterImage="eventDetails.eventImage"
+            :eventImage="eventDetails.eventImage"
             :sportType="eventDetails.sportType"
             :registrationDeadline="eventDetails.registrationDeadline"
             :maxParticipants="eventDetails.maxParticipants"
@@ -204,4 +199,3 @@ customLocation.value = props.eventDetails.customLocation;
         />
     </div>
 </template>
-

@@ -17,46 +17,22 @@ import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-vue-next";
 import { formatDate } from "@vueuse/core";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
+import { defineProps, ref, watch } from "vue";
+import { toast } from "@/Components/ui/toast";
 
-const events = [
-    {
-        id: "1",
-        name: "Summer Basketball Tournament",
-        sportType: "Basketball",
-        registrationType: "team",
-        venue: "Main Stadium",
-        eventDate: "2024-07-15",
-        startTime: "09:00",
-        status: "Upcoming",
-        createdAt: "2024-12-26T14:30:00Z",
-        posterImage: "/placeholder.svg",
-    },
-    {
-        id: "2",
-        name: "City Tennis Championship",
-        sportType: "Tennis",
-        registrationType: "individual",
-        venue: "Tennis Complex",
-        eventDate: "2024-06-20",
-        startTime: "10:00",
-        status: "Completed",
-        createdAt: "2024-12-25T09:15:00Z",
-        posterImage: "/placeholder.svg",
-    },
-    {
-        id: "3",
-        name: "Volleyball League",
-        sportType: "Volleyball",
-        registrationType: "team",
-        venue: "Community Center",
-        eventDate: "2024-08-01",
-        startTime: "14:00",
-        status: "Canceled",
-        createdAt: "2024-12-24T16:45:00Z",
-        posterImage: "/placeholder.svg",
-    },
-];
+const props = defineProps({
+    events: Array,
+});
+
+const events = ref(props.events);
+
+watch(
+    () => props.events,
+    (newEvents) => {
+        events.value = newEvents;
+    }
+);
 
 const showEvent = (event) => {
     router.get(route("admin.events.show", { event: event.id }));
@@ -66,6 +42,18 @@ const editEvent = (event) => {
     router.get(route("admin.events.show", { event: event.id, editMode: true }));
 };
 
+const cancelEvent = (event) => {
+    router.patch(route("admin.events.cancel", { event: event.id }), null, {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast({
+                title: "Event canceled",
+                description: "Event has been canceled successfully",
+            });
+            events.value = usePage().props.events;
+        },
+    });
+};
 </script>
 
 <template>
@@ -86,7 +74,6 @@ const editEvent = (event) => {
                     <TableHead class="hidden md:table-cell">Venue</TableHead>
                     <TableHead>Date & Time</TableHead>
                     <TableHead class="hidden md:table-cell">Status</TableHead>
-                    <TableHead class="hidden md:table-cell">Created</TableHead>
                     <TableHead>
                         <span class="sr-only">Actions</span>
                     </TableHead>
@@ -95,9 +82,9 @@ const editEvent = (event) => {
             <TableBody>
                 <TableRow v-for="event in events" :key="event.id">
                     <TableCell class="hidden sm:table-cell">
-                        <div class="h-16 w-16 rounded-md overflow-hidden">
+                        <div class="h-16 w-24 rounded-md overflow-hidden">
                             <img
-                                :src="event.posterImage"
+                                :src="event.image"
                                 :alt="event.name"
                                 width="64"
                                 height="64"
@@ -107,28 +94,51 @@ const editEvent = (event) => {
                     </TableCell>
                     <TableCell class="font-medium">{{ event.name }}</TableCell>
                     <TableCell class="hidden md:table-cell">{{
-                        event.sportType
+                        event.sport.name
                     }}</TableCell>
                     <TableCell class="hidden md:table-cell">{{
-                        event.registrationType
+                        event.registration_type.charAt(0).toUpperCase() +
+                        event.registration_type.slice(1)
                     }}</TableCell>
-                    <TableCell class="hidden md:table-cell">{{
-                        event.venue
-                    }}</TableCell>
+                    <TableCell
+                        class="hidden md:table-cell"
+                        v-if="event.venue && !event.custom_location_name"
+                        >{{ event.venue.name }}</TableCell
+                    >
+                    <TableCell class="hidden md:table-cell" v-else>
+                        <Button variant="link" asChild class="p-0">
+                            <a
+                                :href="event.custom_location_link"
+                                target="_blank"
+                            >
+                                {{ event.custom_location_name }}
+                            </a>
+                        </Button>
+                    </TableCell>
+
                     <TableCell>
                         {{
-                            formatDate(new Date(event.eventDate), "YYYY-MM-DD")
+                            formatDate(new Date(event.event_date), "YYYY-MM-DD")
                         }}
-                        at {{ event.startTime }}
+                        at {{ event.start_time }}
                     </TableCell>
-                    <TableCell class="hidden md:table-cell">{{
-                        event.status
-                    }}</TableCell>
                     <TableCell class="hidden md:table-cell">
-                        {{
-                            formatDate(new Date(event.createdAt), "YYYY-MM-DD")
-                        }}
+                        <Badge
+                            :variant="
+                                event.status === 'canceled'
+                                    ? 'danger'
+                                    : event.status === 'upcoming'
+                                    ? ''
+                                    : 'outline'
+                            "
+                        >
+                            {{
+                                event.status.charAt(0).toUpperCase() +
+                                event.status.slice(1)
+                            }}
+                        </Badge>
                     </TableCell>
+
                     <TableCell>
                         <DropdownMenu>
                             <DropdownMenuTrigger as-child>
@@ -146,12 +156,19 @@ const editEvent = (event) => {
                                     <Edit class="w-4 h-4 mr-2" />
                                     Edit
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+
+                                <DropdownMenuItem @click="cancelEvent(event)">
                                     <Trash2 class="w-4 h-4 mr-2" />
-                                    Delete
+                                    Cancel
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+
+                <TableRow v-if="events.length === 0">
+                    <TableCell :colspan="7" class="text-center">
+                        No events found
                     </TableCell>
                 </TableRow>
             </TableBody>

@@ -28,11 +28,7 @@ const { value: eventImage } = useField("eventImage");
 const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            eventImage.value = reader.result;
-        };
-        reader.readAsDataURL(file);
+        eventImage.value = file;
     }
 };
 </script>
@@ -79,14 +75,12 @@ const handleImageUpload = (e) => {
                                 <SelectValue placeholder="Select a sport" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="soccer">Soccer</SelectItem>
-                                <SelectItem value="basketball">
-                                    Basketball
-                                </SelectItem>
-                                <SelectItem value="tennis">Tennis</SelectItem>
-                                <SelectItem value="volleyball">
-                                    Volleyball
-                                </SelectItem>
+                                <SelectItem
+                                    v-for="sport in $page.props.sports"
+                                    :key="sport.id"
+                                    :value="sport.name"
+                                    >{{ sport.name }}</SelectItem
+                                >
                             </SelectContent>
                         </Select>
                     </FormControl>
@@ -118,7 +112,7 @@ const handleImageUpload = (e) => {
         <EventPreview
             :eventName="eventName"
             :description="eventDescription"
-            :posterImage="eventImage"
+            :eventImage="eventImage"
             :sportType="sportType"
         />
     </div>

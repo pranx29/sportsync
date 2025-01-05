@@ -8,12 +8,13 @@ import {
 } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import { CalendarIcon, MapPinIcon, UsersIcon } from "lucide-vue-next";
+import { defineProps, watch } from "vue";
 
 const props = defineProps({
     eventName: String,
     sportType: String,
     description: String,
-    posterImage: String,
+    eventImage: File,
     registrationType: String,
     maxParticipants: String,
     registrationDeadline: String,
@@ -26,14 +27,25 @@ const props = defineProps({
     customLocationName: String,
     numberOfTeams: String,
 });
+
+const posterImageUrl = ref(null);
+watch(
+    () => props.eventImage,
+    (newImage) => {
+        if (newImage) {
+            posterImageUrl.value = URL.createObjectURL(newImage);
+        }
+    },
+    { immediate: true }
+);
 </script>
 
 <template>
     <Card class="w-full max-w-md mx-auto">
         <CardHeader class="relative p-0">
-            <template v-if="posterImage">
+            <template v-if="posterImageUrl">
                 <img
-                    :src="posterImage"
+                    :src="posterImageUrl"
                     :alt="eventName"
                     width="400"
                     height="200"

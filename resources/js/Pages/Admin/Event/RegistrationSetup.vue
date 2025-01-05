@@ -20,13 +20,13 @@ import {
     FormMessage,
 } from "@/Components/ui/form";
 import EventPreview from "./EventPreview.vue";
-import { useForm } from "vee-validate";
+import { useField } from "vee-validate";
 
 const props = defineProps({
     eventDetails: Object,
 });
 
-const showTeamOptions = ref(false);
+const showTeamOptions = ref(props.eventDetails.registrationType === "team");
 </script>
 
 <template>
@@ -36,26 +36,35 @@ const showTeamOptions = ref(false);
                 <FormItem>
                     <FormLabel>Registration Type</FormLabel>
                     <FormControl>
-                        <RadioGroup
-                            v-bind="componentField"
-                            class="flex space-x-4 mt-2"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <RadioGroupItem
-                                    value="individual"
-                                    id="individual"
-                                    @click="showTeamOptions = false"
-                                />
-                                <Label for="individual">Individual</Label>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <RadioGroupItem
-                                    value="team"
-                                    id="team"
-                                    @click="showTeamOptions = true"
-                                />
-                                <Label for="team">Team-Based</Label>
-                            </div>
+                        <RadioGroup class="flex gap-6" v-bind="componentField">
+                            <FormItem
+                                class="flex items-center space-y-0 gap-x-3"
+                            >
+                                <FormControl>
+                                    <RadioGroupItem
+                                        value="individual"
+                                        id="individual"
+                                        @click="showTeamOptions = false"
+                                    />
+                                </FormControl>
+                                <FormLabel class="font-normal" for="individual">
+                                    Individual
+                                </FormLabel>
+                            </FormItem>
+                            <FormItem
+                                class="flex items-center space-y-0 gap-x-3"
+                            >
+                                <FormControl>
+                                    <RadioGroupItem
+                                        value="team"
+                                        id="team"
+                                        @click="showTeamOptions = true"
+                                    />
+                                </FormControl>
+                                <FormLabel class="font-normal" for="team">
+                                    Team-Based
+                                </FormLabel>
+                            </FormItem>
                         </RadioGroup>
                     </FormControl>
                     <FormMessage />
@@ -166,7 +175,7 @@ const showTeamOptions = ref(false);
         <EventPreview
             :eventName="eventDetails.eventName"
             :description="eventDetails.eventDescription"
-            :posterImage="eventDetails.eventImage"
+            :eventImage="eventDetails.eventImage"
             :sportType="eventDetails.sportType"
             :registrationDeadline="eventDetails.registrationDeadline"
             :maxParticipants="eventDetails.maxParticipants"

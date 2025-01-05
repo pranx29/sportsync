@@ -40,73 +40,38 @@ import {
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import { router } from "@inertiajs/vue3";
+import { toast } from "@/Components/ui/toast";
+import { useSetFieldError } from "vee-validate";
 
-const event = ref({
-    id: "1",
-    name: "Annual Sports Meet",
-    sportType: "Athletics",
-    description: "A fun-filled day of various athletic events.",
-    posterImage:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7EQSsfP6Uge_1q4lV90npE1JzSEMBHZGVCQ&s",
-    registrationType: "team",
-    maxParticipants: 100,
-    numberOfTeams: "10",
-    registrationDeadline: "2024-12-30",
-    customLocationName: "Sports Complex",
-    locationType: "Outdoor",
-    customLocation: true,
-    customLocationLink: "https://g.co/kgs/WAqhajW",
-    eventDate: "2024-12-30",
-    startTime: "09:00",
-    endTime: "17:00",
-    status: "upcoming",
-    rulesDescription: "Follow the rules and guidelines provided.",
-    notificationsEnabled: true,
-    createdAt: "2024-11-30",
-});
-
-const statusStyles = ref({
-    upcoming: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
-    "in-progress": "bg-green-100 text-green-800 hover:bg-green-100/80",
-    completed: "bg-gray-100 text-gray-800 hover:bg-gray-100/80",
-    "registration-closed":
-        "bg-yellow-100 text-yellow-800 hover:bg-yellow-100/80",
-    cancelled: "bg-red-100 text-red-800 hover:bg-red-100/80",
-});
-
-const statusLabels = ref({
-    upcoming: "Upcoming",
-    "in-progress": "In Progress",
-    completed: "Completed",
-    "registration-closed": "Registration Closed",
-    cancelled: "Cancelled",
-});
+const event = ref(usePage().props.event);
 
 const isEditing = ref(usePage().props.editMode);
 
 const handleEdit = () => {
-    isEditing.value = true;
+    isEditing.value = isEditing.value ? false : true;
 };
 
 const editEventSchema = toTypedSchema(
     z.object({
-        posterImage: z.any(),
-        eventName: z.string().min(2, "Event name is required"),
         eventDescription: z.string().min(2, "Event description is required"),
+        eventName: z.string().min(2, "Event name is required"),
+        maxParticipants: z.number().min(1, "Max participants is required"),
+
         eventDate: z.string("Event date is required").refine((value) => {
             return new Date(value) > new Date();
         }, "Event date must be in the future"),
+
         startTime: z.string("Start time is required"),
         endTime: z.string("End time is required"),
         customLocationName: z.string(),
         customLocationLink: z.string().url({ message: "Invalid URL" }),
-        maxParticipants: z.number().int().min(1, "Minimum 1 participant"),
+
         registrationDeadline: z
             .string("Registration deadline is required")
             .refine((value) => {
                 return new Date(value) > new Date();
             }, "Registration deadline must be in the future"),
-        numberOfTeams: z.string().optional(),
         rulesDescription: z
             .string()
             .min(10, "Short rules description is required"),
@@ -116,50 +81,77 @@ const editEventSchema = toTypedSchema(
 const { handleSubmit } = useForm({
     validationSchema: editEventSchema,
     initialValues: {
-        posterImage: event.value.posterImage,
         eventName: event.value.name,
+        venue: event.value.venue ? event.value.venue.name : "",
         eventDescription: event.value.description,
-        eventDate: event.value.eventDate,
-        startTime: event.value.startTime,
-        endTime: event.value.endTime,
-        customLocationName: event.value.customLocationName,
-        customLocationLink: event.value.customLocationLink,
-        maxParticipants: event.value.maxParticipants,
-        registrationDeadline: event.value.registrationDeadline,
-        numberOfTeams: event.value.numberOfTeams,
-        rulesDescription: event.value.rulesDescription,
+        eventDate: new Date(event.value.event_date).toISOString().split("T")[0],
+        startTime: event.value.start_time,
+        endTime: event.value.end_time,
+        customLocationName: event.value.custom_location_name,
+        customLocationLink: event.value.custom_location_link,
+        maxParticipants: event.value.max_participants,
+        registrationDeadline: new Date(event.value.registration_deadline)
+            .toISOString()
+            .split("T")[0],
+        numberOfTeams: event.value.number_of_teams,
+        rulesDescription: event.value.rules_description,
     },
     keepValuesOnUnmount: true,
 });
 
 const onSubmit = handleSubmit(async (values) => {
-    isEditing.value = false;
-    event.value = {
-        ...event.value,
-        name: values.eventName,
-        description: values.eventDescription,
-        eventDate: values.eventDate,
-        startTime: values.startTime,
-        endTime: values.endTime,
-        customLocationName: values.customLocationName,
-        customLocationLink: values.customLocationLink,
-        maxParticipants: values.maxParticipants,
-        registrationDeadline: values.registrationDeadline,
-        numberOfTeams: values.numberOfTeams,
-        rulesDescription: values.rulesDescription,
-    };
+    console.log(values);
+    router.patch(
+        route("admin.events.update", { event: event.value.id }),
+        values,
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast({
+                    title: "Event updated",
+                    description:
+                        "Event details have been updated successfully.",
+                    variant: "success",
+                });
+                isEditing.value = false;
+                // Refetch the event data
+                event.value = usePage().props.event;
+            },
+            onError: (errors) => {
+                useSetFieldError("eventName", errors.eventName);
+                useSetFieldError("eventDescription", errors.eventDescription);
+                useSetFieldError("eventImage", errors.eventImage);
+                useSetFieldError("maxParticipants", errors.maxParticipants);
+                useSetFieldError("eventDate", errors.eventDate);
+                useSetFieldError("startTime", errors.startTime);
+                useSetFieldError("endTime", errors.endTime);
+                useSetFieldError("customLocationName", errors.customLocationName);
+                useSetFieldError("customLocationLink", errors.customLocationLink);
+                useSetFieldError(
+                    "registrationDeadline",
+                    errors.registrationDeadline
+                );
+                useSetFieldError("rulesDescription", errors.rulesDescription);
+                toast({
+                    title: "Failed to update event",
+                    description: "Please check the form for errors.",
+                    variant: "destructive",
+                });
+            },
+        }
+    );
 
     // TODO: Send the updated event data to the server
 });
 
+const eventImageURL = ref(event.value.image);
+
 const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            event.value.posterImage = reader.result;
-        };
-        reader.readAsDataURL(file);
+        event.value.posterImage = file;
+        eventImageURL.value = URL.createObjectURL(file);
     }
 };
 </script>
@@ -185,33 +177,15 @@ const handleImageUpload = (e) => {
                 <Card class="md:col-span-8">
                     <CardHeader class="relative p-0">
                         <img
-                            :src="event.posterImage"
+                            :src="eventImageURL"
                             :alt="event.name"
                             width="800"
                             height="400"
                             class="w-full h-[400px] object-cover rounded-t-lg"
                         />
-                        <template v-if="isEditing" >
-                            <FormField name="eventImage" >
-                                <FormItem>
-                                    <FormControl class="w-fit ml-auto mr-6">
-                                        <Input
-                                            type="file"
-                                            accept="image/*"
-                                            @change="
-                                                (event) => {
-                                                    handleImageUpload(event);
-                                                }
-                                            "
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            </FormField>
-                        </template>
 
                         <div class="absolute top-4 right-4 flex gap-2">
-                            <Badge>{{ event.sportType }}</Badge>
+                            <Badge>{{ event.sport.name }}</Badge>
                         </div>
                     </CardHeader>
                     <CardContent class="p-6">
@@ -238,20 +212,25 @@ const handleImageUpload = (e) => {
                                         {{ event.name }}
                                     </h2>
                                 </template>
-                                <Button
-                                    @click="handleEdit()"
-                                    v-if="!isEditing"
-                                    variant="outline"
-                                >
-                                    <Edit class="w-4 h-4 mr-2" /> Edit
-                                </Button>
-                                <Button
-                                    v-if="isEditing"
-                                    type="submit"
-                                    variant="outline"
-                                >
-                                    <Save class="w-4 h-4 mr-2" /> Save
-                                </Button>
+                                <div class="flex items-center gap-2">
+                                    <Button
+                                        @click="handleEdit()"
+                                        v-if="!isEditing"
+                                        variant="outline"
+                                    >
+                                        <Edit class="w-4 h-4 mr-2" /> Edit
+                                    </Button>
+                                    <Button
+                                        v-if="isEditing"
+                                        variant="outline"
+                                        @click="handleEdit()"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button v-if="isEditing" type="submit">
+                                        <Save class="w-4 h-4 mr-2" /> Save
+                                    </Button>
+                                </div>
                             </div>
 
                             <div>
@@ -320,7 +299,7 @@ const handleImageUpload = (e) => {
                                         <template v-else>
                                             <span>{{
                                                 formatDate(
-                                                    new Date(event.eventDate),
+                                                    new Date(event.event_date),
                                                     "YYYY-MM-DD"
                                                 )
                                             }}</span>
@@ -371,8 +350,8 @@ const handleImageUpload = (e) => {
                                         </template>
                                         <template v-else>
                                             <span
-                                                >{{ event.startTime }} -
-                                                {{ event.endTime }}</span
+                                                >{{ event.start_time }} -
+                                                {{ event.end_time }}</span
                                             >
                                         </template>
                                     </div>
@@ -383,7 +362,8 @@ const handleImageUpload = (e) => {
                                         <template
                                             v-if="
                                                 isEditing &&
-                                                event.customLocation
+                                                event.custom_location_name &&
+                                                event.custom_location_link
                                             "
                                         >
                                             <FormField
@@ -430,25 +410,22 @@ const handleImageUpload = (e) => {
                                                     />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="stadium"
-                                                        >Main
-                                                        Stadium</SelectItem
+                                                    <SelectItem
+                                                        v-for="venue in $page
+                                                            .props.venues"
+                                                        :key="venue.id"
+                                                        :value="venue.name"
                                                     >
-                                                    <SelectItem value="park"
-                                                        >Central
-                                                        Park</SelectItem
-                                                    >
-                                                    <SelectItem value="gym"
-                                                        >Community
-                                                        Gym</SelectItem
-                                                    >
+                                                        {{ venue.name }}
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </template>
                                         <template
                                             v-else-if="
                                                 !isEditing &&
-                                                event.customLocation
+                                                event.custom_location_name &&
+                                                event.custom_location_link
                                             "
                                         >
                                             <span>
@@ -459,25 +436,31 @@ const handleImageUpload = (e) => {
                                                 >
                                                     <a
                                                         :href="
-                                                            event.customLocationLink
+                                                            event.custom_location_link
                                                         "
                                                         target="_blank"
                                                     >
                                                         {{
-                                                            event.customLocationName
+                                                            event.custom_location_name
                                                         }}
                                                     </a>
                                                 </Button>
-                                                ({{ event.locationType }})</span
+                                                ({{
+                                                    event.location_type
+                                                }})</span
                                             >
                                         </template>
                                         <template
                                             v-else-if="
                                                 !isEditing &&
-                                                !event.customLocation
+                                                !event.custom_location_link &&
+                                                !event.custom_location_name
                                             "
                                         >
-                                            {{ event.locationType }}
+                                            <span
+                                                >{{ event.venue.name }} (
+                                                {{ event.location_type }})</span
+                                            >
                                         </template>
                                     </div>
                                     <div class="flex items-center gap-2">
@@ -508,7 +491,7 @@ const handleImageUpload = (e) => {
                                             <span
                                                 >Max Participants:
                                                 {{
-                                                    event.maxParticipants
+                                                    event.max_participants
                                                 }}</span
                                             >
                                         </template>
@@ -529,7 +512,10 @@ const handleImageUpload = (e) => {
                                         />
                                         <span class="capitalize"
                                             >{{
-                                                event.registrationType
+                                                event.registration_type
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                event.registration_type.slice(1)
                                             }}
                                             Registration</span
                                         >
@@ -588,7 +574,7 @@ const handleImageUpload = (e) => {
                                             <template v-else>
                                                 <span
                                                     >{{
-                                                        event.numberOfTeams
+                                                        event.number_of_teams
                                                     }}
                                                     Teams</span
                                                 >
@@ -625,7 +611,7 @@ const handleImageUpload = (e) => {
                                                 {{
                                                     formatDate(
                                                         new Date(
-                                                            event.registrationDeadline
+                                                            event.registration_deadline
                                                         ),
                                                         "YYYY-MM-DD"
                                                     )
@@ -636,7 +622,12 @@ const handleImageUpload = (e) => {
                                 </div>
                             </div>
 
-                            <template v-if="event.rulesDescription">
+                            <template
+                                v-if="
+                                    event.rules_description ||
+                                    event.rules_document
+                                "
+                            >
                                 <Separator />
                                 <div class="space-y-4">
                                     <h3 class="text-lg font-semibold">
@@ -646,31 +637,52 @@ const handleImageUpload = (e) => {
                                         <ClipboardCheck
                                             class="w-4 h-4 text-muted-foreground mt-1"
                                         />
-                                        <template v-if="isEditing">
-                                            <FormField
-                                                v-slot="{ componentField }"
-                                                name="rulesDescription"
-                                            >
-                                                <FormItem class="w-full">
-                                                    <FormControl>
-                                                        <Textarea
-                                                            v-bind="
-                                                                componentField
-                                                            "
-                                                            id="rules-description"
-                                                            rows="4"
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            </FormField>
-                                        </template>
-                                        <template v-else>
-                                            <p class="text-muted-foreground">
-                                                {{ event.rulesDescription }}
-                                            </p>
-                                        </template>
+                                        <div class="w-full">
+                                            <template v-if="isEditing">
+                                                <FormField
+                                                    v-slot="{ componentField }"
+                                                    name="rulesDescription"
+                                                >
+                                                    <FormItem class="w-full">
+                                                        <FormControl>
+                                                            <Textarea
+                                                                v-bind="
+                                                                    componentField
+                                                                "
+                                                                id="rules-description"
+                                                                rows="4"
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                </FormField>
+                                            </template>
+                                            <template v-else>
+                                                <p
+                                                    class="text-muted-foreground"
+                                                >
+                                                    {{
+                                                        event.rules_description
+                                                    }}
+                                                </p>
+                                            </template>
+                                        </div>
                                     </div>
+                                    <!-- Show Document Download Link -->
+                                    <template v-if="event.rules_document">
+                                        <Button
+                                            variant="link"
+                                            class="p-0 text-base"
+                                            asChild
+                                        >
+                                            <a
+                                                :href="event.rules_document"
+                                                target="_blank"
+                                            >
+                                                Download Rules Document
+                                            </a>
+                                        </Button>
+                                    </template>
                                 </div>
                             </template>
                         </form>
@@ -684,9 +696,20 @@ const handleImageUpload = (e) => {
                                 <h3 class="text-lg font-semibold mb-2">
                                     Event Status
                                 </h3>
-                                <Badge :class="statusStyles[event.status]">{{
-                                    statusLabels[event.status]
-                                }}</Badge>
+                                <Badge
+                                    :variant="
+                                        event.status === 'canceled'
+                                            ? 'danger'
+                                            : event.status === 'upcoming'
+                                            ? ''
+                                            : 'outline'
+                                    "
+                                >
+                                    {{
+                                        event.status.charAt(0).toUpperCase() +
+                                        event.status.slice(1)
+                                    }}
+                                </Badge>
                             </div>
 
                             <Separator />
@@ -700,7 +723,7 @@ const handleImageUpload = (e) => {
                                         class="w-4 h-4 text-muted-foreground"
                                     />
                                     <span>{{
-                                        event.notificationsEnabled
+                                        event.notify_creation
                                             ? "Enabled"
                                             : "Disabled"
                                     }}</span>
@@ -720,7 +743,7 @@ const handleImageUpload = (e) => {
                                         Created:
                                         {{
                                             formatDate(
-                                                new Date(event.createdAt),
+                                                new Date(event.created_at),
                                                 "YYYY-MM-DD"
                                             )
                                         }}
