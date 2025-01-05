@@ -32,7 +32,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { useForm as useVeeForm } from "vee-validate";
 import { z } from "zod";
 import { router } from "@inertiajs/vue3";
-import { toast, Toaster } from "@/Components/ui/toast";
+import { toast } from "@/Components/ui/toast";
 import EditRole from "./EditRole.vue";
 
 const addRoleSchema = toTypedSchema(
@@ -136,6 +136,5 @@ const addRole = handleRoleSubmit(async (values) => {
                 </CardContent>
             </Card>
         </div>
-        <Toaster />
     </AdminSettingLayout>
 </template>

@@ -1,18 +1,11 @@
 <?php
 
 namespace Database\Factories;
-
-use App\Models\User;
-use App\Models\Sport;
-use App\Models\Profile;
-use Illuminate\Support\Str;
-use App\Models\Availability;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -46,4 +39,28 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    // public function configure()
+    // {
+    //     return $this->afterCreating(function (User $user) {
+    //         Profile::factory()->create([
+    //             'user_id' => $user->id,
+    //         ]);
+    //         $user->update(['is_profile_created' => true]);
+    //         $sports = Sport::factory(3)->create(); // Create 3 sports
+    //         foreach ($sports as $sport) {
+    //             DB::table('employee_sport')->insert([
+    //                 'user_id' => $user->id,
+    //                 'sport_id' => $sport->id,
+    //                 'interest_level' => $this->faker->randomElement(['low', 'medium', 'high']),
+    //                 'skill_level' => $this->faker->randomElement(['beginner', 'intermediate', 'advanced']),
+    //                 'created_at' => now(),
+    //                 'updated_at' => now(),
+    //             ]);
+    //         }
+    //         Availability::factory(3)->create([
+    //             'user_id' => $user->id,
+    //         ]);
+    //     });
+    // }
 }

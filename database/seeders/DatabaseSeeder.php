@@ -1,11 +1,15 @@
 <?php
 
 namespace Database\Seeders;
-
-use App\Models\Message;
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Database\Seeders\RoleSeeder;
+use Database\Seeders\GroupSeeder;
+use Database\Seeders\SportSeeder;
+use Database\Seeders\VenueSeeder;
+use Database\Seeders\DepartmentSeeder;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -37,7 +41,8 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             RoleSeeder::class,
             SportSeeder::class,
-            GroupSeeder::class
+            GroupSeeder::class,
+            VenueSeeder::class,
         ]);
 
     }

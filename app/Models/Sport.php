@@ -36,6 +36,11 @@ class Sport extends Model
         return $this->hasOne(Group::class);
     }
 
+    public function event()
+    {
+        return $this->hasMany(Event::class);
+    }
+
 
 
 

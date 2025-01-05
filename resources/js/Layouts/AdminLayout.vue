@@ -25,6 +25,7 @@ import {
     Menu,
 } from "lucide-vue-next";
 import { Separator } from "@/Components/ui/separator";
+import { Toaster } from "@/Components/ui/toast";
 import Logo from "@/Components/Logo.vue";
 import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
 </script>
@@ -63,13 +64,19 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                             <Home class="h-4 w-4" />
                             Dashboard
                         </Link>
-                        <a
-                            href="#"
-                            class="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                        <Link
+                            :href="route('admin.events.index')"
+                            :class="{
+                                'flex items-center gap-3 rounded-lg px-3 py-2 transition-all': true,
+                                'bg-muted text-primary hover:text-primary':
+                                    route().current('admin.events.index'),
+                                'text-muted-foreground hover:text-primary':
+                                    !route().current('admin.events.index'),
+                            }"
                         >
                             <Ticket class="h-4 w-4" />
                             Events
-                        </a>
+                        </Link>
                         <Link
                             :href="route('admin.groups.index')"
                             :class="{
@@ -139,13 +146,19 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                                 <Home class="h-5 w-5" />
                                 Dashboard
                             </a>
-                            <a
-                                href="#"
-                                class="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                            <Link
+                                :href="route('admin.events.index')"
+                                :class="{
+                                    'mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all': true,
+                                    'bg-muted text-primary hover:text-primary':
+                                        route().current('admin.events.index'),
+                                    'text-muted-foreground hover:text-foreground':
+                                        !route().current('admin.events.index'),
+                                }"
                             >
-                                <Home class="h-5 w-5" />
+                                <Ticket class="h-5 w-5" />
                                 Events
-                            </a>
+                            </Link>
 
                             <Link
                                 :href="route('admin.groups.index')"
@@ -243,11 +256,12 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                         <slot name="title" />
                     </h1>
                 </div>
-                <div class="flex flex-1 items-center justify-center rounded-lg">
+                <div>
                     <!-- Page Content -->
                     <slot />
                 </div>
             </div>
         </div>
     </div>
+    <Toaster />
 </template>

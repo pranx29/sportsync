@@ -25,6 +25,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/Components/ui/sheet";
 import { CircleUser, Menu, Search } from "lucide-vue-next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import { Separator } from "@/Components/ui/separator";
+import { Toaster } from "@/Components/ui/toast";
 import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
 </script>
 
@@ -32,7 +33,7 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
     <div>
         <div class="min-h-screen bg-background grid grid-rows-[auto_1fr]">
             <header
-                class="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6"
+                class="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50"
             >
                 <nav
                     class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 w-full justify-between"
@@ -45,11 +46,18 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                         <span class="">{{ $page.props.companyName }}</span>
                     </Link>
 
-                    <NavLink
-                        :href="route('employee.groups')"
-                        :active="route().current('employee.groups')"
-                        >Groups</NavLink
-                    >
+                    <div class="flex items-center gap-4">
+                        <NavLink
+                            :href="route('employee.groups')"
+                            :active="route().current('employee.groups')"
+                            >Groups</NavLink
+                        >
+                        <NavLink
+                            :href="route('employee.events.index')"
+                            :active="route().current('employee.events.index')"
+                            >Events</NavLink
+                        >
+                    </div>
                 </nav>
                 <Sheet>
                     <SheetTrigger as-child>
@@ -75,10 +83,18 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                             </a>
                             <ResponsiveNavLink
                                 :href="route('employee.groups')"
-                                active
+                                :active="route().current('employee.groups')"
                             >
-                                Groups</ResponsiveNavLink
+                                Groups
+                            </ResponsiveNavLink>
+                            <ResponsiveNavLink
+                                :href="route('employee.events.index')"
+                                :active="
+                                    route().current('employee.events.index')
+                                "
                             >
+                                Events
+                            </ResponsiveNavLink>
                         </nav>
                     </SheetContent>
                 </Sheet>
@@ -168,4 +184,5 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
             </div>
         </div>
     </div>
+    <Toaster />
 </template>

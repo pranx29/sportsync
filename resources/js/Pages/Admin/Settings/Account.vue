@@ -1,6 +1,5 @@
 <script setup>
 import AdminSettingLayout from "@/Layouts/AdminSettingLayout.vue";
-import { Toaster } from "@/Components/ui/toast";
 import Profile from "./Profile.vue";
 import ChangePassword from "./ChangePassword.vue";
 </script>
@@ -12,6 +11,5 @@ import ChangePassword from "./ChangePassword.vue";
             <Profile :user="$page.props.auth.user" />
             <ChangePassword />
         </div>
-        <Toaster />
     </AdminSettingLayout>
 </template>
