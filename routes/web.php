@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\AdminEventController;
 use App\Http\Controllers\Admin\AdminGroupController;
+use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminSettingController;
 
 
@@ -196,6 +197,10 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
         AdminSettingController::class,
         'updateRole'
     ])->name('admin.role.update');
+
+    // Reports
+    Route::get('/admin/reports', [AdminReportController::class, 'index'])
+        ->name('admin.reports.index');
 });
 
 

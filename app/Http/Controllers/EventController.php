@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Event;
+use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Employee/Event/Index');
+        $upcomingEvents = Event::where('date', '>=', now())->get()->load('sport', 'venue', 'teams');
+        $upcomingEvents = $upcomingEvents->filter(function ($event) {
+            return $event->status === 'upcoming' && !$event->isUserRegistered(auth()->user());
+        });
+
+        return Inertia::render('Employee/Event/Index', [
+            'upcomingEvents' => $upcomingEvents,
+        ]);
     }
 
     public function show()

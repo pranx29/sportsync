@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\EventTeam;
+use App\Models\Team;
+use App\Models\User;
+use Inertia\Inertia;
+use App\Models\Event;
 use App\Models\Sport;
 use App\Models\Venue;
-use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Event;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
-use App\Notifications\EventUpdatedNotification;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\EventUpdatedNotification;
 
 class AdminEventController extends Controller
 {
@@ -116,6 +118,16 @@ class AdminEventController extends Controller
             'status' => Event::STATUS_UPCOMING,
         ]);
 
+        // If it is a team event, create the teams
+        if ($event->registration_type === 'team' && $event->number_of_teams) {
+            for ($i = 1; $i <= $event->number_of_teams; $i++) {
+                EventTeam::create([
+                    'event_id' => $event->id,
+                    'team_name' => 'Team ' . $i,
+                ]);
+            }
+        }
+
         // Notify employees if notifyCreation is true
         if ($request->has('notifyCreation') && $request->notifyCreation) {
             $employees = User::where('role', User::EMPLOYEE)->get();
@@ -174,17 +186,17 @@ class AdminEventController extends Controller
     public function cancel(Event $event)
     {
         // Check if the event is already cancelled
-        if ($event->status === 'Cancelled') {
+        if ($event->status === Event::STATUS_CANCELED) {
             return back()->withErrors(['error' => 'This event is already cancelled.']);
         }
 
         // Check if the event has already started or is in the past
-        if (now()->greaterThanOrEqualTo($event->eventDate)) {
+        if (now()->greaterThanOrEqualTo($event->event_date)) {
             return back()->withErrors(['error' => 'Event has already started or is in the past and cannot be cancelled.']);
         }
 
         // Check if the event can be cancelled at least 2 days before the event date
-        $daysBeforeEvent = now()->diffInDays($event->eventDate, false);
+        $daysBeforeEvent = now()->diffInDays($event->event_date, false);
         if ($daysBeforeEvent < 2) {
             return back()->withErrors(['error' => 'Event can only be cancelled at least 2 days before the event date.']);
         }
@@ -198,4 +210,6 @@ class AdminEventController extends Controller
 
         return redirect()->route('admin.events.index')->with('success', 'Event status updated to canceled successfully!');
     }
+
+
 }

@@ -11,7 +11,6 @@
                 />
                 <div class="absolute top-4 right-4 flex gap-2">
                     <Badge>{{ event.sportType }}</Badge>
-                    <StatusBadge :status="event.status" />
                 </div>
             </CardHeader>
             <CardContent class="p-6">
@@ -123,34 +122,10 @@
                                 </p>
                             </div>
                         </div>
-                    </div>
-
-                    <Separator />
-
-                    <div class="space-y-4">
-                        <h3 class="text-lg font-semibold">
-                            Contact Information
-                        </h3>
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="flex items-center gap-2">
-                                <Mail class="w-4 h-4 text-muted-foreground" />
-                                <a
-                                    :href="`mailto:${event.contactEmail}`"
-                                    class="text-primary hover:underline"
-                                >
-                                    {{ event.contactEmail }}
-                                </a>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <Phone class="w-4 h-4 text-muted-foreground" />
-                                <a
-                                    :href="`tel:${event.contactPhone}`"
-                                    class="text-primary hover:underline"
-                                >
-                                    {{ event.contactPhone }}
-                                </a>
-                            </div>
-                        </div>
+                        <!-- Show Document Download Link -->
+                        <Button variant="link" class="p-0 text-base" asChild>
+                            <a target="_blank"> Download Rules Document </a>
+                        </Button>
                     </div>
                 </div>
             </CardContent>
@@ -161,18 +136,23 @@
                 <div class="space-y-6">
                     <div>
                         <CardTitle class="text-xl mb-2">Event Status</CardTitle>
-                        <StatusBadge :status="event.status" />
+                        <Badge
+                            :variant="
+                                event.status === 'canceled'
+                                    ? 'danger'
+                                    : event.status === 'upcoming'
+                                    ? ''
+                                    : 'outline'
+                            "
+                        >
+                            {{
+                                event.status.charAt(0).toUpperCase() +
+                                event.status.slice(1)
+                            }}
+                        </Badge>
                     </div>
 
                     <Separator />
-
-                    <div>
-                        <CardTitle class="text-xl mb-2">Organizer</CardTitle>
-                        <p class="text-muted-foreground">
-                            {{ event.organizer }}
-                        </p>
-                    </div>
-
                     <Separator />
 
                     <div>
@@ -194,23 +174,17 @@
                     <div>
                         <CardTitle class="text-xl mb-2">Actions</CardTitle>
                         <Button
+                            v-if="event.status === ''"
                             @click="isRegisterModalOpen = true"
                             class="w-full"
                         >
                             Register for Event
                         </Button>
+
+                        <EventFeedbackModal :eventId="event.id" />
                     </div>
 
                     <Separator />
-
-                    <div>
-                        <CardTitle class="text-xl mb-2"
-                            >Additional Information</CardTitle
-                        >
-                        <div class="space-y-2 text-sm text-muted-foreground">
-                            <p>Event ID: {{ event.id }}</p>
-                        </div>
-                    </div>
                 </div>
             </CardContent>
         </Card>
@@ -242,6 +216,7 @@ import {
 } from "lucide-vue-next";
 import { formatDate } from "@vueuse/core";
 import RegisterModal from "./RegisterModal.vue";
+import EventFeedbackModal from "./EventFeedbackModal.vue";
 
 const props = defineProps({
     event: {
@@ -251,29 +226,4 @@ const props = defineProps({
 });
 
 const isRegisterModalOpen = ref(false);
-
-// const getStatusBadge = (status) => {
-//     const statusStyles = {
-//         upcoming: "bg-blue-100 text-blue-800 hover:bg-blue-100/80",
-//         "in-progress": "bg-green-100 text-green-800 hover:bg-green-100/80",
-//         completed: "bg-gray-100 text-gray-800 hover:bg-gray-100/80",
-//         "registration-closed":
-//             "bg-yellow-100 text-yellow-800 hover:bg-yellow-100/80",
-//         cancelled: "bg-red-100 text-red-800 hover:bg-red-100/80",
-//     };
-
-//     const statusLabels = {
-//         upcoming: "Upcoming",
-//         "in-progress": "In Progress",
-//         completed: "Completed",
-//         "registration-closed": "Registration Closed",
-//         cancelled: "Cancelled",
-//     };
-
-//     // return (
-//     //     <Badge variant="secondary" class={statusStyles[status]}>
-//     //         {statusLabels[status]}
-//     //     </Badge>
-//     // );
-// };
 </script>

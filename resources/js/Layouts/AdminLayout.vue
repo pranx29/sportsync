@@ -103,13 +103,19 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                             <User class="h-4 w-4" />
                             Employees
                         </Link>
-                        <a
-                            href="#"
-                            class="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                        <Link
+                            :href="route('admin.reports.index')"
+                            :class="{
+                                'flex items-center gap-3 rounded-lg px-3 py-2 transition-all': true,
+                                'bg-muted text-primary hover:text-primary':
+                                    route().current('admin.reports.index'),
+                                'text-muted-foreground hover:text-primary':
+                                    !route().current('admin.reports.index'),
+                            }"
                         >
                             <LineChart class="h-4 w-4" />
                             Reports
-                        </a>
+                        </Link>
                     </nav>
                 </div>
             </div>
@@ -190,13 +196,19 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                                 <User class="h-5 w-5" />
                                 Employees
                             </Link>
-                            <a
-                                href="#"
-                                class="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                            <Link
+                                :href="route('admin.reports.index')"
+                                :class="{
+                                    'mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all': true,
+                                    'bg-muted text-primary hover:text-primary':
+                                        route().current('admin.reports.index'),
+                                    'text-muted-foreground hover:text-foreground':
+                                        !route().current('admin.reports.index'),
+                                }"
                             >
                                 <LineChart class="h-5 w-5" />
                                 Reports
-                            </a>
+                            </Link>
                         </nav>
                     </SheetContent>
                 </Sheet>

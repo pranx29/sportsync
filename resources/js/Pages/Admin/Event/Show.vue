@@ -64,9 +64,10 @@ const editEventSchema = toTypedSchema(
 
         startTime: z.string("Start time is required"),
         endTime: z.string("End time is required"),
-        customLocationName: z.string(),
-        customLocationLink: z.string().url({ message: "Invalid URL" }),
 
+        venue: z.string().min(2, "Venue is required").optional(),
+        customLocationName: z.any().optional(),
+        customLocationLink: z.any().optional(),
         registrationDeadline: z
             .string("Registration deadline is required")
             .refine((value) => {
@@ -101,49 +102,87 @@ const { handleSubmit } = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
     console.log(values);
-    router.patch(
-        route("admin.events.update", { event: event.value.id }),
-        values,
-        {
-            preserveScroll: true,
-            preserveState: true,
-            onSuccess: () => {
-                toast({
-                    title: "Event updated",
-                    description:
-                        "Event details have been updated successfully.",
-                    variant: "success",
-                });
-                isEditing.value = false;
-                // Refetch the event data
-                event.value = usePage().props.event;
-            },
-            onError: (errors) => {
-                useSetFieldError("eventName", errors.eventName);
-                useSetFieldError("eventDescription", errors.eventDescription);
-                useSetFieldError("eventImage", errors.eventImage);
-                useSetFieldError("maxParticipants", errors.maxParticipants);
-                useSetFieldError("eventDate", errors.eventDate);
-                useSetFieldError("startTime", errors.startTime);
-                useSetFieldError("endTime", errors.endTime);
-                useSetFieldError("customLocationName", errors.customLocationName);
-                useSetFieldError("customLocationLink", errors.customLocationLink);
-                useSetFieldError(
-                    "registrationDeadline",
-                    errors.registrationDeadline
-                );
-                useSetFieldError("rulesDescription", errors.rulesDescription);
-                toast({
-                    title: "Failed to update event",
-                    description: "Please check the form for errors.",
-                    variant: "destructive",
-                });
-            },
-        }
-    );
 
-    // TODO: Send the updated event data to the server
+    alert("Form submitted");
+    // router.patch(
+    //     route("admin.events.update", { event: event.value.id }),
+    //     values,
+    //     {
+    //         preserveScroll: true,
+    //         preserveState: true,
+    //         onSuccess: () => {
+    //             toast({
+    //                 title: "Event updated",
+    //                 description:
+    //                     "Event details have been updated successfully.",
+    //                 variant: "success",
+    //             });
+    //             isEditing.value = false;
+    //             // Refetch the event data
+    //             event.value = usePage().props.event;
+    //         },
+    //         onError: (errors) => {
+    //             useSetFieldError("eventName", errors.eventName);
+    //             useSetFieldError("eventDescription", errors.eventDescription);
+    //             useSetFieldError("maxParticipants", errors.maxParticipants);
+    //             useSetFieldError("eventDate", errors.eventDate);
+    //             useSetFieldError("startTime", errors.startTime);
+    //             useSetFieldError("endTime", errors.endTime);
+    //             useSetFieldError(
+    //                 "customLocationName",
+    //                 errors.customLocationName
+    //             );
+    //             useSetFieldError(
+    //                 "customLocationLink",
+    //                 errors.customLocationLink
+    //             );
+    //             useSetFieldError(
+    //                 "registrationDeadline",
+    //                 errors.registrationDeadline
+    //             );
+    //             useSetFieldError("rulesDescription", errors.rulesDescription);
+    //             toast({
+    //                 title: "Failed to update event",
+    //                 description: "Please check the form for errors.",
+    //                 variant: "destructive",
+    //             });
+    //         },
+    //     }
+    // );
 });
+
+const members = ref([
+    {
+        id: 1,
+        first_name: "John",
+        last_name: "Doe",
+        email: "john@ss.com",
+    },
+    {
+        id: 2,
+        first_name: "Jane",
+        last_name: "Smith",
+        email: "jane@ss.com",
+    },
+    {
+        id: 3,
+        first_name: "Alice",
+        last_name: "Johnson",
+        email: "alice@ss.com",
+    },
+    {
+        id: 4,
+        first_name: "Bob",
+        last_name: "Brown",
+        email: "bob@ss.com",
+    },
+    {
+        id: 5,
+        first_name: "Charlie",
+        last_name: "Davis",
+        email: "charlie@ss.com",
+    },
+]);
 
 const eventImageURL = ref(event.value.image);
 
@@ -215,7 +254,11 @@ const handleImageUpload = (e) => {
                                 <div class="flex items-center gap-2">
                                     <Button
                                         @click="handleEdit()"
-                                        v-if="!isEditing"
+                                        v-if="
+                                            !isEditing &&
+                                            event.status !== 'canceled' &&
+                                            event.status !== 'completed'
+                                        "
                                         variant="outline"
                                     >
                                         <Edit class="w-4 h-4 mr-2" /> Edit
@@ -403,23 +446,46 @@ const handleImageUpload = (e) => {
                                             </FormField>
                                         </template>
                                         <template v-else-if="isEditing">
-                                            <Select v-bind="componentField">
-                                                <SelectTrigger id="venue">
-                                                    <SelectValue
-                                                        placeholder="Select a venue"
-                                                    />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem
-                                                        v-for="venue in $page
-                                                            .props.venues"
-                                                        :key="venue.id"
-                                                        :value="venue.name"
-                                                    >
-                                                        {{ venue.name }}
-                                                    </SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <FormField
+                                                v-slot="{ componentField }"
+                                                name="venue"
+                                            >
+                                                <FormItem class="w-full">
+                                                    <FormControl class="w-full">
+                                                        <Select
+                                                            v-bind="
+                                                                componentField
+                                                            "
+                                                        >
+                                                            <SelectTrigger
+                                                                id="venue"
+                                                            >
+                                                                <SelectValue
+                                                                    placeholder="Select a venue"
+                                                                />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem
+                                                                    v-for="venue in $page
+                                                                        .props
+                                                                        .venues"
+                                                                    :key="
+                                                                        venue.id
+                                                                    "
+                                                                    :value="
+                                                                        venue.name
+                                                                    "
+                                                                >
+                                                                    {{
+                                                                        venue.name
+                                                                    }}
+                                                                </SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            </FormField>
                                         </template>
                                         <template
                                             v-else-if="
@@ -689,71 +755,116 @@ const handleImageUpload = (e) => {
                     </CardContent>
                 </Card>
 
-                <Card class="md:col-span-4 h-fit">
-                    <CardContent class="p-6">
-                        <div class="space-y-6">
-                            <div>
-                                <h3 class="text-lg font-semibold mb-2">
-                                    Event Status
-                                </h3>
-                                <Badge
-                                    :variant="
-                                        event.status === 'canceled'
-                                            ? 'danger'
-                                            : event.status === 'upcoming'
-                                            ? ''
-                                            : 'outline'
-                                    "
-                                >
-                                    {{
-                                        event.status.charAt(0).toUpperCase() +
-                                        event.status.slice(1)
-                                    }}
-                                </Badge>
-                            </div>
-
-                            <Separator />
-
-                            <div>
-                                <h3 class="text-lg font-semibold mb-2">
-                                    Notifications
-                                </h3>
-                                <div class="flex items-center gap-2">
-                                    <Bell
-                                        class="w-4 h-4 text-muted-foreground"
-                                    />
-                                    <span>{{
-                                        event.notify_creation
-                                            ? "Enabled"
-                                            : "Disabled"
-                                    }}</span>
-                                </div>
-                            </div>
-
-                            <Separator />
-
-                            <div>
-                                <h3 class="text-lg font-semibold mb-2">
-                                    Additional Information
-                                </h3>
-                                <div
-                                    class="space-y-2 text-sm text-muted-foreground"
-                                >
-                                    <p>
-                                        Created:
+                <div class="flex flex-col gap-4 md:col-span-4">
+                    <Card class="md:col-span-4 h-fit">
+                        <CardContent class="p-6">
+                            <div class="space-y-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-2">
+                                        Event Status
+                                    </h3>
+                                    <Badge
+                                        :variant="
+                                            event.status === 'canceled'
+                                                ? 'danger'
+                                                : event.status === 'upcoming'
+                                                ? ''
+                                                : 'outline'
+                                        "
+                                    >
                                         {{
-                                            formatDate(
-                                                new Date(event.created_at),
-                                                "YYYY-MM-DD"
-                                            )
+                                            event.status
+                                                .charAt(0)
+                                                .toUpperCase() +
+                                            event.status.slice(1)
                                         }}
-                                    </p>
-                                    <p>Event ID: {{ event.id }}</p>
+                                    </Badge>
+                                </div>
+
+                                <Separator />
+
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-2">
+                                        Notifications
+                                    </h3>
+                                    <div class="flex items-center gap-2">
+                                        <Bell
+                                            class="w-4 h-4 text-muted-foreground"
+                                        />
+                                        <span>{{
+                                            event.notify_creation
+                                                ? "Enabled"
+                                                : "Disabled"
+                                        }}</span>
+                                    </div>
+                                </div>
+
+                                <Separator />
+
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-2">
+                                        Additional Information
+                                    </h3>
+                                    <div
+                                        class="space-y-2 text-sm text-muted-foreground"
+                                    >
+                                        <p>
+                                            Created:
+                                            {{
+                                                formatDate(
+                                                    new Date(event.created_at),
+                                                    "YYYY-MM-DD"
+                                                )
+                                            }}
+                                        </p>
+                                        <p>Event ID: {{ event.id }}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+
+                    <Card class="md:col-span-4 h-full">
+                        <CardHeader>
+                            <h3 class="text-lg font-semibold">
+                                Registered Members
+                            </h3>
+                        </CardHeader>
+                        <CardContent>
+                            <ScrollArea class="flex-1 overflow-y-auto max-h-64">
+                                <ul class="space-y-4">
+                                    <li
+                                        v-for="member in members"
+                                        :key="member.id"
+                                        class="flex items-center space-x-3"
+                                    >
+                                        <Avatar>
+                                            <AvatarImage
+                                                :src="`https://api.dicebear.com/6.x/initials/svg?seed=${member.first_name}+${member.last_name}&fontSize=32`"
+                                            />
+                                            <AvatarFallback>
+                                                <User class="w-4 h-4" />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div class="w-full">
+                                            <div class="flex justify-between">
+                                                <h3 class="font-medium text-sm">
+                                                    {{ member.first_name }}
+                                                    {{ member.last_name }}
+                                                </h3>
+                                            </div>
+                                            <p
+                                                class="text-xs text-muted-foreground"
+                                            >
+                                                {{ member.email }}
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </ScrollArea>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </main>
     </AdminLayout>

@@ -5,7 +5,7 @@
                 <DialogTitle>Register for: {{ event.name }}</DialogTitle>
                 <DialogDescription>
                     {{
-                        event.registrationType === "team"
+                        event.registration_type === "team"
                             ? "Enter your team name or select an existing team to join this event."
                             : "Confirm your registration for this event."
                     }}
@@ -13,7 +13,7 @@
             </DialogHeader>
             <form @submit.prevent="handleSubmit">
                 <div
-                    v-if="event.registrationType === 'team'"
+                    v-if="event.registration_type === 'team'"
                     class="grid gap-4 py-4"
                 >
                     <div class="grid grid-cols-4 items-center gap-4">
@@ -38,10 +38,15 @@
                                 <SelectValue placeholder="Select a team" />
                             </SelectTrigger>
                             <SelectContent>
+                                {{ event.teams }}
                                 <SelectItem value="">Select a team</SelectItem>
-                                <SelectItem value="team1">Team 1</SelectItem>
-                                <SelectItem value="team2">Team 2</SelectItem>
-                                <SelectItem value="team3">Team 3</SelectItem>
+                                <SelectItem
+                                    v-for="team in event.teams"
+                                    :key="team.id"
+                                    :value="team.id"
+                                >
+                                    {{ team.name }}
+                                </SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -53,7 +58,10 @@
                     </p>
                 </div>
                 <DialogFooter>
-                    <Button type="submit">Confirm Registration</Button>
+                    <Button type="submit">Confirm</Button>
+                    <Button type="button" variant="secondary" @click="onClose"
+                        >Cancel</Button
+                    >
                 </DialogFooter>
             </form>
         </DialogContent>

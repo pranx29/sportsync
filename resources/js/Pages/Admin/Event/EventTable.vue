@@ -152,7 +152,7 @@ const cancelEvent = (event) => {
                                     <Eye class="w-4 h-4 mr-2" />
                                     View
                                 </DropdownMenuItem>
-                                <DropdownMenuItem @click="editEvent(event)">
+                                <DropdownMenuItem @click="editEvent(event)" v-if="event.status !== 'completed' && event.status !== 'canceled'">
                                     <Edit class="w-4 h-4 mr-2" />
                                     Edit
                                 </DropdownMenuItem>

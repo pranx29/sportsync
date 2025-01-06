@@ -58,6 +58,18 @@ class Event extends Model
         return $this->belongsTo(Venue::class);
     }
 
+    // The event can have many teams
+    public function teams()
+    {
+        return $this->hasMany(EventTeam::class);
+    }
+
+    // If the event is individual, participants are users directly associated with the event
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'event_user');
+    }
+
     // return image URL
     public function getImageAttribute($value)
     {
@@ -73,8 +85,13 @@ class Event extends Model
 
     public static function markCompletedEvents()
     {
-        self::whereRaw("CONCAT(event_date, ' ', end_time) < ?", [now()])
+        self::whereRaw("(event_date || ' ' || end_time) < ?", [now()])
             ->where('status', '!=', self::STATUS_COMPLETED)
             ->update(['status' => self::STATUS_COMPLETED]);
+    }
+
+    public function isUserRegistered($user)
+    {
+        return $this->users->contains($user);
     }
 }

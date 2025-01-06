@@ -2,6 +2,8 @@
 import UpcomingEvents from "./Partials/UpcomingEvents.vue";
 import RegisteredEvent from "./Partials/RegisteredEvent.vue";
 import AuthenticatedLayout from "@/Layouts/EmployeeLayout.vue";
+
+
 </script>
 
 <template>
