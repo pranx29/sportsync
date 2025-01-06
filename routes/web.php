@@ -94,8 +94,10 @@ Route::middleware(['auth', 'verified', 'employee'])->group(function () {
     // Events
     Route::get('events', [EventController::class, 'index'])
         ->name('employee.events.index');
-
     Route::get('events/{event}', [EventController::class, 'show'])->name('employee.events.show');
+    Route::post('events/{event}/register', [EventController::class, 'register'])->name('employee.events.register');
+    Route::post('events/{event}/unregister', [EventController::class, 'unregister'])->name('employee.events.unregister');
+    Route::post('events/{event}/feedback', [EventController::class, 'feedback'])->name('employee.events.feedback');
 });
 
 

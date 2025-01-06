@@ -102,87 +102,52 @@ const { handleSubmit } = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
     console.log(values);
-
-    alert("Form submitted");
-    // router.patch(
-    //     route("admin.events.update", { event: event.value.id }),
-    //     values,
-    //     {
-    //         preserveScroll: true,
-    //         preserveState: true,
-    //         onSuccess: () => {
-    //             toast({
-    //                 title: "Event updated",
-    //                 description:
-    //                     "Event details have been updated successfully.",
-    //                 variant: "success",
-    //             });
-    //             isEditing.value = false;
-    //             // Refetch the event data
-    //             event.value = usePage().props.event;
-    //         },
-    //         onError: (errors) => {
-    //             useSetFieldError("eventName", errors.eventName);
-    //             useSetFieldError("eventDescription", errors.eventDescription);
-    //             useSetFieldError("maxParticipants", errors.maxParticipants);
-    //             useSetFieldError("eventDate", errors.eventDate);
-    //             useSetFieldError("startTime", errors.startTime);
-    //             useSetFieldError("endTime", errors.endTime);
-    //             useSetFieldError(
-    //                 "customLocationName",
-    //                 errors.customLocationName
-    //             );
-    //             useSetFieldError(
-    //                 "customLocationLink",
-    //                 errors.customLocationLink
-    //             );
-    //             useSetFieldError(
-    //                 "registrationDeadline",
-    //                 errors.registrationDeadline
-    //             );
-    //             useSetFieldError("rulesDescription", errors.rulesDescription);
-    //             toast({
-    //                 title: "Failed to update event",
-    //                 description: "Please check the form for errors.",
-    //                 variant: "destructive",
-    //             });
-    //         },
-    //     }
-    // );
+    router.patch(
+        route("admin.events.update", { event: event.value.id }),
+        values,
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast({
+                    title: "Event updated",
+                    description:
+                        "Event details have been updated successfully.",
+                    variant: "success",
+                });
+                isEditing.value = false;
+                // Refetch the event data
+                event.value = usePage().props.event;
+            },
+            onError: (errors) => {
+                useSetFieldError("eventName", errors.eventName);
+                useSetFieldError("eventDescription", errors.eventDescription);
+                useSetFieldError("maxParticipants", errors.maxParticipants);
+                useSetFieldError("eventDate", errors.eventDate);
+                useSetFieldError("startTime", errors.startTime);
+                useSetFieldError("endTime", errors.endTime);
+                useSetFieldError(
+                    "customLocationName",
+                    errors.customLocationName
+                );
+                useSetFieldError(
+                    "customLocationLink",
+                    errors.customLocationLink
+                );
+                useSetFieldError(
+                    "registrationDeadline",
+                    errors.registrationDeadline
+                );
+                useSetFieldError("rulesDescription", errors.rulesDescription);
+                toast({
+                    title: "Failed to update event",
+                    description: "Please check the form for errors.",
+                    variant: "destructive",
+                });
+            },
+        }
+    );
 });
-
-const members = ref([
-    {
-        id: 1,
-        first_name: "John",
-        last_name: "Doe",
-        email: "john@ss.com",
-    },
-    {
-        id: 2,
-        first_name: "Jane",
-        last_name: "Smith",
-        email: "jane@ss.com",
-    },
-    {
-        id: 3,
-        first_name: "Alice",
-        last_name: "Johnson",
-        email: "alice@ss.com",
-    },
-    {
-        id: 4,
-        first_name: "Bob",
-        last_name: "Brown",
-        email: "bob@ss.com",
-    },
-    {
-        id: 5,
-        first_name: "Charlie",
-        last_name: "Davis",
-        email: "charlie@ss.com",
-    },
-]);
 
 const eventImageURL = ref(event.value.image);
 
@@ -834,18 +799,11 @@ const handleImageUpload = (e) => {
                             <ScrollArea class="flex-1 overflow-y-auto max-h-64">
                                 <ul class="space-y-4">
                                     <li
-                                        v-for="member in members"
+                                        v-for="member in $page.props.event
+                                            .users"
                                         :key="member.id"
                                         class="flex items-center space-x-3"
                                     >
-                                        <Avatar>
-                                            <AvatarImage
-                                                :src="`https://api.dicebear.com/6.x/initials/svg?seed=${member.first_name}+${member.last_name}&fontSize=32`"
-                                            />
-                                            <AvatarFallback>
-                                                <User class="w-4 h-4" />
-                                            </AvatarFallback>
-                                        </Avatar>
                                         <div class="w-full">
                                             <div class="flex justify-between">
                                                 <h3 class="font-medium text-sm">

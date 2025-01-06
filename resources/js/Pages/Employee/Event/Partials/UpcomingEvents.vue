@@ -6,28 +6,32 @@
                 v-for="event in $page.props.upcomingEvents"
                 :key="event.id"
                 :event="event"
-                @join="handleJoinEvent(event)"
+                @register="handleJoinEvent(event)"
             />
-
-            <!-- If no events -->
-            <div
-                v-if="$page.props.upcomingEvents.length === 0"
-                class="text-center text-gray-500"
-            >
-                No upcoming events.
-            </div>
+        </div>
+        <!-- If no events -->
+        <div
+            v-if="$page.props.upcomingEvents.length === 0"
+            class="text-center text-gray-500"
+        >
+            No upcoming events.
         </div>
     </div>
+    <RegisterModal
+        v-if="selectedEvent"
+        :event="selectedEvent"
+        @close="selectedEvent = null"
+    />
 </template>
 
 <script setup>
 import { ref } from "vue";
 import EventCard from "./EventCard.vue";
+import RegisterModal from "./RegisterModal.vue";
 
 const selectedEvent = ref(null);
 
 const handleJoinEvent = (event) => {
     selectedEvent.value = event;
-    console.log("Joining event", event);
 };
 </script>

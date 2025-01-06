@@ -69,6 +69,10 @@ class Event extends Model
     {
         return $this->belongsToMany(User::class, 'event_user');
     }
+    public function feedbacks()
+    {
+        return $this->hasMany(EventFeedback::class);
+    }
 
     // return image URL
     public function getImageAttribute($value)
@@ -81,6 +85,11 @@ class Event extends Model
             return $value;
         }
         return $value ? Storage::url($value) : url('https://www.ibcs.com/wp-content/uploads/2024/01/Projekt-bez-nazwy-15.png');
+    }
+
+    public function getRulesDocumentAttribute($value)
+    {
+        return $value ? Storage::url($value) : null;
     }
 
     public static function markCompletedEvents()

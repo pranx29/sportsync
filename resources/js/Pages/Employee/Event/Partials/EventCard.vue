@@ -20,29 +20,17 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
-import RegisterModal from "./RegisterModal.vue";
 
 const props = defineProps({
     event: {
         type: Object,
         required: true,
     },
-    onJoin: {
+    onRegister: {
         type: Function,
         required: true,
     },
 });
-
-const isRegisterModalOpen = ref(false);
-
-const handleRegistrationSuccess = () => {
-    toast({
-        title: "Registration Successful",
-        description: "You have successfully registered for the event.",
-        variant: "success",
-    });
-    props.onJoin(props.event.id);
-};
 
 const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -109,11 +97,7 @@ const formatDate = (dateString) => {
             </div>
         </CardContent>
         <CardFooter class="p-4">
-            <div class="w-full">
-                <Button @click="handleRegistrationSuccess" class="w-full">
-                    Register for Event
-                </Button>
-            </div>
+            <Button @click="onRegister" class="w-full"> Register for Event </Button>
         </CardFooter>
     </Card>
 </template>

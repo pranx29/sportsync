@@ -136,4 +136,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(EventTeam::class, 'event_user');
     }
+
+    public function eventFeedbacks()
+    {
+        return $this->hasMany(EventFeedback::class);
+    }
 }

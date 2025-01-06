@@ -15,7 +15,6 @@ import { toast } from "@/Components/ui/toast";
 import { ref } from "vue";
 import { router } from "@inertiajs/vue3";
 
-
 const props = defineProps({
     eventId: {
         type: Number,
@@ -46,35 +45,35 @@ const resetForm = () => {
 const handleSubmit = () => {
     if (rating.value === 0) return;
 
-    // router.post(
-    //     route("group.events.feedback", { event: props.eventId }),
-    //     {
-    //         rating: rating.value,
-    //         comment: comment.value,
-    //     },
-    //     {
-    //         preserveScroll: true,
-    //         preserveState: true,
-    //         onSuccess: () => {
-    //             toast({
-    //                 title: "Feedback submitted",
-    //                 description:
-    //                     "Your feedback has been submitted successfully.",
-    //                 variant: "success",
-    //             });
-    //             emit("feedbackSubmitted");
-    //         },
-    //         onError: () => {
-    //             toast({
-    //                 title: "Failed to submit feedback",
-    //                 description:
-    //                     "An error occurred while submitting your feedback.",
-    //                 variant: "destructive",
-    //             });
-    //         },
-    //     }
-    // );
-
+    router.post(
+        route("employee.events.feedback", { event: props.eventId }),
+        {
+            rating: rating.value,
+            comment: comment.value,
+        },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                toast({
+                    title: "Feedback submitted",
+                    description:
+                        "Your feedback has been submitted successfully.",
+                    variant: "success",
+                });
+                emit("feedbackSubmitted");
+            },
+            onError: (error) => {
+                toast({
+                    title: "Failed to submit feedback",
+                    description:
+                        "An error occurred while submitting your feedback. " +
+                        JSON.stringify(error),
+                    variant: "destructive",
+                });
+            },
+        }
+    );
 
     const feedback = {
         rating: rating.value,
@@ -99,8 +98,8 @@ const handleSubmit = () => {
             <DialogHeader>
                 <DialogTitle>Add Your Feedback</DialogTitle>
                 <DialogDescription>
-                    Share your thoughts about the event. Your feedback helps
-                    us improve!
+                    Share your thoughts about the event. Your feedback helps us
+                    improve!
                 </DialogDescription>
             </DialogHeader>
             <form @submit.prevent="handleSubmit" class="space-y-4">

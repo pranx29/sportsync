@@ -1,5 +1,5 @@
 <template>
-    <Dialog :open="isOpen" @open-change="onClose">
+    <Dialog :open="true" @update:open="onClose">
         <DialogContent class="sm:max-w-[425px]">
             <DialogHeader>
                 <DialogTitle>Register for: {{ event.name }}</DialogTitle>
@@ -17,18 +17,8 @@
                     class="grid gap-4 py-4"
                 >
                     <div class="grid grid-cols-4 items-center gap-4">
-                        <Label for="team-name" class="text-right"
-                            >Team Name</Label
-                        >
-                        <Input
-                            id="team-name"
-                            v-model="teamName"
-                            class="col-span-3"
-                        />
-                    </div>
-                    <div class="grid grid-cols-4 items-center gap-4">
                         <Label for="existing-team" class="text-right"
-                            >Or Select Team</Label
+                            >Select Team</Label
                         >
                         <Select v-model="selectedTeam">
                             <SelectTrigger
@@ -38,14 +28,12 @@
                                 <SelectValue placeholder="Select a team" />
                             </SelectTrigger>
                             <SelectContent>
-                                {{ event.teams }}
-                                <SelectItem value="">Select a team</SelectItem>
                                 <SelectItem
                                     v-for="team in event.teams"
                                     :key="team.id"
                                     :value="team.id"
                                 >
-                                    {{ team.name }}
+                                    {{ team.team_name }}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -59,9 +47,6 @@
                 </div>
                 <DialogFooter>
                     <Button type="submit">Confirm</Button>
-                    <Button type="button" variant="secondary" @click="onClose"
-                        >Cancel</Button
-                    >
                 </DialogFooter>
             </form>
         </DialogContent>
@@ -88,21 +73,82 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
+import { toast } from "@/Components/ui/toast";
+import { router } from "@inertiajs/vue3";
 
 const props = defineProps({
-    isOpen: Boolean,
     onClose: Function,
     event: Object,
 });
 
-const teamName = ref("");
 const selectedTeam = ref("");
 
 const handleSubmit = () => {
-    console.log("Registering for event:", props.event.id, {
-        teamName: teamName.value,
-        selectedTeam: selectedTeam.value,
-    });
+    console.log("Registering for event:", props.event.id);
+
+    if (props.event.registration_type === "individual") {
+        router.post(
+            route("employee.events.register", props.event.id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast({
+                        title: "Registration Successful",
+                        description:
+                            "You have successfully registered for the event.",
+                        variant: "success",
+                    });
+                },
+                onError: (errors) => {
+                    toast({
+                        title: "Registration Failed",
+                        description:
+                            "There was an error registering for the event. Please try again.",
+                        variant: "error",
+                    });
+                },
+            }
+        );
+
+        props.onClose();
+    } else {
+        if (!selectedTeam.value) {
+            toast({
+                title: "Registration Failed",
+                description:
+                    "Please enter a team name or select an existing team to join the event.",
+                variant: "error",
+            });
+            return;
+        }
+
+        router.post(
+            route("employee.events.register", props.event.id),
+            {
+                selectedTeam: selectedTeam.value,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast({
+                        title: "Registration Successful",
+                        description:
+                            "You have successfully registered for the event.",
+                        variant: "success",
+                    });
+                },
+                onError: (errors) => {
+                    toast({
+                        title: "Registration Failed",
+                        description:
+                            "There was an error registering for the event. Please try again.",
+                        variant: "error",
+                    });
+                },
+            }
+        );
+    }
     props.onClose();
 };
 </script>
