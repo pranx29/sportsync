@@ -33,7 +33,7 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
     <div>
         <div class="min-h-screen bg-background grid grid-rows-[auto_1fr]">
             <header
-                class="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6"
+                class="sticky z-10 top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6"
             >
                 <nav
                     class="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6 w-full justify-between"
@@ -50,6 +50,11 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                         :href="route('employee.groups')"
                         :active="route().current('employee.groups')"
                         >Groups</NavLink
+                    >
+                    <NavLink
+                        :href="route('employee.events.index')"
+                        :active="route().current('employee.events.index')"
+                        >Events</NavLink
                     >
                 </nav>
                 <Sheet>

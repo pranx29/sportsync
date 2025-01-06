@@ -126,4 +126,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(SessionFeedback::class);
     }
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'event_user');
+    }
 }

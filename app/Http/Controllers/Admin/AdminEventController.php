@@ -12,17 +12,17 @@ use App\Notifications\EventUpdatedNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
 
-class EventController extends Controller
+class AdminEventController extends Controller
 {
     public function index()
     {
-        $now = now()->setTimezone('UTC'); // Ensure consistent timezone
+        $now = now()->setTimezone('UTC');
         
         $events = Event::all()->map(function ($event) use ($now) {
             if ($event->status === 'Cancelled') {
                 $status = 'Cancelled';
             } else {
-                // Debug logs to check data format
+
                 Log::info('Event Date: ' . $event->eventDate);
                 Log::info('Event End Time: ' . $event->endTime);
     
@@ -52,6 +52,9 @@ class EventController extends Controller
                     }
                 } else {
                     $status = 'Upcoming';
+                    if ($event->status !== 'Upcoming') {
+                        $event->update(['status' => 'Upcoming']);
+                    }
                 }
             }
     

@@ -143,7 +143,7 @@ const cancelEvent = (event) => {
                                     Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    v-if="event.status !== 'Cancelled'"
+                                    v-if="event.status !== 'Cancelled' && event.status !== 'Completed'"
                                     @click="cancelEvent(event)"
                                 >
                                     <Trash2 class="w-4 h-4 mr-2" />

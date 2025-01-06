@@ -43,4 +43,14 @@ class Event extends Model
         'sendReminder' => 'boolean',
         'notifyAssignments' => 'boolean',
     ];
-}
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'event_user', 'event_id', 'user_id')->with('profile');
+    }
+
+    public function teamMembers($teamName)
+    {
+        return $this->users()->wherePivot('team_name', $teamName)->get();
+    }
+}   

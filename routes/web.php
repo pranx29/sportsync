@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\AdminEventController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\FeedbackController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
@@ -89,6 +90,18 @@ Route::middleware(['auth', 'verified', 'employee'])->group(function () {
     Route::get('create/availability', [AvailabilityController::class, 'create'])
         ->name('create.availability');
     Route::post('create/availability', [AvailabilityController::class, 'store']);
+
+    // Events
+    Route::get('employee/events', [EventController::class, 'index'])
+        ->name('employee.events.index');
+    Route::get('employee/events/{event}', [EventController::class, 'show'])
+        ->name('employee.events.show');
+    Route::post('employee/events/{event}/join', [EventController::class, 'join'])
+        ->name('employee.events.join');
+    Route::get('/employee/events/{event}', [EventController::class, 'viewEventDetails'])
+        ->name('employee.events.view');
+    Route::post('employee/events/{event}/leave', [EventController::class, 'leave'])
+        ->name('employee.events.leave');
 });
 
 
@@ -123,17 +136,17 @@ Route::middleware(['auth', 'verified', 'admin'])->group(function () {
 
 
     // Events
-    Route::get('/admin/events', [EventController::class, 'index'])
+    Route::get('/admin/events', [AdminEventController::class, 'index'])
         ->name('admin.events.index');
-    Route::get('/admin/events/create', [EventController::class, 'create'])
+    Route::get('/admin/events/create', [AdminEventController::class, 'create'])
         ->name('admin.events.create');
-    Route::post('/admin/events', [EventController::class, 'store'])
+    Route::post('/admin/events', [AdminEventController::class, 'store'])
         ->name('admin.events.store');
-    Route::get('/admin/events/{event}', [EventController::class,'show'])
+    Route::get('/admin/events/{event}', [AdminEventController::class,'show'])
         ->name('admin.events.show');
-    Route::put('/admin/events/{event}/edit', [EventController::class,'update'])
+    Route::put('/admin/events/{event}/edit', [AdminEventController::class,'update'])
         ->name('admin.events.update');
-    Route::patch('/admin/events/{event}/cancel', [EventController::class, 'cancel'])
+    Route::patch('/admin/events/{event}/cancel', [AdminEventController::class, 'cancel'])
         ->name('admin.events.cancel');
 
     Route::get('/admin/settings/account', [
