@@ -140,8 +140,8 @@ const cancelEvent = (event) => {
                     </TableCell>
 
                     <TableCell>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger as-child>
+                        <DropdownMenu >
+                            <DropdownMenuTrigger as-child :data-cy="event.id + '-actions'">
                                 <Button variant="ghost" size="icon">
                                     <MoreHorizontal class="h-4 w-4" />
                                     <span class="sr-only">Open menu</span>
@@ -158,6 +158,7 @@ const cancelEvent = (event) => {
                                 </DropdownMenuItem>
 
                                 <DropdownMenuItem
+
                                     @click="cancelEvent(event)"
                                     v-if="
                                         new Date(event.event_date) >

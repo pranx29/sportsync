@@ -118,7 +118,7 @@ const showTeamOptions = ref(props.eventDetails.registrationType === "team");
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem
-                                        v-for="num in [
+                                        v-for="(num,index) in [
                                             '2',
                                             '4',
                                             '6',
@@ -127,6 +127,7 @@ const showTeamOptions = ref(props.eventDetails.registrationType === "team");
                                         ]"
                                         :key="num"
                                         :value="num"
+                                        :id="`btnNoTeams-${index + 1}`"
                                     >
                                         {{ num }}
                                     </SelectItem>

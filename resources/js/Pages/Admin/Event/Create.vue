@@ -107,7 +107,7 @@ const formSchema = [
     // Validation for location and schedule
     z
         .object({
-            venue: z.string(),
+            venue: z.string().optional(),
             customLocation: z.boolean().default(false).optional(),
             customLocationName: z.string().optional(),
             customLocationLink: z.string().optional(),
@@ -231,6 +231,7 @@ const onSubmit = (values) => {
                                     v-if="stepIndex === 1"
                                     variant="outline"
                                     size="sm"
+                                    :data-cy="'discard-button'"
                                 >
                                     Discard
                                 </Button>
@@ -244,24 +245,29 @@ const onSubmit = (values) => {
                                     prevStep();
                                     eventDetails = values;
                                 "
+                                :data-cy="'back-button'"
                             >
                                 Back
                             </Button>
                             <Button
                                 v-if="stepIndex !== steps.length"
+                                id="btnNext"
                                 :disabled="isNextDisabled"
                                 size="sm"
                                 @click="
                                     meta.valid && nextStep();
                                     eventDetails = values;
                                 "
+                                :data-cy="'next-button'"
                             >
                                 Next
                             </Button>
                             <Button
+                                id="btnSave"
                                 v-if="stepIndex === steps.length"
                                 type="submit"
                                 size="sm"
+                                :data-cy="'save-button'"
                             >
                                 Save
                             </Button>
@@ -273,6 +279,7 @@ const onSubmit = (values) => {
                                 :step="step.step"
                                 class="relative flex w-full flex-col items-center justify-center"
                                 v-slot="{ state }"
+                                :data-cy="'stepper-item-' + step.step"
                             >
                                 <StepperSeparator
                                     v-if="
@@ -298,6 +305,7 @@ const onSubmit = (values) => {
                                         :disabled="
                                             state !== 'completed' && !meta.valid
                                         "
+                                        :data-cy="'stepper-trigger-' + step.step"
                                     >
                                         <Check
                                             v-if="state === 'completed'"
@@ -325,18 +333,19 @@ const onSubmit = (values) => {
 
                         <div class="flex flex-col gap-4 mt-4">
                             <template v-if="stepIndex === 1">
-                                <EventBasics :eventDetails="eventDetails" />
+                                <EventBasics :eventDetails="eventDetails" :data-cy="'event-basics'" />
                             </template>
                             <template v-if="stepIndex === 2">
-                                <Participants :eventDetails="eventDetails" />
+                                <Participants :eventDetails="eventDetails" :data-cy="'participants'" />
                             </template>
                             <template v-if="stepIndex === 3">
                                 <LocationSchedule
                                     :eventDetails="eventDetails"
+                                    :data-cy="'location-schedule'"
                                 />
                             </template>
                             <template v-if="stepIndex === 4">
-                                <RuleNotification />
+                                <RuleNotification :data-cy="'rule-notification'" />
                             </template>
                         </div>
                     </form>

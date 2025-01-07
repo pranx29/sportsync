@@ -117,7 +117,7 @@ const onSubmit = handleLogin(async (values) => {
                                         class="border-gray-300"
                                         type="email"
                                         v-bind="componentField"
-                                        id="txt-Email"
+                                        id="txtEmail"
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -134,7 +134,7 @@ const onSubmit = handleLogin(async (values) => {
                                         class="border-gray-300"
                                         type="password"
                                         v-bind="componentField"
-                                        id="txt-Password"
+                                        id="txtPassword"
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -142,7 +142,7 @@ const onSubmit = handleLogin(async (values) => {
                         </FormField>
 
                         <!-- Login Button -->
-                        <Button type="submit" id="btn-Login"> Login </Button>
+                        <Button type="submit" id="btnLogin"> Login </Button>
                     </div>
                 </form>
 

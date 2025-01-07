@@ -73,6 +73,7 @@ import ThemeModeToggle from "@/Components/ThemeModeToggle.vue";
                                 'text-muted-foreground hover:text-primary':
                                     !route().current('admin.events.index'),
                             }"
+                            id="btnEvent"
                         >
                             <Ticket class="h-4 w-4" />
                             Events

@@ -44,9 +44,10 @@ const props = defineProps({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem
-                                    v-for="venue in $page.props.venues"
+                                    v-for="(venue, index) in $page.props.venues"
                                     :key="venue.id"
                                     :value="venue.name"
+                                    :data-cy="`venue-${index}`"
                                 >
                                     {{ venue.name }}
                                 </SelectItem>
@@ -62,6 +63,7 @@ const props = defineProps({
                     <FormControl>
                         <div class="flex items-center space-x-2">
                             <Switch
+                                id="customLocation"
                                 :checked="value"
                                 @update:checked="
                                     (val) => {
@@ -87,7 +89,7 @@ const props = defineProps({
                         <FormControl>
                             <Input
                                 v-bind="componentField"
-                                id="custom-location-name"
+                                id="txtCustomLocationName"
                                 placeholder="Enter custom location name"
                             />
                         </FormControl>
@@ -104,7 +106,7 @@ const props = defineProps({
                         <FormControl>
                             <Input
                                 v-bind="componentField"
-                                id="custom-location-link"
+                                id="txtCustomLocationLink"
                                 placeholder="Enter location link (e.g., Google Maps URL)"
                             />
                         </FormControl>

@@ -42,6 +42,7 @@ const handleImageUpload = (e) => {
                     <FormLabel>Event Name</FormLabel>
                     <FormControl>
                         <Input
+                            id="txtEventName"
                             v-bind="componentField"
                             @input="eventName = $event.target.value"
                         />
@@ -56,6 +57,7 @@ const handleImageUpload = (e) => {
                     <FormLabel>Event Description</FormLabel>
                     <FormControl>
                         <Textarea
+                            id="txtEventDescription"
                             rows="5"
                             v-bind="componentField"
                             @input="eventDescription = $event.target.value"
@@ -71,14 +73,15 @@ const handleImageUpload = (e) => {
                     <FormLabel>Sport Type</FormLabel>
                     <FormControl>
                         <Select v-bind="componentField">
-                            <SelectTrigger>
+                            <SelectTrigger id="btnSportTypeDropDown">
                                 <SelectValue placeholder="Select a sport" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem
-                                    v-for="sport in $page.props.sports"
+                                    v-for="(sport, index) in $page.props.sports"
                                     :key="sport.id"
                                     :value="sport.name"
+                                    :id="`btnSport-${index + 1}`"
                                     >{{ sport.name }}</SelectItem
                                 >
                             </SelectContent>
@@ -94,6 +97,7 @@ const handleImageUpload = (e) => {
                     <FormLabel>Event Poster/Image</FormLabel>
                     <FormControl>
                         <Input
+                            id="inputPoster"
                             type="file"
                             accept="image/*"
                             @change="

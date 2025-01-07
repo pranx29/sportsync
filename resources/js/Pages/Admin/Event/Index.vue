@@ -76,7 +76,7 @@ const filterEvents = (status) => {
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <Link :href="route('admin.events.create')">
-                    <Button size="sm" class="h-7 gap-1">
+                    <Button size="sm" class="h-7 gap-1" id="btnCreateEvent">
                         <CirclePlus class="h-3.5 w-3.5" />
                         <span
                             class="sr-only sm:not-sr-only sm:whitespace-nowrap"
