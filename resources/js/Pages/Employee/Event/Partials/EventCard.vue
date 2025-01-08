@@ -54,12 +54,22 @@ const formatDate = (dateString) => {
                     event.sport.name
                 }}</Badge>
             </div>
+            <div
+                v-if="event.recommended && event.recommendation_reason"
+                class="bg-green-50 border border-green-200 rounded-md p-3 w-fit-content mt-2 mx-4"
+            >
+                <p class="text-sm text-green-800">
+                    <strong>Recommended:</strong>
+                    {{ event.recommendation_reason }}
+                </p>
+            </div>
         </CardHeader>
         <CardContent class="flex-grow p-4">
             <h2 class="text-xl font-semibold mb-2">{{ event.name }}</h2>
             <p class="text-muted-foreground text-sm mb-4 line-clamp-2">
                 {{ event.description }}
             </p>
+
             <div class="space-y-2 text-sm">
                 <div class="flex items-center">
                     <CalendarIcon class="w-4 h-4 mr-2 text-muted-foreground" />
@@ -97,7 +107,13 @@ const formatDate = (dateString) => {
             </div>
         </CardContent>
         <CardFooter class="p-4">
-            <Button @click="onRegister" class="w-full"> Register for Event </Button>
+            <Button
+                @click="onRegister"
+                class="w-full"
+                :data-cy="event.id + 'registerButton'"
+            >
+                Register for Event
+            </Button>
         </CardFooter>
     </Card>
 </template>

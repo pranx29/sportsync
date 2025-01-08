@@ -140,7 +140,7 @@ class AdminEventController extends Controller
     public function show(Event $event)
     {
         return Inertia::render('Admin/Event/Show', [
-            'event' => $event->load('sport', 'venue', 'users', 'teams'),
+            'event' => $event->load('sport', 'venue', 'users', 'teams', 'feedbacks.user'),
             'venues' => Venue::all(),
         ]);
     }

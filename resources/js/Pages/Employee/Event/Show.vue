@@ -3,10 +3,12 @@
     <AuthenticatedLayout>
         <div class="container mx-auto py-8">
             <div class="mb-8">
-                <Button variant="ghost" class="mb-4">
-                    <ChevronLeft class="w-4 h-4 mr-2" />
-                    Back to Events
-                </Button>
+                <Link :href="route('employee.events.index')">
+                    <Button variant="ghost" class="mb-4">
+                        <ChevronLeft class="w-4 h-4 mr-2" />
+                        Back to Events
+                    </Button>
+                </Link>
                 <h1 class="text-4xl font-bold">{{ $page.props.event.name }}</h1>
             </div>
             <div class="grid gap-6 md:grid-cols-3">

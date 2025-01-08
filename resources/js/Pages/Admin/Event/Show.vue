@@ -43,6 +43,13 @@ import * as z from "zod";
 import { router } from "@inertiajs/vue3";
 import { toast } from "@/Components/ui/toast";
 import { useSetFieldError } from "vee-validate";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/Components/ui/accordion";
+import { Star } from "lucide-vue-next";
 
 const event = ref(usePage().props.event);
 
@@ -717,6 +724,68 @@ const handleImageUpload = (e) => {
                                 </div>
                             </template>
                         </form>
+
+                        <Accordion
+                            v-if="event.status === 'completed'"
+                            type="single"
+                            collapsible
+                            class="w-full py-4"
+                        >
+                            <AccordionItem value="feedbacks">
+                                <AccordionTrigger
+                                    >Session Feedbacks</AccordionTrigger
+                                >
+                                <AccordionContent>
+                                    <ScrollArea
+                                        class="h-[300px] w-full rounded-md p-4"
+                                    >
+                                        <div
+                                            v-for="feedback in event.feedbacks"
+                                            :key="feedback.id"
+                                            class="mb-4 pb-4 border-b border-gray-200 last:border-b-0"
+                                        >
+                                            <div
+                                                class="flex items-center justify-between"
+                                            >
+                                                <span class="font-medium">{{
+                                                    feedback.user.first_name +
+                                                    " " +
+                                                    feedback.user.last_name
+                                                }}</span>
+                                                <div class="flex items-center">
+                                                    <template
+                                                        v-for="index in 5"
+                                                        :key="index"
+                                                    >
+                                                        <Star
+                                                            class="w-4 h-4"
+                                                            :class="
+                                                                index <=
+                                                                feedback.rating
+                                                                    ? 'text-yellow-400 fill-yellow-400'
+                                                                    : 'text-gray-300'
+                                                            "
+                                                        />
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <p
+                                                class="text-sm text-gray-600"
+                                            >
+                                                {{ feedback.comments }}
+                                            </p>
+                                        </div>
+                                        <div
+                                            v-if="event.feedbacks.length === 0"
+                                            class="text-center text-gray-500"
+                                        >
+                                            No feedbacks available
+                                        </div>
+                                    </ScrollArea>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                        
                     </CardContent>
                 </Card>
 

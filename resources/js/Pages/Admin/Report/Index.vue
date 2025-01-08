@@ -17,6 +17,7 @@
                                     v-for="type in reportTypes"
                                     :key="type.value"
                                     :value="type.value"
+                                    :data-cy="`report-type-${type.value}`"
                                 >
                                     {{ type.label }}
                                 </SelectItem>
@@ -75,15 +76,27 @@
                     </div>
                 </div>
 
-                <Button
-                    @click="handleGenerateReport"
-                    :disabled="!reportType"
-                    class="self-end"
-                    >Generate Report</Button
-                >
+                <div class="space-x-4">
+                    <Button
+                        @click="handleGenerateReport"
+                        :disabled="!reportType"
+                        class="self-end"
+                        >Generate Report</Button
+                    >
+                    <Button
+                        v-if="generatedReport"
+                        @click="handleDownloadReport"
+                        :disabled="!generatedReport"
+                        class="self-end"
+                        variant="secondary"
+                    >
+                        Download Report
+                    </Button>
+                </div>
             </div>
             <div class="min-h-screen gap-4 overflow-x-auto">
                 <ReportDisplay
+                    id="report"
                     v-if="generatedReport"
                     :report="generatedReport"
                 />
@@ -94,7 +107,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/Components/ui/button";
 import {
     Card,
     CardContent,
@@ -115,12 +128,14 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/Components/ui/popover";
-import { Calendar } from "@/components/ui/v-calendar";
+import { Calendar } from "@/Components/ui/v-calendar";
 import { addDays, format, subDays } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-vue-next";
 import { cn } from "@/lib/utils";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import { router } from "@inertiajs/vue3";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const reportTypes = [
     {
@@ -177,5 +192,28 @@ const handleGenerateReport = () => {
             },
         }
     );
+};
+
+const handleDownloadReport = async () => {
+    if (!generatedReport.value) return;
+
+    const reportElement = document.querySelector("#report");
+
+    try {
+        const canvas = await html2canvas(reportElement, {
+            scale: 2,
+        });
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4");
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`${generatedReport.value.name}.pdf`);
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+    }
 };
 </script>

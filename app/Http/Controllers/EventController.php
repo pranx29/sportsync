@@ -16,6 +16,27 @@ class EventController extends Controller
             return $event->status === 'upcoming' && !$event->isUserRegistered(auth()->user());
         });
 
+        $recommendedEvents = Event::whereHas('sport', function ($query) {
+            $query->whereIn('id', auth()->user()->sports()->pluck('sport_id'));
+        })->where('date', '>=', now())->get()->load('sport', 'venue', 'teams');
+
+        $recommendedEvents = $recommendedEvents->filter(function ($event) {
+            return $event->status === 'upcoming' && !$event->isUserRegistered(auth()->user());
+        });
+
+        // Compare the upcoming events with the recommended events and remove duplicates and mark them as recommended using the 'recommended' key
+        $recommendedEventIds = $recommendedEvents->pluck('id')->toArray();
+        $upcomingEvents = $upcomingEvents->map(function ($event) use ($recommendedEventIds) {
+            if (in_array($event->id, $recommendedEventIds)) {
+                $event->recommended = true;
+                $event->recommendation_reason = 'Based on your interest in ' . $event->sport->name;
+            }
+            return $event;
+        });
+
+        // Sort the events by recommended and date
+        $upcomingEvents = $upcomingEvents->sortByDesc('recommended')->sortBy('date');
+
         $registeredEvents = auth()->user()->events()->get()->load('sport', 'venue');
 
         return Inertia::render('Employee/Event/Index', [
@@ -26,7 +47,7 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
-
+        $team = null;
         // if the event is team based, find current user's team
         if ($event->registration_type === 'team') {
             $team = auth()->user()->teams()->where('event_teams.event_id', $event->id)->first()?->load('users');
@@ -87,7 +108,7 @@ class EventController extends Controller
         }
 
         // Check if user has already submitted feedback for this event
-        if(auth()->user()->eventFeedbacks()->where('event_id', $event->id)->exists()) {
+        if (auth()->user()->eventFeedbacks()->where('event_id', $event->id)->exists()) {
             return back()->with('error', 'You have already submitted feedback for this event.');
         }
 
@@ -99,7 +120,7 @@ class EventController extends Controller
         auth()->user()->eventFeedbacks()->create([
             'event_id' => $event->id,
             'rating' => $request->rating,
-            'comment' => $request->comment,
+            'comments' => $request->comment,
         ]);
 
         return back()->with('success', 'Feedback submitted successfully.');
