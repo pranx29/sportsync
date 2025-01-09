@@ -74,7 +74,7 @@
                     <FormMessage />
                 </FormItem>
             </FormField> -->
-            <FormField
+            <!-- <FormField
                 v-slot="{ value, handleChange }"
                 name="notifyAssignments"
                 type="checkbox"
@@ -94,7 +94,7 @@
                     </div>
                     <FormMessage />
                 </FormItem>
-            </FormField>
+            </FormField> -->
         </div>
     </div>
 </template>

@@ -97,6 +97,11 @@ const showTeamOptions = ref(props.eventDetails.registrationType === "team");
                             type="datetime-local"
                             v-bind="componentField"
                             class="w-fit"
+                            :min="
+                                new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+                                    .toISOString()
+                                    .slice(0, 16)
+                            "
                         />
                     </FormControl>
                     <FormMessage />
@@ -118,7 +123,7 @@ const showTeamOptions = ref(props.eventDetails.registrationType === "team");
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem
-                                        v-for="(num,index) in [
+                                        v-for="(num, index) in [
                                             '2',
                                             '4',
                                             '6',
@@ -145,7 +150,7 @@ const showTeamOptions = ref(props.eventDetails.registrationType === "team");
                                 v-bind="componentField"
                                 class="flex flex-col space-y-2 mt-2"
                             >
-                                <div class="flex items-center space-x-2">
+                                <!-- <div class="flex items-center space-x-2">
                                     <RadioGroupItem
                                         value="automatic"
                                         id="automatic"
@@ -154,7 +159,7 @@ const showTeamOptions = ref(props.eventDetails.registrationType === "team");
                                         >Automatic Assignment
                                         (Skill-Based)</Label
                                     >
-                                </div>
+                                </div> -->
                                 <div class="flex items-center space-x-2">
                                     <RadioGroupItem
                                         value="manual"

@@ -3,10 +3,11 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class EventUpdatedNotification extends Notification
+class EventUpdatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -31,7 +32,7 @@ class EventUpdatedNotification extends Notification
             'updated' => 'updated',
             default => 'cancelled',
         };
-    
+
         $mailMessage = (new MailMessage)
             ->subject("Event {$this->action}: {$this->event->eventName}")
             ->line("The event '{$this->event->eventName}' scheduled on {$this->event->eventDate} has been {$actionText}.")
@@ -42,22 +43,22 @@ class EventUpdatedNotification extends Notification
             ->line("Location: {$this->event->location}")
             ->line("Duration: {$this->event->startTime} - {$this->event->endTime}")
             ->line("Registration deadline: {$this->event->registrationDeadline}");
-    
+
         // Check if numberOfTeams is not empty or zero before adding to the email
         if (!empty($this->event->numberOfTeams) && $this->event->numberOfTeams != 0) {
             $mailMessage->line("Number of teams: {$this->event->numberOfTeams}");
         }
-    
+
         // Check if teamAssignment is not empty before adding to the email
         if (!empty($this->event->teamAssignment)) {
             $mailMessage->line("Team assignment: {$this->event->teamAssignment}");
         }
-    
+
         // Adding rules and venue regardless
         $mailMessage
             ->line("Rules: {$this->event->rulesDescription}")
             ->line("Venue: {$this->event->venue}");
-    
+
         return $mailMessage;
     }
 }

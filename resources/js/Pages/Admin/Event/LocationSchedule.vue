@@ -146,6 +146,7 @@ const props = defineProps({
                             id="event-date"
                             type="date"
                             class="w-fit"
+                            :min="new Date().toISOString().split('T')[0]"
                         />
                     </FormControl>
                     <FormMessage />

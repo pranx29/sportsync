@@ -75,7 +75,11 @@ const formSchema = [
         .object({
             registrationType: z.enum(["individual", "team"]),
             maxParticipants: z.number().min(1, "Max participants is required"),
-            registrationDeadline: z.string(),
+            registrationDeadline: z
+                .string("Registration deadline is required")
+                .refine((value) => {
+                    return new Date(value) > new Date();
+                }, "Registration deadline must be in the future"),
             numberOfTeams: z.string().min(1).optional(),
             teamAssignment: z.enum(["automatic", "manual"]).optional(),
         })
@@ -112,7 +116,9 @@ const formSchema = [
             customLocationName: z.string().optional(),
             customLocationLink: z.string().optional(),
             locationType: z.enum(["indoor", "outdoor"]),
-            eventDate: z.string(),
+            eventDate: z.string("Event date is required").refine((value) => {
+                return new Date(value) > new Date();
+            }, "Event date must be in the future"),
             startTime: z.string(),
             endTime: z.string(),
         })
@@ -305,7 +311,9 @@ const onSubmit = (values) => {
                                         :disabled="
                                             state !== 'completed' && !meta.valid
                                         "
-                                        :data-cy="'stepper-trigger-' + step.step"
+                                        :data-cy="
+                                            'stepper-trigger-' + step.step
+                                        "
                                     >
                                         <Check
                                             v-if="state === 'completed'"
@@ -333,10 +341,16 @@ const onSubmit = (values) => {
 
                         <div class="flex flex-col gap-4 mt-4">
                             <template v-if="stepIndex === 1">
-                                <EventBasics :eventDetails="eventDetails" :data-cy="'event-basics'" />
+                                <EventBasics
+                                    :eventDetails="eventDetails"
+                                    :data-cy="'event-basics'"
+                                />
                             </template>
                             <template v-if="stepIndex === 2">
-                                <Participants :eventDetails="eventDetails" :data-cy="'participants'" />
+                                <Participants
+                                    :eventDetails="eventDetails"
+                                    :data-cy="'participants'"
+                                />
                             </template>
                             <template v-if="stepIndex === 3">
                                 <LocationSchedule
@@ -345,7 +359,9 @@ const onSubmit = (values) => {
                                 />
                             </template>
                             <template v-if="stepIndex === 4">
-                                <RuleNotification :data-cy="'rule-notification'" />
+                                <RuleNotification
+                                    :data-cy="'rule-notification'"
+                                />
                             </template>
                         </div>
                     </form>
