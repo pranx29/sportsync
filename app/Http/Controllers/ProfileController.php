@@ -124,7 +124,6 @@ class ProfileController extends Controller
             'departments' => $departments,
 
         ]);
-
     }
 
     /**

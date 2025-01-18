@@ -124,10 +124,20 @@ defineProps({
                                 <li class="flex items-center space-x-3">
                                     <Avatar>
                                         <AvatarImage
-                                            :src="`https://api.dicebear.com/6.x/initials/svg?seed=${group.leader.first_name}+${group.leader.last_name}&fontSize=32`"
+                                            :src="
+                                                group.leader.profile
+                                                    .profile_image
+                                            "
+                                            alt="Leader Avatar"
                                         />
                                         <AvatarFallback>
-                                            <User class="w-4 h-4" />
+                                            {{
+                                                group.leader.first_name.charAt(
+                                                    0
+                                                )
+                                            }}{{
+                                                group.leader.last_name.charAt(0)
+                                            }}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div class="w-full">
@@ -155,10 +165,11 @@ defineProps({
                                 >
                                     <Avatar>
                                         <AvatarImage
-                                            :src="`https://api.dicebear.com/6.x/initials/svg?seed=${member.first_name}+${member.last_name}&fontSize=32`"
+                                            :src="member.profile?.profile_image"
                                         />
                                         <AvatarFallback>
-                                            <User class="w-4 h-4" />
+                                            {{ member.first_name.charAt(0)
+                                            }}{{ member.last_name.charAt(0) }}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div class="w-full">

@@ -26,6 +26,7 @@ import {
 } from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
 import { MoreHorizontal } from "lucide-vue-next";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 import EditEmployeeForm from "./EditEmployeeForm.vue";
 
 defineProps({
@@ -67,17 +68,16 @@ defineProps({
                 <TableBody>
                     <TableRow v-for="employee in employees" :key="employee.id">
                         <TableCell class="hidden sm:table-cell">
-                            <img
-                                alt="Employee image"
-                                class="aspect-square rounded-md object-cover"
-                                height="64"
-                                :src="
-                                    employee.profile && employee.profile.profile_image
-                                    ? employee.profile.profile_image
-                                    : `https://api.dicebear.com/6.x/initials/svg?seed=${employee.first_name}+${employee.last_name}&fontSize=32`
-                                "
-                                width="64"
-                            />
+                            <Avatar class="w-16 h-16 rounded-sm">
+                                <AvatarImage
+                                    :src="employee.profile?.profile_image"
+                                    alt="@radix-vue"
+                                />
+                                <AvatarFallback>
+                                    {{ employee.first_name.charAt(0) }}
+                                    {{ employee.last_name.charAt(0) }}
+                                </AvatarFallback>
+                            </Avatar>
                         </TableCell>
                         <TableCell class="font-medium">
                             {{ employee.first_name }}

@@ -11,11 +11,12 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InterestController;
 use App\Http\Controllers\AvailabilityController;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\AdminEventController;
 use App\Http\Controllers\Admin\AdminGroupController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\AdminEmployeeController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 
 
 Route::get('/', function () {
@@ -104,22 +105,26 @@ Route::middleware(['auth', 'verified', 'employee'])->group(function () {
 
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->group(function () {
-    Route::get('/admin', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('admin.dashboard');
+    Route::get(
+        '/admin',
+        [
+            AdminDashboardController::class,
+            'index'
+        ]
+    )->name('admin.dashboard');
 
     Route::get('/admin/employees', [
-        EmployeeController::class,
+        AdminEmployeeController::class,
         'index'
     ])->name('admin.employees.index');
 
     Route::post('/admin/employees/create', [
-        EmployeeController::class,
+        AdminEmployeeController::class,
         'store'
     ])->name('admin.employees.create');
 
     Route::patch('/admin/employees/update/{id}', [
-        EmployeeController::class,
+        AdminEmployeeController::class,
         'update'
     ])->name('admin.employees.update');
 

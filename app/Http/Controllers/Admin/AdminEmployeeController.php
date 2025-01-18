@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Redirect;
 
-class EmployeeController extends Controller
+class AdminEmployeeController extends Controller
 {
     public function index(Request $request)
     {

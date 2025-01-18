@@ -138,18 +138,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 const reportTypes = [
-    {
-        value: "event-participation",
-        label: "Event Participation",
-        chart: "bar",
-    },
     { value: "popular-sports", label: "Popular Sports", chart: "pie" },
-    {
-        value: "registration-trends",
-        label: "Registration Trends",
-        chart: "line",
-    },
-    { value: "top-performers", label: "Top Performers", chart: "bar" },
     {
         value: "active-groups",
         label: "Active Groups",

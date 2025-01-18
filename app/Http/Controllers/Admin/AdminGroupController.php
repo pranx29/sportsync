@@ -13,17 +13,15 @@ class AdminGroupController extends Controller
 {
     public function index(Request $request)
     {
-
         $sportWithoutGroups = Sport::whereDoesntHave('group')->get();
 
+        $groupsQuery = Group::with(['sport', 'users.profile'])->withCount('users');
 
-        // Get all groups that are is_active is false
         if ($request->has('active')) {
-            $groups = Group::where('is_active', $request->active)->withCount('users')->get();
-        } else {
-            // Get all groups
-            $groups = Group::withCount('users')->get();
+            $groupsQuery->where('is_active', $request->active);
         }
+
+        $groups = $groupsQuery->get();
 
         // For each group, add the leader object
         $groups->each(function ($group) {
@@ -33,11 +31,10 @@ class AdminGroupController extends Controller
         return Inertia::render(
             'Admin/Group/Index',
             [
-                'groups' => $groups->load(['sport', 'users']),
+                'groups' => $groups,
                 'sportWithoutGroups' => $sportWithoutGroups
             ]
         );
-
     }
 
     public function store(Request $request)
