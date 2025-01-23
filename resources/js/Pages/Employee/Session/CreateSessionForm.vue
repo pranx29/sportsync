@@ -175,7 +175,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                     <!-- Field to get duration -->
                     <FormField v-slot="{ componentField }" name="duration">
                         <FormItem>
-                            <FormLabel>Duration</FormLabel>
+                            <FormLabel>Duration (Hr)</FormLabel>
                             <FormControl>
                                 <Input
                                     v-bind="componentField"
@@ -183,7 +183,7 @@ const onSessionSubmit = handleSessionSubmit(async (values) => {
                                     min="1"
                                     max="5"
                                     class="w-28"
-                                    placeholder="1-5"
+                                    placeholder="1-5 hours"
                                 />
                             </FormControl>
                             <FormMessage />

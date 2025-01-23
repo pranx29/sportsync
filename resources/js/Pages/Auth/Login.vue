@@ -26,9 +26,10 @@ import {
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { toast, Toaster, ToastAction } from "@/Components/ui/toast";
-import { h } from "vue";
+import { h, ref } from "vue";
 import Logo from "@/Components/Logo.vue";
 import { useColorMode } from "@vueuse/core";
+import { Eye, EyeOff } from "lucide-vue-next";
 
 const mode = useColorMode();
 mode.value = "light";
@@ -48,6 +49,8 @@ const { handleSubmit: handleLogin, setFieldValue } = useVeeForm({
     },
 });
 
+const showPassword = ref(false);
+
 const onSubmit = handleLogin(async (values) => {
     router.post(route("login"), values, {
         preserveScroll: true,
@@ -59,15 +62,6 @@ const onSubmit = handleLogin(async (values) => {
                 title: "Login Failed",
                 description: "Invalid credentials. Please try again.",
                 variant: "destructive",
-                action: h(
-                    ToastAction,
-                    {
-                        altText: "Try again",
-                    },
-                    {
-                        default: () => "Try again",
-                    }
-                ),
             });
         },
     });
@@ -129,13 +123,35 @@ const onSubmit = handleLogin(async (values) => {
                             <FormItem>
                                 <FormLabel> Password </FormLabel>
                                 <FormControl>
-                                    <Input
-                                        placeholder="Your password"
-                                        class="border-gray-300"
-                                        type="password"
-                                        v-bind="componentField"
-                                        id="txtPassword"
-                                    />
+                                    <div class="relative">
+                                        <Input
+                                            placeholder="Your password"
+                                            class="border-gray-300 pr-10"
+                                            :type="
+                                                showPassword
+                                                    ? 'text'
+                                                    : 'password'
+                                            "
+                                            v-bind="componentField"
+                                            id="txtPassword"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                                            @click="
+                                                showPassword = !showPassword
+                                            "
+                                        >
+                                            <EyeOff
+                                                v-if="showPassword"
+                                                class="h-5 w-5"
+                                            />
+                                            <Eye
+                                                v-else-if="!showPassword"
+                                                class="h-5 w-5"
+                                            />
+                                        </button>
+                                    </div>
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
