@@ -56,8 +56,6 @@ class GroupController extends Controller
                 'group' => $group,
             ]);
     }
-
-
     public function leaveGroup(Request $request)
     {
         $group = Group::find($request->id);

@@ -56,7 +56,7 @@ import SessionList from "../Session/SessionList.vue";
 import ShowSession from "../Session/ShowSession.vue";
 
 const leaveGroup = () => {
-    if (props.group.leader.id === props.auth.user.id) {
+    if (usePage().props.group.leader.id === usePage().props.auth.user.id) {
         toast({
             title: "Action Denied",
             description:
@@ -69,7 +69,7 @@ const leaveGroup = () => {
     router.post(
         route("employee.groups.leave"),
         {
-            id: props.group.id,
+            id: usePage().props.group.id,
         },
         {
             onError: (errors) => {
@@ -154,7 +154,6 @@ const handleJoinedsession = () => {
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
-
                 </div>
             </div>
 

@@ -30,10 +30,9 @@ class AdminEmployeeController extends Controller
 
     public function store(Request $request)
     {
-        //dd($request->all());
         $validatedData = $request->validate([
             'first_name' => 'required',
-            'last_name' => 'required',
+            'last_name' => 'nullable',
             'email' => 'required|email|unique:users,email',
             'password' => 'required',
         ]);
@@ -49,7 +48,6 @@ class AdminEmployeeController extends Controller
     {
 
         $employee = User::findOrFail($request->id);
-        //dd($request->all());
         $validatedData = $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
